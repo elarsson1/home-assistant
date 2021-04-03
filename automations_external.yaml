@@ -1,0 +1,354 @@
+# SSL certificate renewal based upon expiry.
+- id: "1613238259920"
+  alias: Renew_SSL_Certificate
+  description: Trigger Let's Encrypt renew when cert is within 30 days of expiry
+  trigger:
+    - platform: time
+      at: 03:00:05
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.s_cert_exiry_d
+      below: "30"
+  action:
+    - service: hassio.addon_restart
+      data:
+        addon: core_letsencrypt
+    - delay:
+        hours: 0
+        minutes: 5
+        seconds: 0
+        milliseconds: 0
+    - service: hassio.addon_restart
+      data:
+        addon: core_nginx_proxy
+    - delay:
+        hours: 0
+        minutes: 1
+        seconds: 0
+        milliseconds: 0
+    - service: homeassistant.restart
+      data: {}
+  mode: single
+
+# trigger automtic backup.
+- id: AutoBackup
+  alias: Automatic Daily Snapshot
+  description: Run snapshot daily and retain for 14 days
+  trigger:
+    - platform: time
+      at: 02:00:05
+  action:
+    - service: auto_backup.snapshot_full
+      data:
+        name: "DailyBackup: {{ now().strftime('%A, %B %-d, %Y') }}"
+        keep_days: 14
+
+# automations to adjust Guest device tracker, used by Guest person
+# when binary sensor is changed.
+- id: "1616560803743"
+  alias: Guest_DT_Home
+  description: Switch Guest Device Tracker to home when guests are on Wifi
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.wifi_guests
+      to: "on"
+      from: "off"
+  condition: []
+  action:
+    - service: device_tracker.see
+      data:
+        dev_id: guest
+        location_name: home
+  mode: single
+- id: "1616560899377"
+  alias: Guest_DT_Not_Home
+  description: Set Guest device tracker to Not Home when Guest not detected on Wifi
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.wifi_guests
+      from: "on"
+      for: 00:05:00
+      to: "off"
+  condition: []
+  action:
+    - service: device_tracker.see
+      data:
+        dev_id: guest
+        location_name: not_home
+  mode: single
+
+# adjust presence indicator based upon status of Person entities.
+- id: PresenceChanging
+  alias: Presence_Changing
+  description: Trigger when presence is changing
+  trigger:
+    - platform: state
+      entity_id:
+        - person.guest
+        - person.axel_larsson
+      to:
+        - home
+        - not_home
+  condition:
+    - condition: state
+      entity_id: input_boolean.hold_presence
+      state: "off"
+  action:
+    - choose:
+        - alias: If nobody is home, set to Away
+          conditions:
+            - condition: state
+              entity_id:
+                - person.guest
+                - person.axel_larsson
+              state: not_home
+          sequence:
+            - service: input_select.select_option
+              data:
+                entity_id: input_select.presence
+                option: Away
+        - alias: If Guest is home, set to With Guests
+          conditions:
+            - condition: state
+              entity_id: person.guest
+              state: home
+          sequence:
+            - service: input_select.select_option
+              data:
+                entity_id: input_select.presence
+                option: With Guests
+        - alias: If Axel is home set to Home
+          conditions:
+            - condition: state
+              entity_id: person.axel_larsson
+              state: home
+          sequence:
+            - service: input_select.select_option
+              data:
+                entity_id: input_select.presence
+                option: Home
+
+# Hue switch trigger for Away presence
+- id: "1616991377860"
+  alias: Going Out Switch Trigger
+  description: Set presence to Away based upon front-door Hue switch trigger
+  trigger:
+    - device_id: c1a713c7d776a82491b262637fd8aa19
+      domain: hue
+      platform: device
+      type: remote_button_long_release
+      subtype: turn_off
+  condition: []
+  action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.presence
+        option: Away
+  mode: single
+
+# turn off TVs and lights when leaving.
+- id: TurnOffWhenLeaving
+  alias: Turn_Off_When_Leaving
+  description: Turn devices off when leaving
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      to: Away
+      for: 00:00:45
+  action:
+    - service: light.turn_off
+      entity_id: all
+    - service: remote.turn_off
+      entity_id: remote.living_room_2
+    - service: remote.turn_off
+      entity_id: remote.guest_room
+
+# Set HVAC mode to Eco 30 minutes after leaving.
+- id: EcoHVACWhenLeaving
+  alias: Eco_HVAC_When_Leaving
+  description: Set thermostats to Eco 30 minutes after leaving
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      to: Away
+      for: 00:30:00
+  action:
+    - service: script.hvac_save_all_state_eco
+
+# turn lights on when arriving, if its after sunset.
+- id: TurnLight123
+  alias: Turn_Light_On_Arriving
+  description: Turn lights on in the evening
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      from: Away
+      to:
+        - Home
+        - With Guests
+  condition:
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+  action:
+    - service: scene.turn_on
+      target:
+        entity_id: scene.common_area_normal_lighting
+
+# reset HVAC state when arriving.
+- id: TurnHVACOnWhenArriving
+  alias: Turn_HVAC_On_When_Arriving
+  description: Turn HVAC back on when arriving
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      from: Away
+      to:
+        - Home
+        - With Guests
+  action:
+    - service: script.hvac_restore_all_state
+
+# TV watching motion sensor control
+- id: "1617150949677"
+  alias: Living Room TV motion sensor off
+  description: Turn off living room motion sensor when watching TV
+  trigger:
+    - platform: state
+      entity_id: remote.living_room_2
+      from: "off"
+      to: "on"
+  action:
+    - service: switch.turn_off
+      target:
+        entity_id: switch.living_room_motion_sensor
+  mode: single
+
+- id: "1617150949699"
+  alias: Living Room TV motion sensor on
+  description: Turn on living room motion sensor when finished watching TV
+  trigger:
+    - platform: state
+      entity_id: remote.living_room_2
+      from: "on"
+      to: "off"
+  action:
+    - service: switch.turn_on
+      target:
+        entity_id: switch.living_room_motion_sensor
+  mode: single
+
+# night time bedroom motion sensor
+- id: TurnOffMotionMasterBedroom
+  alias: Master Bedroom turn off motion
+  trigger:
+    at: 00:00:00
+    platform: time
+  condition:
+    - condition: state
+      entity_id: input_select.presence
+      state:
+        - Home
+        - With Guests
+  action:
+    - service: switch.turn_off
+      entity_id: switch.master_bedroom_motion_sensor
+
+# night time guest room motion sensor
+- id: TurnOffMotionGuestRoom
+  alias: Guest Room turn off motion
+  trigger:
+    at: 00:00:00
+    platform: time
+  condition:
+    - condition: state
+      entity_id: input_select.presence
+      state:
+        - With Guests
+  action:
+    - service: switch.turn_off
+      entity_id: switch.guest_room_motion_sensor
+
+# smart wake up trigers.
+# master bedroom Alexa alarm trigger.
+- id: SmartWakeUpMasterBedroom
+  alias: Smart Wake Up Master Bedroom
+  trigger:
+    - minutes: /5
+      platform: time_pattern
+  condition:
+    - condition: time
+      after: 02:00:00
+      before: 09:00:00
+    - condition: template
+      value_template: "{{ state_attr('automation.smart_wake_up_master_bedroom', 'last_triggered').day != utcnow().day }}"
+    - condition: template
+      value_template: "{{ states('sensor.bedroom_next_alarm') != 'unavailable' and as_timestamp(states('sensor.bedroom_next_alarm')) - as_timestamp(now()) <= 3600 }}"
+  action:
+    - service: script.wake_up
+      data:
+        thermostat: master_bedroom
+        warmer: master_bath_towel_warmer
+        motion: master_bedroom_motion_sensor
+
+# master bedroom fallback
+- id: SmartWakeUpMasterBedroomFallback
+  alias: Fallback time for Master Bedroom Wake-up sequence
+  trigger:
+    - at: 09:00:00
+      platform: time
+  condition:
+    - condition: state
+      entity_id: input_select.presence
+      state:
+        - Home
+        - With Guests
+    - condition: template
+      value_template: "{{ state_attr('automation.smart_wake_up_master_bedroom', 'last_triggered').day != utcnow().day }}"
+  action:
+    - service: script.wake_up
+      data:
+        thermostat: master_bedroom
+        warmer: master_bath_towel_warmer
+        motion: master_bedroom_motion_sensor
+
+# guest room alexa alarm trigger
+- id: SmartWakeUpGuestRoom
+  alias: Smart Wake Up Guest Room
+  trigger:
+    - minutes: /5
+      platform: time_pattern
+  condition:
+    - condition: time
+      after: 02:00:00
+      before: 09:00:00
+    - condition: template
+      value_template: "{{ state_attr('automation.smart_wake_up_guest_room','last_triggered').day != utcnow().day }}"
+    - condition: template
+      value_template: "{{ states('sensor.guest_room_next_alarm') != 'unavailable' and as_timestamp(states('sensor.guest_room_next_alarm')) - as_timestamp(now()) <= 3600 }}"
+  action:
+    - service: script.wake_up
+      data:
+        thermostat: guest_room
+        warmer: guest_bath_towel_warmer
+        motion: guest_room_motion_sensor
+
+# guest room fallback
+- id: SmartWakeUpGuestRoomFallback
+  alias: Fallback time for Guest Room Wake-up sequence
+  trigger:
+    - at: 09:00:00
+      platform: time
+  condition:
+    - condition: state
+      entity_id: input_select.presence
+      state:
+        - With Guests
+    - condition: template
+      value_template: "{{ state_attr('automation.smart_wake_up_guest_room','last_triggered').day != utcnow().day }}"
+  action:
+    - service: script.wake_up
+      data:
+        thermostat: guest_room
+        warmer: guest_bath_towel_warmer
+        motion: guest_room_motion_sensor

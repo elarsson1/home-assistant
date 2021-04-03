@@ -1,0 +1,7 @@
+# Sensor is On if the Guest network has any devices.
+- platform: template
+  sensors:
+    wifi_guests:
+      friendly_name: "Wifi Guest"
+      value_template: >-
+        {{ state_attr('sensor.wifi', 'AkitaNetworks-Guest')|int > 0 }}

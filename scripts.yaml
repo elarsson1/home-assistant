@@ -1,0 +1,292 @@
+# alexa going out script
+alexa_going_out:
+  alias: "Going Out"
+  sequence:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.presence
+        option: "Away"
+
+# script to save the state of one thermostat and set it to Eco mode.
+hvac_save_state_eco:
+  alias: HVAC Save State
+  description: "Save Thermostat state and set to Eco mode"
+  mode: parallel
+  fields:
+    thermostat:
+      description: "Thermostat entity to set"
+      example: "guest_room"
+  sequence:
+    # save current status
+    - service: input_text.set_value
+      data_template:
+        entity_id: "input_text.hvac_prev_state_{{ thermostat }}"
+        value: "{{ states('climate.' + thermostat) }}"
+    # stop if thermostat is already off or in eco
+    - condition: template
+      value_template: "{{ states('climate.' + thermostat) != 'off' }}"
+    - condition: template
+      value_template: "{{ state_attr('climate.' + thermostat, 'preset_mode') != 'eco' }}"
+    # set thermostat to eco.
+    - service: climate.set_preset_mode
+      data_template:
+        entity_id: "climate.{{ thermostat }}"
+        preset_mode: "eco"
+
+# script to restore state of one thermostat
+hvac_restore_state:
+  alias: HVAC Restore State
+  description: "Restore thermostat state, returning from Eco mode"
+  mode: parallel
+  fields:
+    thermostat:
+      description: "Thermostat entity to restore"
+      example: "guest_room"
+  sequence:
+    # stop if the thermostat is off
+    - condition: template
+      value_template: "{{ states('climate.' + thermostat) != 'off' }}"
+    # stop if thermostat is not in eco.
+    - condition: template
+      value_template: "{{ state_attr('climate.' + thermostat, 'preset_mode') == 'eco' }}"
+    # turn off eco and restore prior state
+    - service: climate.set_hvac_mode
+      data_template:
+        entity_id: "climate.{{ thermostat }}"
+        hvac_mode: "{{ states('input_text.hvac_prev_state_' + thermostat) }}"
+
+# script to set all thermostats to eco
+hvac_save_all_state_eco:
+  alias: HVAC Save All State
+  description: "Save all thermostat state"
+  sequence:
+    - service: script.hvac_save_state_eco
+      data:
+        thermostat: living_room
+    - service: script.hvac_save_state_eco
+      data:
+        thermostat: loft
+    - service: script.hvac_save_state_eco
+      data:
+        thermostat: master_bedroom
+    - service: script.hvac_save_state_eco
+      data:
+        thermostat: guest_room
+
+# script to restore all thermostats
+hvac_restore_all_state:
+  alias: HVAC Restore State
+  description: "Restore all thermostats to normal mode from eco"
+  sequence:
+    - service: script.hvac_restore_state
+      data:
+        thermostat: living_room
+    - service: script.hvac_restore_state
+      data:
+        thermostat: loft
+    - service: script.hvac_restore_state
+      data:
+        thermostat: master_bedroom
+    - service: script.hvac_restore_state
+      data:
+        thermostat: guest_room
+
+# wake up script
+wake_up:
+  alias: Wake Up
+  description: Pre-Alarm Wake Up Routine
+  mode: parallel
+  fields:
+    thermostat:
+      description: "Thermostat for Bedroom"
+      example: "guest_room"
+    warmer:
+      description: "Towel warmer for Bedroom"
+      example: "guest_bath_towel_warmer"
+    motion:
+      description: "Motion sensor for bedroom"
+      example: "guest_room_motion_sensor"
+  sequence:
+    # activate towel warmer
+    - service: switch.turn_on
+      data_template:
+        entity_id: "switch.{{ warmer }}"
+    # set bedroom thermostat based upon whether its on cool or heat
+    - choose:
+        - alias: "On Cooling Mode"
+          conditions:
+            - condition: template
+              value_template: "{{ states('climate.' + thermostat) == 'cool' }}"
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: "climate.{{ thermostat }}"
+                temperature: "{{ states('input_number.bedroom_cooling_wake_up_temp') }}"
+        - alias: "On Heating Mode"
+          conditions:
+            - condition: template
+              value_template: "{{ states('climate.' + thermostat) == 'heat' }}"
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: "climate.{{ thermostat }}"
+                temperature: "{{ states('input_number.bedroom_heating_wake_up_temp') }}"
+    # set common area thermostats based upon whether its cool or heat
+    - choose:
+        - alias: "On Cooling Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.living_room
+              state: cool
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.living_room
+                temperature: "{{ states('input_number.common_area_cooling_day_temp') }}"
+        - alias: "On Heating Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.living_room
+              state: heat
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.living_room
+                temperature: "{{ states('input_number.common_area_heating_day_temp') }}"
+    - choose:
+        - alias: "On Cooling Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.loft
+              state: cool
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.loft
+                temperature: "{{ states('input_number.loft_cooling_day_temp') }}" # special loft temp
+        - alias: "On Heating Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.loft
+              state: heat
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.loft
+                temperature: "{{ states('input_number.common_area_heating_day_temp') }}"
+    # wait one hour
+    - delay: "01:00:00"
+    # turn back on motion sensor at alarm time
+    - service: switch.turn_on
+      data_template:
+        entity_id: "switch.{{ motion }}"
+    # wait another hour after alarm to complete end actions.
+    - delay: "01:00:00"
+    # switch off towel warmer
+    - service: switch.turn_off
+      data_template:
+        entity_id: "switch.{{ warmer }}"
+    # set bedroom thermostat to daytime setback setting
+    - choose:
+        - alias: "On Cooling Mode"
+          conditions:
+            - condition: template
+              value_template: "{{ states('climate.' + thermostat) == 'cool' }}"
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: "climate.{{ thermostat }}"
+                temperature: "{{ states('input_number.bedroom_cooling_day_temp') }}"
+        - alias: "On Heating Mode"
+          conditions:
+            - condition: template
+              value_template: "{{ states('climate.' + thermostat) == 'heat' }}"
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: "climate.{{ thermostat }}"
+                temperature: "{{ states('input_number.bedroom_heating_day_temp') }}"
+
+# Good Night Script
+good_night:
+  alias: Good Night
+  description: Turn everything off for bed
+  sequence:
+    # turm off lights
+    - service: light.turn_off
+      entity_id: all
+    # turn off towel warmer
+    - service: switch.turn_off
+      entity_id: switch.master_bath_towel_warmer
+    # turn off TV
+    - service: remote.turn_off
+      entity_id: remote.living_room_2
+    # turn off motion sensor
+    - service: switch.turn_off
+      entity_id: switch.master_bedroom_motion_sensor
+    # set bedroom thermostat based on whether it is cooling or heating
+    - choose:
+        - alias: "On Cooling Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.master_bedroom
+              state: cool
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.master_bedroom
+                temperature: "{{ states('input_number.bedroom_cooling_night_temp') }}"
+        - alias: "On Heating Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.master_bedroom
+              state: heat
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.master_bedroom
+                temperature: "{{ states('input_number.bedroom_heating_night_temp') }}"
+    # set living room thermostat
+    - choose:
+        - alias: "On Cooling Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.living_room
+              state: cool
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.living_room
+                temperature: "{{ states('input_number.common_area_cooling_night_temp') }}"
+        - alias: "On Heating Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.living_room
+              state: heat
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.living_room
+                temperature: "{{ states('input_number.common_area_heating_night_temp') }}"
+    # set loft thermostat
+    - choose:
+        - alias: "On Cooling Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.loft
+              state: cool
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.loft
+                temperature: "{{ states('input_number.common_area_cooling_night_temp') }}"
+        - alias: "On Heating Mode"
+          conditions:
+            - condition: state
+              entity_id: climate.loft
+              state: heat
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: climate.loft
+                temperature: "{{ states('input_number.common_area_heating_night_temp') }}"

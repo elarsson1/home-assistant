@@ -1,0 +1,51 @@
+# RPi4 Fan
+- platform: rpi_gpio
+  ports:
+    14: RPI Cooling Fan
+
+# Rest API for Hue Motion Sensor
+- platform: rest
+  resource: !secret hue_living_room_motion
+  name: 'Living Room Motion Sensor'
+  method: put
+  body_on: '{"config": {"on":true}}'
+  body_off: '{"config": {"on":false}}'
+  is_on_template: '{{ value_json.config.on == true }}'
+  headers:
+    Content-Type: application/json
+- platform: rest
+  resource: !secret hue_office_loft_motion
+  name: 'Office Loft Motion Sensor'
+  method: put
+  body_on: '{"config": {"on":true}}'
+  body_off: '{"config": {"on":false}}'
+  is_on_template: '{{ value_json.config.on == true }}'
+  headers:
+    Content-Type: application/json
+- platform: rest
+  resource: !secret hue_entry_way_motion
+  name: 'Entry Way Motion Sensor'
+  method: put
+  body_on: '{"config": {"on":true}}'
+  body_off: '{"config": {"on":false}}'
+  is_on_template: '{{ value_json.config.on == true }}'
+  headers:
+    Content-Type: application/json
+- platform: rest
+  resource: !secret hue_master_bedroom_motion
+  name: 'Master Bedroom Motion Sensor'
+  method: put
+  body_on: '{"config": {"on":true}}'
+  body_off: '{"config": {"on":false}}'
+  is_on_template: '{{ value_json.config.on == true }}'
+  headers:
+    Content-Type: application/json
+- platform: rest
+  resource: !secret hue_guest_room_motion
+  name: 'Guest Room Motion Sensor'
+  method: put
+  body_on: '{"config": {"on":true}}'
+  body_off: '{"config": {"on":false}}'
+  is_on_template: '{{ value_json.config.on == true }}'
+  headers:
+    Content-Type: application/json

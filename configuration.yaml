@@ -1,0 +1,71 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# increase database commit interval to reduce wear on Pi SD card
+recorder:
+  commit_interval: 30
+
+http:
+  # For extra security set this to only accept connections on localhost if NGINX is on the same machine
+  # Uncommenting this will mean that you can only reach Home Assistant using the proxy, not directly via IP from other clients.
+  # server_host: 127.0.0.1
+  use_x_forwarded_for: true
+  # You must set the trusted proxy IP address so that Home Assistant will properly accept connections
+  # Set this to your NGINX machine IP, or localhost if hosted on the same machine.
+  trusted_proxies:
+    - 10.70.2.5
+    - "2001:470:8c26:2::a:5"
+    - "172.16.0.0/12"
+
+# Jersey City Cam
+camera:
+  - platform: mjpeg
+    name: "Jersey City Cam"
+    mjpeg_url: http://10.70.8.5/nphMotionJpeg?Resolution=640x480&Quality=Standard
+
+# nest SDM
+nest:
+  client_id: !secret nest_client_id
+  client_secret: !secret nest_client_secret
+  project_id: !secret nest_project_id
+  subscriber_id: !secret nest_subscriber_id
+
+# sesame lock
+lock:
+  - platform: sesame
+    api_key: !secret sesame_api_key
+
+# rPi temp control
+climate:
+  - platform: generic_thermostat
+    name: RPI Cooling Fan Controller
+    heater: switch.rpi_cooling_fan
+    target_sensor: sensor.cpu_temperature
+    min_temp: 100
+    max_temp: 180
+    ac_mode: true
+    target_temp: 150
+    cold_tolerance: 0.1
+    hot_tolerance: 0.1
+    min_cycle_duration:
+      seconds: 30
+    keep_alive:
+      minutes: 5
+    initial_hvac_mode: "cool"
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+# includes
+automation: !include automations.yaml # automations maintained in HAAS UI
+automation external: !include automations_external.yaml # file for entities created outside of UI
+
+script: !include scripts.yaml
+
+group: !include groups.yaml
+scene: !include scenes.yaml
+zone: !include zones.yaml
+sensor: !include sensors.yaml
+binary_sensor: !include binary_sensors.yaml
+switch: !include switches.yaml

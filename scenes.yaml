@@ -1,0 +1,1353 @@
+- id: '1616639560776'
+  name: Common Area Normal Lighting
+  entities:
+    light.living_room:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 38.667
+      - 52.941
+      rgb_color:
+      - 255
+      - 207
+      - 120
+      xy_color:
+      - 0.457
+      - 0.41
+      is_hue_group: true
+      friendly_name: Living Room
+      supported_features: 63
+      state: 'on'
+    light.office_loft:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 38.667
+      - 52.941
+      rgb_color:
+      - 255
+      - 207
+      - 120
+      xy_color:
+      - 0.457
+      - 0.41
+      is_hue_group: true
+      friendly_name: Office Loft
+      supported_features: 63
+      state: 'on'
+    light.entry_way:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 255
+      hs_color:
+      - 38.667
+      - 52.941
+      rgb_color:
+      - 255
+      - 207
+      - 120
+      xy_color:
+      - 0.457
+      - 0.41
+      is_hue_group: true
+      friendly_name: Entry Way
+      supported_features: 63
+      state: 'on'
+- id: CALO
+  name: Common Area Lights Off
+  entities:
+    light.living_room:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      is_hue_group: true
+      friendly_name: Living Room
+      supported_features: 63
+      state: 'off'
+    light.office_loft:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      is_hue_group: true
+      friendly_name: Office Loft
+      supported_features: 63
+      state: 'off'
+    light.entry_way:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      is_hue_group: true
+      friendly_name: Entry Way
+      supported_features: 63
+      state: 'off'
+- id: CALD
+  name: Common Area Lights Dim
+  entities:
+    light.living_room:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 76
+      hs_color:
+      - 38.667
+      - 52.941
+      rgb_color:
+      - 255
+      - 207
+      - 120
+      xy_color:
+      - 0.457
+      - 0.41
+      is_hue_group: true
+      friendly_name: Living Room
+      supported_features: 63
+      state: 'on'
+    light.office_loft:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 76
+      hs_color:
+      - 38.667
+      - 52.941
+      rgb_color:
+      - 255
+      - 207
+      - 120
+      xy_color:
+      - 0.457
+      - 0.41
+      is_hue_group: true
+      friendly_name: Office Loft
+      supported_features: 63
+      state: 'on'
+    light.entry_way:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 76
+      hs_color:
+      - 38.667
+      - 52.941
+      rgb_color:
+      - 255
+      - 207
+      - 120
+      xy_color:
+      - 0.457
+      - 0.41
+      is_hue_group: true
+      friendly_name: Entry Way
+      supported_features: 63
+      state: 'on'
+- id: '1616784088787'
+  name: Common Area Tropical Twilight
+  entities:
+    light.living_room_front:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 122
+      hs_color:
+      - 320.377
+      - 20.784
+      rgb_color:
+      - 255
+      - 202
+      - 237
+      xy_color:
+      - 0.359
+      - 0.289
+      effect: none
+      friendly_name: Living Room Front
+      supported_features: 63
+      state: 'on'
+    light.living_room_back:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 122
+      hs_color:
+      - 27.857
+      - 87.843
+      rgb_color:
+      - 255
+      - 134
+      - 31
+      xy_color:
+      - 0.597
+      - 0.377
+      effect: none
+      friendly_name: Living Room Back
+      supported_features: 63
+      state: 'on'
+    light.living_room_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 122
+      hs_color:
+      - 320.377
+      - 20.784
+      rgb_color:
+      - 255
+      - 202
+      - 237
+      xy_color:
+      - 0.359
+      - 0.289
+      effect: none
+      friendly_name: Living room end table
+      supported_features: 63
+      state: 'on'
+    light.dining_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 122
+      hs_color:
+      - 263.721
+      - 33.725
+      rgb_color:
+      - 203
+      - 169
+      - 255
+      xy_color:
+      - 0.293
+      - 0.228
+      effect: none
+      friendly_name: Dining Table
+      supported_features: 63
+      state: 'on'
+    light.reading_light:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 122
+      hs_color:
+      - 27.857
+      - 87.843
+      rgb_color:
+      - 255
+      - 134
+      - 31
+      xy_color:
+      - 0.597
+      - 0.377
+      effect: none
+      friendly_name: Reading Light
+      supported_features: 63
+      state: 'on'
+    light.loft_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 123
+      hs_color:
+      - 27.458
+      - 69.412
+      rgb_color:
+      - 255
+      - 159
+      - 77
+      xy_color:
+      - 0.542
+      - 0.385
+      effect: none
+      friendly_name: Loft 1
+      supported_features: 63
+      state: 'on'
+    light.loft_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 123
+      hs_color:
+      - 27.458
+      - 69.412
+      rgb_color:
+      - 255
+      - 159
+      - 77
+      xy_color:
+      - 0.542
+      - 0.385
+      effect: none
+      friendly_name: Loft 2
+      supported_features: 63
+      state: 'on'
+    light.loft_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 123
+      hs_color:
+      - 263.448
+      - 34.118
+      rgb_color:
+      - 201
+      - 167
+      - 255
+      xy_color:
+      - 0.291
+      - 0.225
+      effect: none
+      friendly_name: Loft 3
+      supported_features: 63
+      state: 'on'
+    light.loft_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 123
+      hs_color:
+      - 321.111
+      - 21.176
+      rgb_color:
+      - 255
+      - 201
+      - 236
+      xy_color:
+      - 0.36
+      - 0.289
+      effect: none
+      friendly_name: Loft 4
+      supported_features: 63
+      state: 'on'
+    light.loft_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 123
+      hs_color:
+      - 27.458
+      - 69.412
+      rgb_color:
+      - 255
+      - 159
+      - 77
+      xy_color:
+      - 0.542
+      - 0.385
+      effect: none
+      friendly_name: Loft 5
+      supported_features: 63
+      state: 'on'
+    light.entry_hall:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 123
+      hs_color:
+      - 320.377
+      - 20.784
+      rgb_color:
+      - 255
+      - 202
+      - 237
+      xy_color:
+      - 0.359
+      - 0.289
+      effect: none
+      friendly_name: Entry Hall
+      supported_features: 63
+      state: 'on'
+    light.entry_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 123
+      hs_color:
+      - 27.589
+      - 87.843
+      rgb_color:
+      - 255
+      - 133
+      - 31
+      xy_color:
+      - 0.598
+      - 0.376
+      effect: none
+      friendly_name: Entry 1
+      supported_features: 63
+      state: 'on'
+    light.entry_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 123
+      hs_color:
+      - 263.864
+      - 34.51
+      rgb_color:
+      - 202
+      - 166
+      - 255
+      xy_color:
+      - 0.292
+      - 0.224
+      effect: none
+      friendly_name: Entry 2
+      supported_features: 63
+      state: 'on'
+    light.entry_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 123
+      hs_color:
+      - 27.589
+      - 87.843
+      rgb_color:
+      - 255
+      - 133
+      - 31
+      xy_color:
+      - 0.598
+      - 0.376
+      effect: none
+      friendly_name: Entry 3
+      supported_features: 63
+      state: 'on'
+- id: CA2
+  name: Common Area Savanna Sunset
+  entities:
+    light.living_room_front:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 18.61
+      - 73.333
+      rgb_color:
+      - 255
+      - 126
+      - 68
+      xy_color:
+      - 0.586
+      - 0.354
+      effect: none
+      friendly_name: Living Room Front
+      supported_features: 63
+      state: 'on'
+    light.living_room_back:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 14.717
+      - 83.137
+      rgb_color:
+      - 255
+      - 95
+      - 43
+      xy_color:
+      - 0.635
+      - 0.335
+      effect: none
+      friendly_name: Living Room Back
+      supported_features: 63
+      state: 'on'
+    light.living_room_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 47.5
+      - 65.882
+      rgb_color:
+      - 255
+      - 220
+      - 87
+      xy_color:
+      - 0.464
+      - 0.45
+      effect: none
+      friendly_name: Living room end table
+      supported_features: 63
+      state: 'on'
+    light.dining_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 18.61
+      - 73.333
+      rgb_color:
+      - 255
+      - 126
+      - 68
+      xy_color:
+      - 0.586
+      - 0.354
+      effect: none
+      friendly_name: Dining Table
+      supported_features: 63
+      state: 'on'
+    light.reading_light:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 14.717
+      - 83.137
+      rgb_color:
+      - 255
+      - 95
+      - 43
+      xy_color:
+      - 0.635
+      - 0.335
+      effect: none
+      friendly_name: Reading Light
+      supported_features: 63
+      state: 'on'
+    light.loft_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 27.719
+      - 67.059
+      rgb_color:
+      - 255
+      - 162
+      - 83
+      xy_color:
+      - 0.534
+      - 0.385
+      effect: none
+      friendly_name: Loft 1
+      supported_features: 63
+      state: 'on'
+    light.loft_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 18.61
+      - 73.333
+      rgb_color:
+      - 255
+      - 126
+      - 68
+      xy_color:
+      - 0.586
+      - 0.354
+      effect: none
+      friendly_name: Loft 2
+      supported_features: 63
+      state: 'on'
+    light.loft_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 27.719
+      - 67.059
+      rgb_color:
+      - 255
+      - 162
+      - 83
+      xy_color:
+      - 0.534
+      - 0.385
+      effect: none
+      friendly_name: Loft 3
+      supported_features: 63
+      state: 'on'
+    light.loft_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 27.719
+      - 67.059
+      rgb_color:
+      - 255
+      - 162
+      - 83
+      xy_color:
+      - 0.534
+      - 0.385
+      effect: none
+      friendly_name: Loft 4
+      supported_features: 63
+      state: 'on'
+    light.loft_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 199
+      hs_color:
+      - 18.61
+      - 73.333
+      rgb_color:
+      - 255
+      - 126
+      - 68
+      xy_color:
+      - 0.586
+      - 0.354
+      effect: none
+      friendly_name: Loft 5
+      supported_features: 63
+      state: 'on'
+    light.entry_hall:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 200
+      hs_color:
+      - 18.71
+      - 72.941
+      rgb_color:
+      - 255
+      - 127
+      - 69
+      xy_color:
+      - 0.584
+      - 0.354
+      effect: none
+      friendly_name: Entry Hall
+      supported_features: 63
+      state: 'on'
+    light.entry_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 200
+      hs_color:
+      - 50.833
+      - 28.235
+      rgb_color:
+      - 255
+      - 243
+      - 183
+      xy_color:
+      - 0.38
+      - 0.391
+      effect: none
+      friendly_name: Entry 1
+      supported_features: 63
+      state: 'on'
+    light.entry_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 200
+      hs_color:
+      - 18.71
+      - 72.941
+      rgb_color:
+      - 255
+      - 127
+      - 69
+      xy_color:
+      - 0.584
+      - 0.354
+      effect: none
+      friendly_name: Entry 2
+      supported_features: 63
+      state: 'on'
+    light.entry_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 200
+      hs_color:
+      - 18.71
+      - 72.941
+      rgb_color:
+      - 255
+      - 127
+      - 69
+      xy_color:
+      - 0.584
+      - 0.354
+      effect: none
+      friendly_name: Entry 3
+      supported_features: 63
+      state: 'on'
+- id: CA3
+  name: Common Area Arctic Aurora
+  entities:
+    light.living_room_front:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 137
+      hs_color:
+      - 208
+      - 5.882
+      rgb_color:
+      - 240
+      - 248
+      - 255
+      xy_color:
+      - 0.31
+      - 0.322
+      effect: none
+      friendly_name: Living Room Front
+      supported_features: 63
+      state: 'on'
+    light.living_room_back:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 137
+      hs_color:
+      - 235.5
+      - 15.686
+      rgb_color:
+      - 215
+      - 218
+      - 255
+      xy_color:
+      - 0.292
+      - 0.287
+      effect: none
+      friendly_name: Living Room Back
+      supported_features: 63
+      state: 'on'
+    light.living_room_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 137
+      hs_color:
+      - 260
+      - 100
+      rgb_color:
+      - 84
+      - 0
+      - 255
+      xy_color:
+      - 0.173
+      - 0.057
+      effect: none
+      friendly_name: Living room end table
+      supported_features: 63
+      state: 'on'
+    light.dining_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 137
+      hs_color:
+      - 168
+      - 50.98
+      rgb_color:
+      - 125
+      - 255
+      - 229
+      xy_color:
+      - 0.206
+      - 0.377
+      effect: none
+      friendly_name: Dining Table
+      supported_features: 63
+      state: 'on'
+    light.reading_light:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 137
+      hs_color:
+      - 247.119
+      - 46.275
+      rgb_color:
+      - 150
+      - 136
+      - 255
+      xy_color:
+      - 0.236
+      - 0.175
+      effect: none
+      friendly_name: Reading Light
+      supported_features: 63
+      state: 'on'
+    light.loft_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 138
+      hs_color:
+      - 204
+      - 76.471
+      rgb_color:
+      - 59
+      - 176
+      - 255
+      xy_color:
+      - 0.159
+      - 0.215
+      effect: none
+      friendly_name: Loft 1
+      supported_features: 63
+      state: 'on'
+    light.loft_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 138
+      hs_color:
+      - 176.914
+      - 68.627
+      rgb_color:
+      - 80
+      - 255
+      - 245
+      xy_color:
+      - 0.172
+      - 0.356
+      effect: none
+      friendly_name: Loft 2
+      supported_features: 63
+      state: 'on'
+    light.loft_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 138
+      hs_color:
+      - 168
+      - 50.98
+      rgb_color:
+      - 125
+      - 255
+      - 229
+      xy_color:
+      - 0.206
+      - 0.377
+      effect: none
+      friendly_name: Loft 3
+      supported_features: 63
+      state: 'on'
+    light.loft_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 138
+      hs_color:
+      - 207.719
+      - 67.059
+      rgb_color:
+      - 83
+      - 176
+      - 255
+      xy_color:
+      - 0.172
+      - 0.218
+      effect: none
+      friendly_name: Loft 4
+      supported_features: 63
+      state: 'on'
+    light.loft_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 138
+      hs_color:
+      - 168
+      - 50.98
+      rgb_color:
+      - 125
+      - 255
+      - 229
+      xy_color:
+      - 0.206
+      - 0.377
+      effect: none
+      friendly_name: Loft 5
+      supported_features: 63
+      state: 'on'
+    light.entry_hall:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 138
+      hs_color:
+      - 246.667
+      - 45.882
+      rgb_color:
+      - 151
+      - 138
+      - 255
+      xy_color:
+      - 0.237
+      - 0.178
+      effect: none
+      friendly_name: Entry Hall
+      supported_features: 63
+      state: 'on'
+    light.entry_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 138
+      hs_color:
+      - 246.667
+      - 45.882
+      rgb_color:
+      - 151
+      - 138
+      - 255
+      xy_color:
+      - 0.237
+      - 0.178
+      effect: none
+      friendly_name: Entry 1
+      supported_features: 63
+      state: 'on'
+    light.entry_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 138
+      hs_color:
+      - 235.61
+      - 16.078
+      rgb_color:
+      - 214
+      - 217
+      - 255
+      xy_color:
+      - 0.292
+      - 0.286
+      effect: none
+      friendly_name: Entry 2
+      supported_features: 63
+      state: 'on'
+    light.entry_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 138
+      hs_color:
+      - 246.667
+      - 45.882
+      rgb_color:
+      - 151
+      - 138
+      - 255
+      xy_color:
+      - 0.237
+      - 0.178
+      effect: none
+      friendly_name: Entry 3
+      supported_features: 63
+      state: 'on'
+- id: CA4
+  name: Common Area Spring Blossom
+  entities:
+    light.living_room_front:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 339.167
+      - 28.235
+      rgb_color:
+      - 255
+      - 183
+      - 208
+      xy_color:
+      - 0.395
+      - 0.296
+      effect: none
+      friendly_name: Living Room Front
+      supported_features: 63
+      state: 'on'
+    light.living_room_back:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 339.718
+      - 27.843
+      rgb_color:
+      - 255
+      - 184
+      - 208
+      xy_color:
+      - 0.394
+      - 0.298
+      effect: none
+      friendly_name: Living Room Back
+      supported_features: 63
+      state: 'on'
+    light.living_room_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 38.961
+      - 30.196
+      rgb_color:
+      - 255
+      - 228
+      - 178
+      xy_color:
+      - 0.394
+      - 0.379
+      effect: none
+      friendly_name: Living room end table
+      supported_features: 63
+      state: 'on'
+    light.dining_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 331.304
+      - 9.02
+      rgb_color:
+      - 255
+      - 231
+      - 242
+      xy_color:
+      - 0.342
+      - 0.316
+      effect: none
+      friendly_name: Dining Table
+      supported_features: 63
+      state: 'on'
+    light.reading_light:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 339.167
+      - 28.235
+      rgb_color:
+      - 255
+      - 183
+      - 208
+      xy_color:
+      - 0.395
+      - 0.296
+      effect: none
+      friendly_name: Reading Light
+      supported_features: 63
+      state: 'on'
+    light.loft_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 339.167
+      - 28.235
+      rgb_color:
+      - 255
+      - 183
+      - 208
+      xy_color:
+      - 0.395
+      - 0.296
+      effect: none
+      friendly_name: Loft 1
+      supported_features: 63
+      state: 'on'
+    light.loft_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 331.304
+      - 9.02
+      rgb_color:
+      - 255
+      - 231
+      - 242
+      xy_color:
+      - 0.342
+      - 0.316
+      effect: none
+      friendly_name: Loft 2
+      supported_features: 63
+      state: 'on'
+    light.loft_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 331.304
+      - 9.02
+      rgb_color:
+      - 255
+      - 231
+      - 242
+      xy_color:
+      - 0.342
+      - 0.316
+      effect: none
+      friendly_name: Loft 3
+      supported_features: 63
+      state: 'on'
+    light.loft_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 339.167
+      - 28.235
+      rgb_color:
+      - 255
+      - 183
+      - 208
+      xy_color:
+      - 0.395
+      - 0.296
+      effect: none
+      friendly_name: Loft 4
+      supported_features: 63
+      state: 'on'
+    light.loft_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 214
+      hs_color:
+      - 339.167
+      - 28.235
+      rgb_color:
+      - 255
+      - 183
+      - 208
+      xy_color:
+      - 0.395
+      - 0.296
+      effect: none
+      friendly_name: Loft 5
+      supported_features: 63
+      state: 'on'
+    light.entry_hall:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 215
+      hs_color:
+      - 339.06
+      - 58.431
+      rgb_color:
+      - 255
+      - 106
+      - 158
+      xy_color:
+      - 0.499
+      - 0.267
+      effect: none
+      friendly_name: Entry Hall
+      supported_features: 63
+      state: 'on'
+    light.entry_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 215
+      hs_color:
+      - 39.2
+      - 29.412
+      rgb_color:
+      - 255
+      - 228
+      - 179
+      xy_color:
+      - 0.393
+      - 0.378
+      effect: none
+      friendly_name: Entry 1
+      supported_features: 63
+      state: 'on'
+    light.entry_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 215
+      hs_color:
+      - 338.333
+      - 28.235
+      rgb_color:
+      - 255
+      - 183
+      - 209
+      xy_color:
+      - 0.394
+      - 0.295
+      effect: none
+      friendly_name: Entry 2
+      supported_features: 63
+      state: 'on'
+    light.entry_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      brightness: 215
+      hs_color:
+      - 338.333
+      - 28.235
+      rgb_color:
+      - 255
+      - 183
+      - 209
+      xy_color:
+      - 0.394
+      - 0.295
+      effect: none
+      friendly_name: Entry 3
+      supported_features: 63
+      state: 'on'

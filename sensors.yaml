@@ -1,0 +1,24 @@
+# custom component to track number of devices on Unifi SSIDs
+- platform: my_unifi
+  name: wifi
+  region: default
+  username: hass_sensor
+  password: !secret unifi_hass_sensor
+  url: https://unifi.axeltech.com:8443
+
+# number of days until home assistant cert expires
+- platform: template
+  sensors:
+    s_cert_exiry_d:
+      friendly_name: "Cert Expiry"
+      value_template: >
+        {{ ((as_timestamp(states('sensor.cert_expiry_timestamp_home_axeltech_com')) - as_timestamp(now()) ) / 86400) | int }}
+      unit_of_measurement: "days"
+
+# Pi CPU temp
+- platform: command_line
+  name: CPU Temperature
+  command: "cat /sys/class/thermal/thermal_zone0/temp"
+  # If errors occur, make sure configuration file is encoded as UTF-8
+  unit_of_measurement: "°C"
+  value_template: "{{ value | multiply(0.001) | round(1) }}"
