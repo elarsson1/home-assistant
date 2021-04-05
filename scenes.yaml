@@ -768,15 +768,15 @@
       - random
       brightness: 137
       hs_color:
-      - 208
+      - 212
       - 5.882
       rgb_color:
       - 240
-      - 248
+      - 247
       - 255
       xy_color:
       - 0.31
-      - 0.322
+      - 0.321
       effect: none
       friendly_name: Living Room Front
       supported_features: 63
@@ -789,15 +789,15 @@
       - random
       brightness: 137
       hs_color:
-      - 235.5
-      - 15.686
+      - 235.61
+      - 16.078
       rgb_color:
-      - 215
-      - 218
+      - 214
+      - 217
       - 255
       xy_color:
       - 0.292
-      - 0.287
+      - 0.286
       effect: none
       friendly_name: Living Room Back
       supported_features: 63
@@ -810,15 +810,15 @@
       - random
       brightness: 137
       hs_color:
-      - 260
+      - 261.647
       - 100
       rgb_color:
-      - 84
+      - 91
       - 0
       - 255
       xy_color:
-      - 0.173
-      - 0.057
+      - 0.179
+      - 0.06
       effect: none
       friendly_name: Living room end table
       supported_features: 63
@@ -852,15 +852,15 @@
       - random
       brightness: 137
       hs_color:
-      - 247.119
-      - 46.275
+      - 247.179
+      - 45.882
       rgb_color:
-      - 150
-      - 136
+      - 151
+      - 138
       - 255
       xy_color:
-      - 0.236
-      - 0.175
+      - 0.237
+      - 0.178
       effect: none
       friendly_name: Reading Light
       supported_features: 63
@@ -873,15 +873,15 @@
       - random
       brightness: 138
       hs_color:
-      - 204
-      - 76.471
+      - 204.375
+      - 75.294
       rgb_color:
-      - 59
-      - 176
+      - 63
+      - 177
       - 255
       xy_color:
-      - 0.159
-      - 0.215
+      - 0.161
+      - 0.217
       effect: none
       friendly_name: Loft 1
       supported_features: 63
@@ -894,14 +894,14 @@
       - random
       brightness: 138
       hs_color:
-      - 176.914
-      - 68.627
+      - 176.552
+      - 68.235
       rgb_color:
-      - 80
+      - 81
       - 255
       - 245
       xy_color:
-      - 0.172
+      - 0.173
       - 0.356
       effect: none
       friendly_name: Loft 2
@@ -936,15 +936,15 @@
       - random
       brightness: 138
       hs_color:
-      - 207.719
-      - 67.059
+      - 207.692
+      - 66.275
       rgb_color:
-      - 83
-      - 176
+      - 85
+      - 177
       - 255
       xy_color:
-      - 0.172
-      - 0.218
+      - 0.173
+      - 0.219
       effect: none
       friendly_name: Loft 4
       supported_features: 63

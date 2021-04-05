@@ -35,24 +35,6 @@ lock:
   - platform: sesame
     api_key: !secret sesame_api_key
 
-# rPi temp control
-climate:
-  - platform: generic_thermostat
-    name: RPI Cooling Fan Controller
-    heater: switch.rpi_cooling_fan
-    target_sensor: sensor.cpu_temperature
-    min_temp: 100
-    max_temp: 180
-    ac_mode: true
-    target_temp: 150
-    cold_tolerance: 0.1
-    hot_tolerance: 0.1
-    min_cycle_duration:
-      seconds: 30
-    keep_alive:
-      minutes: 5
-    initial_hvac_mode: "cool"
-
 # Text to speech
 tts:
   - platform: google_translate
