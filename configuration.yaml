@@ -13,8 +13,6 @@ http:
   # You must set the trusted proxy IP address so that Home Assistant will properly accept connections
   # Set this to your NGINX machine IP, or localhost if hosted on the same machine.
   trusted_proxies:
-    - 10.70.2.5
-    - "2001:470:8c26:2::a:5"
     - "172.16.0.0/12"
 
 # Jersey City Cam
