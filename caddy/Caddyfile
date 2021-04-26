@@ -1,3 +1,8 @@
 home.axeltech.com:443, home.axeltech.com:8443 {
   reverse_proxy homeassistant.local.hass.io:8123
+
+  header {
+    # enable HSTS
+    Strict-Transport-Security max-age=31536000;
+  }
 }
