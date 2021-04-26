@@ -14,6 +14,7 @@ http:
   # Set this to your NGINX machine IP, or localhost if hosted on the same machine.
   trusted_proxies:
     - "172.16.0.0/12"
+    - "10.70.4.6/32"
 
 # Jersey City Cam
 camera:
