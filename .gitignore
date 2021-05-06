@@ -13,4 +13,6 @@ zones.yaml
 home-assistant.log
 image
 *.db
+*.db-shm
+*.db-wal
 *.pyc
