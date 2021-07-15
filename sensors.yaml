@@ -1,10 +1,11 @@
 # custom component to track number of devices on Unifi SSIDs
 - platform: unifics
   name: wifi
-  host: 10.70.0.5
+  host: unifi.axeltech.com
   port: 443
   username: hass_sensor
   password: !secret unifi_hass_sensor
+  verify_ssl: True
   udm: true
 
 # number of days until home assistant cert expires
