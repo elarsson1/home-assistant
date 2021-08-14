@@ -9,8 +9,8 @@
   headers:
     Content-Type: application/json
 - platform: rest
-  resource: !secret hue_office_loft_motion
-  name: 'Office Loft Motion Sensor'
+  resource: !secret hue_den_motion
+  name: 'Den Motion Sensor'
   method: put
   body_on: '{"config": {"on":true}}'
   body_off: '{"config": {"on":false}}'
@@ -18,8 +18,8 @@
   headers:
     Content-Type: application/json
 - platform: rest
-  resource: !secret hue_entry_way_motion
-  name: 'Entry Way Motion Sensor'
+  resource: !secret hue_laundry_room_motion
+  name: 'Laundry Room Motion Sensor'
   method: put
   body_on: '{"config": {"on":true}}'
   body_off: '{"config": {"on":false}}'

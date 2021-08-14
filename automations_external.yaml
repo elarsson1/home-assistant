@@ -96,24 +96,6 @@
                 entity_id: input_select.presence
                 option: Home
 
-# Hue switch trigger for Away presence
-- id: "1616991377860"
-  alias: Going Out Switch Trigger
-  description: Set presence to Away based upon front-door Hue switch trigger
-  trigger:
-    - device_id: c1a713c7d776a82491b262637fd8aa19
-      domain: hue
-      platform: device
-      type: remote_button_long_release
-      subtype: turn_off
-  condition: []
-  action:
-    - service: input_select.select_option
-      data:
-        entity_id: input_select.presence
-        option: Away
-  mode: single
-
 # turn off TVs and lights when leaving.
 - id: TurnOffWhenLeaving
   alias: Turn_Off_When_Leaving
@@ -125,23 +107,21 @@
       for: 00:00:45
   action:
     - service: light.turn_off
-      entity_id: all
+      entity_id: 
+        - light.den_lights
+        - light.vestibule_switch
+        - light.bedroom_lamp
+        - light.under_stooop_lights
+        - light.living_room
+        - light.laundry_room
+        - light.office
+        - light.guest_room
+        - light.master_bedroom
+        - light.kitchen
     - service: remote.turn_off
       entity_id: remote.living_room_2
     - service: remote.turn_off
-      entity_id: remote.guest_room
-
-# Set HVAC mode to Eco 30 minutes after leaving.
-- id: EcoHVACWhenLeaving
-  alias: Eco_HVAC_When_Leaving
-  description: Set thermostats to Eco 30 minutes after leaving
-  trigger:
-    - platform: state
-      entity_id: input_select.presence
-      to: Away
-      for: 00:30:00
-  action:
-    - service: script.hvac_save_all_state_eco
+      entity_id: remote.den
 
 # turn lights on when arriving, if its after sunset.
 - id: TurnLight123
@@ -162,20 +142,6 @@
     - service: scene.turn_on
       target:
         entity_id: scene.common_area_normal_lighting
-
-# reset HVAC state when arriving.
-- id: TurnHVACOnWhenArriving
-  alias: Turn_HVAC_On_When_Arriving
-  description: Turn HVAC back on when arriving
-  trigger:
-    - platform: state
-      entity_id: input_select.presence
-      from: Away
-      to:
-        - Home
-        - With Guests
-  action:
-    - service: script.hvac_restore_all_state
 
 # TV watching motion sensor control
 - id: "1617150949677"
@@ -206,36 +172,34 @@
         entity_id: switch.living_room_motion_sensor
   mode: single
 
-# night time bedroom motion sensor
-- id: TurnOffMotionMasterBedroom
-  alias: Master Bedroom turn off motion
+# TV watching motion sensor control
+- id: "1617150949677a"
+  alias: Den TV motion sensor off
+  description: Turn off living room motion sensor when watching TV
   trigger:
-    at: 00:00:00
-    platform: time
-  condition:
-    - condition: state
-      entity_id: input_select.presence
-      state:
-        - Home
-        - With Guests
+    - platform: state
+      entity_id: remote.den
+      from: "off"
+      to: "on"
   action:
     - service: switch.turn_off
-      entity_id: switch.master_bedroom_motion_sensor
+      target:
+        entity_id: switch.den_motion_sensor
+  mode: single
 
-# night time guest room motion sensor
-- id: TurnOffMotionGuestRoom
-  alias: Guest Room turn off motion
+- id: "1617150949699b"
+  alias: Den TV motion sensor on
+  description: Turn on living room motion sensor when finished watching TV
   trigger:
-    at: 00:00:00
-    platform: time
-  condition:
-    - condition: state
-      entity_id: input_select.presence
-      state:
-        - With Guests
+    - platform: state
+      entity_id: remote.den
+      from: "on"
+      to: "off"
   action:
-    - service: switch.turn_off
-      entity_id: switch.guest_room_motion_sensor
+    - service: switch.turn_on
+      target:
+        entity_id: switch.den_motion_sensor
+  mode: single
 
 # smart wake up trigers.
 # master bedroom Alexa alarm trigger.
@@ -255,9 +219,7 @@
   action:
     - service: script.wake_up
       data:
-        thermostat: master_bedroom
         warmer: master_bath_towel_warmer
-        motion: master_bedroom_motion_sensor
 
 # master bedroom fallback
 - id: SmartWakeUpMasterBedroomFallback
@@ -276,9 +238,7 @@
   action:
     - service: script.wake_up
       data:
-        thermostat: master_bedroom
         warmer: master_bath_towel_warmer
-        motion: master_bedroom_motion_sensor
 
 # guest room alexa alarm trigger
 - id: SmartWakeUpGuestRoom
@@ -297,9 +257,7 @@
   action:
     - service: script.wake_up
       data:
-        thermostat: guest_room
         warmer: guest_bath_towel_warmer
-        motion: guest_room_motion_sensor
 
 # guest room fallback
 - id: SmartWakeUpGuestRoomFallback
@@ -317,6 +275,4 @@
   action:
     - service: script.wake_up
       data:
-        thermostat: guest_room
         warmer: guest_bath_towel_warmer
-        motion: guest_room_motion_sensor

@@ -29,11 +29,6 @@ nest:
   project_id: !secret nest_project_id
   subscriber_id: !secret nest_subscriber_id
 
-# sesame lock
-lock:
-  - platform: sesame
-    api_key: !secret sesame_api_key
-
 # Text to speech
 tts:
   - platform: google_translate
