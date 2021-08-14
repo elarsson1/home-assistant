@@ -107,11 +107,11 @@
       for: 00:00:45
   action:
     - service: light.turn_off
-      entity_id: 
+      entity_id:
         - light.den_lights
         - light.vestibule_switch
         - light.bedroom_lamp
-        - light.under_stooop_lights
+        - light.under_stoop_lights
         - light.living_room
         - light.laundry_room
         - light.office
