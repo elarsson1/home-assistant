@@ -16,6 +16,8 @@ http:
     - "172.16.0.0/12"
     - "10.70.4.6/32"
 
+stream:
+
 # Jersey City Cam
 camera:
   - platform: mjpeg
@@ -28,6 +30,11 @@ nest:
   client_secret: !secret nest_client_secret
   project_id: !secret nest_project_id
   subscriber_id: !secret nest_subscriber_id
+
+# Sensibo
+climate:
+  - platform: sensibo
+    api_key: !secret sensibo_api_key
 
 # Text to speech
 tts:

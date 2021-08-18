@@ -123,6 +123,53 @@
     - service: remote.turn_off
       entity_id: remote.den
 
+# Turn off HVAC when leaving, 30 minutes hence
+- id: OffHVACWhenLeaving
+  alias: Off_HVAC_When_Leaving
+  description: Disable HVAC when leaving
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      to: Away
+      for: 00:30:00
+  action:
+    - service: climate.turn_off
+      entity_id: 
+        - climate.den
+        - climate.den_thermostat
+        - climate.living_room
+        - climate.living_room_thermostat
+        - climate.master_bedroom
+        - climate.master_bedroom_thermostat
+    - service: switch.turn_off
+      entity_id:
+        - switch.den_ac_climate_react
+        - switch.living_room_ac_climate_react
+        - switch.master_bedroom_ac_climate_react
+
+# reset HVAC state when arriving.
+- id: TurnHVACOnWhenArriving
+  alias: Turn_HVAC_On_When_Arriving
+  description: Turn HVAC back on when arriving
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      from: Away
+      to:
+        - Home
+        - With Guests
+  action:
+    - service: switch.turn_on
+      entity_id:
+        - switch.den_ac_climate_react
+        - switch.living_room_ac_climate_react
+    # also bedroom if its after 21:30
+    - condition: time 
+      after: "21:30"
+      before: "05:00"
+    - service: switch.turn_on
+      entity_id: switch.master_bedroom_ac_climate_react
+
 # turn lights on when arriving, if its after sunset.
 - id: TurnLight123
   alias: Turn_Light_On_Arriving
@@ -220,6 +267,13 @@
     - service: script.wake_up
       data:
         warmer: master_bath_towel_warmer
+    # turn off mini split and climate react
+    - service: climate.turn_off
+      entity_id:
+        - climate.master_bedroom
+        - climate.master_bedroom_thermostat
+    - service: switch.turn_off
+      entity_id: switch.master_bedroom_ac_climate_react
 
 # master bedroom fallback
 - id: SmartWakeUpMasterBedroomFallback
@@ -239,6 +293,13 @@
     - service: script.wake_up
       data:
         warmer: master_bath_towel_warmer
+    # turn off mini split and climate react
+    - service: climate.turn_off
+      entity_id:
+        - climate.master_bedroom
+        - climate.master_bedroom_thermostat
+    - service: switch.turn_off
+      entity_id: switch.master_bedroom_ac_climate_react
 
 # guest room alexa alarm trigger
 - id: SmartWakeUpGuestRoom
@@ -276,3 +337,43 @@
     - service: script.wake_up
       data:
         warmer: guest_bath_towel_warmer
+
+# Pre-cool or warm master bedroom before bed. 
+- id: BedtimePreHVAC
+  alias: Get HVAC ready for bed
+  trigger:
+    - at: "21:30:00"
+      platform: time
+  condition:
+    - condition: state
+      entity_id: input_select.presence
+      state:
+        - Home
+        - With Guests
+  action:
+    - service: switch.turn_on
+      entity_id: switch.master_bedroom_ac_climate_react
+
+# Enable master bedroom motion sensor
+- id: EnableMBRMotion
+  alias: Enable Master Bed Motion Sensor
+  trigger:
+    - at: "11:30:00"
+      platform: time
+  action:
+    - service: switch.turn_on
+      target:
+        entity_id: switch.master_bedroom_motion_sensor
+  mode: single
+
+# Disable master bedroom motion sensor
+- id: DisableMBRMotion
+  alias: Disable Master Bed Motion Sensor
+  trigger:
+    - at: "23:00:00"
+      platform: time
+  action:
+    - service: switch.turn_off
+      target:
+        entity_id: switch.master_bedroom_motion_sensor
+  mode: single

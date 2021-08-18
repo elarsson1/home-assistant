@@ -21,6 +21,11 @@ wake_up:
     - service: switch.turn_on
       data_template:
         entity_id: "switch.{{ warmer }}"
+    # activate common area AC climate react
+    - service: switch.turn_on
+      entity_id: switch.living_room_ac_climate_react
+    - service: switch.turn_on
+      entity_id: switch.den_ac_climate_react
     # wait two hours
     - delay: "02:00:00"
     # switch off towel warmer
@@ -42,3 +47,15 @@ good_night:
     # turn off TV
     - service: remote.turn_off
       entity_id: remote.living_room_2
+    # turn off split units in Den and Living Room
+    - service: climate.turn_off
+      entity_id:
+        - climate.den_thermostat
+        - climate.den
+        - climate.living_room
+        - climate.living_room_thermostat
+    # turn off climate react
+    - service: switch.turn_off
+      entity_id:
+        - switch.den_ac_climate_react
+        - switch.living_room_ac_climate_react

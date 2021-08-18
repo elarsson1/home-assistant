@@ -1,46 +1,75 @@
 # Rest API for Hue Motion Sensor
 - platform: rest
   resource: !secret hue_living_room_motion
-  name: 'Living Room Motion Sensor'
+  name: "Living Room Motion Sensor"
   method: put
   body_on: '{"config": {"on":true}}'
   body_off: '{"config": {"on":false}}'
-  is_on_template: '{{ value_json.config.on == true }}'
+  is_on_template: "{{ value_json.config.on == true }}"
   headers:
     Content-Type: application/json
 - platform: rest
   resource: !secret hue_den_motion
-  name: 'Den Motion Sensor'
+  name: "Den Motion Sensor"
   method: put
   body_on: '{"config": {"on":true}}'
   body_off: '{"config": {"on":false}}'
-  is_on_template: '{{ value_json.config.on == true }}'
+  is_on_template: "{{ value_json.config.on == true }}"
   headers:
     Content-Type: application/json
 - platform: rest
   resource: !secret hue_laundry_room_motion
-  name: 'Laundry Room Motion Sensor'
+  name: "Laundry Room Motion Sensor"
   method: put
   body_on: '{"config": {"on":true}}'
   body_off: '{"config": {"on":false}}'
-  is_on_template: '{{ value_json.config.on == true }}'
+  is_on_template: "{{ value_json.config.on == true }}"
   headers:
     Content-Type: application/json
 - platform: rest
   resource: !secret hue_master_bedroom_motion
-  name: 'Master Bedroom Motion Sensor'
+  name: "Master Bedroom Motion Sensor"
   method: put
   body_on: '{"config": {"on":true}}'
   body_off: '{"config": {"on":false}}'
-  is_on_template: '{{ value_json.config.on == true }}'
+  is_on_template: "{{ value_json.config.on == true }}"
   headers:
     Content-Type: application/json
 - platform: rest
   resource: !secret hue_guest_room_motion
-  name: 'Guest Room Motion Sensor'
+  name: "Guest Room Motion Sensor"
   method: put
   body_on: '{"config": {"on":true}}'
   body_off: '{"config": {"on":false}}'
-  is_on_template: '{{ value_json.config.on == true }}'
+  is_on_template: "{{ value_json.config.on == true }}"
   headers:
     Content-Type: application/json
+# Rest API for Sensibo Climate React
+- platform: rest
+  name: Den AC Climate React
+  resource: !secret sensibo_cr_den
+  method: put
+  is_on_template: "{{ value_json.result.enabled }}"
+  body_on: '{ "enabled": true }'
+  body_off: '{ "enabled": false }'
+- platform: rest
+  name: Living Room AC Climate React
+  resource: !secret sensibo_cr_living_room
+  method: put
+  is_on_template: "{{ value_json.result.enabled }}"
+  body_on: '{ "enabled": true }'
+  body_off: '{ "enabled": false }'
+- platform: rest
+  name: Master Bedroom AC Climate React
+  resource: !secret sensibo_cr_master_bedroom
+  method: put
+  is_on_template: "{{ value_json.result.enabled }}"
+  body_on: '{ "enabled": true }'
+  body_off: '{ "enabled": false }'
+- platform: rest
+  name: Guest Room AC Climate React
+  resource: !secret sensibo_cr_guest_room
+  method: put
+  is_on_template: "{{ value_json.result.enabled }}"
+  body_on: '{ "enabled": true }'
+  body_off: '{ "enabled": false }'
