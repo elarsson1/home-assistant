@@ -123,7 +123,20 @@
     - service: remote.turn_off
       entity_id: remote.den
 
-# Turn off HVAC when leaving, 30 minutes hence
+# Arm alarm 30 minutes after leaving
+- id: ArmWhenLeaving
+  alias: Arm Alarm when Leaving
+  description: Arm Alarm when Leaving
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      to: Away
+      for: 00:30:00
+  action:
+    - service: alarm_control_panel.alarm_arm_away
+      entity_id: alarm_control_panel.alexa_guard_b0cd9
+
+# Turn off HVAC when leaving after 30 minutes
 - id: OffHVACWhenLeaving
   alias: Off_HVAC_When_Leaving
   description: Disable HVAC when leaving
@@ -134,7 +147,7 @@
       for: 00:30:00
   action:
     - service: climate.turn_off
-      entity_id: 
+      entity_id:
         - climate.den
         - climate.den_thermostat
         - climate.living_room
@@ -146,6 +159,21 @@
         - switch.den_ac_climate_react
         - switch.living_room_ac_climate_react
         - switch.master_bedroom_ac_climate_react
+
+# disarm alarm when arriving
+- id: DisarmWhenArriving
+  alias: Disarm Alarm when Arriving
+  description: Disarm Alarm when Arriving
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      from: Away
+      to:
+        - Home
+        - With Guests
+  action:
+    - service: alarm_control_panel.alarm_disarm
+      entity_id: alarm_control_panel.alexa_guard_b0cd9
 
 # reset HVAC state when arriving.
 - id: TurnHVACOnWhenArriving
@@ -164,7 +192,7 @@
         - switch.den_ac_climate_react
         - switch.living_room_ac_climate_react
     # also bedroom if its after 21:30
-    - condition: time 
+    - condition: time
       after: "21:30"
       before: "05:00"
     - service: switch.turn_on
@@ -338,7 +366,7 @@
       data:
         warmer: guest_bath_towel_warmer
 
-# Pre-cool or warm master bedroom before bed. 
+# Pre-cool or warm master bedroom before bed.
 - id: BedtimePreHVAC
   alias: Get HVAC ready for bed
   trigger:
