@@ -11,6 +11,7 @@ known_devices.yaml
 zones.yaml
 
 home-assistant.log
+home-assistant.log.1
 image
 *.db
 *.db-shm

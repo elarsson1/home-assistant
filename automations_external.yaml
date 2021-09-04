@@ -4,7 +4,7 @@
   description: Run snapshot daily and retain for 14 days
   trigger:
     - platform: time
-      at: 02:00:05
+      at: input_datetime.auto_backup_time
   action:
     - service: auto_backup.snapshot_full
       data:
@@ -286,7 +286,7 @@
   condition:
     - condition: time
       after: 02:00:00
-      before: 09:00:00
+      before: input_datetime.master_bedroom_wake_up_fallback_time
     - condition: template
       value_template: "{{ state_attr('automation.smart_wake_up_master_bedroom', 'last_triggered').day != utcnow().day }}"
     - condition: template
@@ -307,7 +307,7 @@
 - id: SmartWakeUpMasterBedroomFallback
   alias: Fallback time for Master Bedroom Wake-up sequence
   trigger:
-    - at: 09:00:00
+    - at: input_datetime.master_bedroom_wake_up_fallback_time
       platform: time
   condition:
     - condition: state
@@ -338,7 +338,7 @@
   condition:
     - condition: time
       after: 02:00:00
-      before: 09:00:00
+      before: input_datetime.guest_bedroom_wake_up_fallback_time
     - condition: template
       value_template: "{{ state_attr('automation.smart_wake_up_guest_room','last_triggered').day != utcnow().day }}"
     - condition: template
@@ -352,7 +352,7 @@
 - id: SmartWakeUpGuestRoomFallback
   alias: Fallback time for Guest Room Wake-up sequence
   trigger:
-    - at: 09:00:00
+    - at: input_datetime.guest_bedroom_wake_up_fallback_time
       platform: time
   condition:
     - condition: state
@@ -370,7 +370,7 @@
 - id: BedtimePreHVAC
   alias: Get HVAC ready for bed
   trigger:
-    - at: "21:30:00"
+    - at: input_datetime.bedroom_preheatcool
       platform: time
   condition:
     - condition: state
@@ -386,7 +386,7 @@
 - id: EnableMBRMotion
   alias: Enable Master Bed Motion Sensor
   trigger:
-    - at: "11:30:00"
+    - at: input_datetime.bedroom_motion_sensor_on_time
       platform: time
   action:
     - service: switch.turn_on
@@ -398,7 +398,7 @@
 - id: DisableMBRMotion
   alias: Disable Master Bed Motion Sensor
   trigger:
-    - at: "23:00:00"
+    - at: input_datetime.bedroom_motion_sensor_off_time
       platform: time
   action:
     - service: switch.turn_off
