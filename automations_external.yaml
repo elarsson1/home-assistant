@@ -191,9 +191,9 @@
       entity_id:
         - switch.den_ac_climate_react
         - switch.living_room_ac_climate_react
-    # also bedroom if its after 21:30
+    # also bedroom if its after the pre-warm time.
     - condition: time
-      after: "21:30"
+      after: input_datetime.bedroom_preheatcool
       before: "05:00"
     - service: switch.turn_on
       entity_id: switch.master_bedroom_ac_climate_react
