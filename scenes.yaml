@@ -1626,3 +1626,1215 @@
       friendly_name: LR 5
       supported_features: 63
       state: 'on'
+- id: '1631493603049'
+  name: Common Area Nebula
+  entities:
+    light.kitchen_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 320.27
+      - 29.02
+      rgb_color:
+      - 255
+      - 180
+      - 229
+      xy_color:
+      - 0.376
+      - 0.273
+      effect: none
+      friendly_name: Kitchen 1
+      supported_features: 63
+      state: 'on'
+    light.kitchen_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 264.844
+      - 50.196
+      rgb_color:
+      - 180
+      - 127
+      - 255
+      xy_color:
+      - 0.274
+      - 0.175
+      effect: none
+      friendly_name: Kitchen 2
+      supported_features: 63
+      state: 'on'
+    light.kitchen_2_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 320.27
+      - 29.02
+      rgb_color:
+      - 255
+      - 180
+      - 229
+      xy_color:
+      - 0.376
+      - 0.273
+      effect: none
+      friendly_name: Kitchen 4
+      supported_features: 63
+      state: 'on'
+    light.kitchen_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 276.977
+      - 33.725
+      rgb_color:
+      - 222
+      - 169
+      - 255
+      xy_color:
+      - 0.316
+      - 0.232
+      effect: none
+      friendly_name: Kitchen 3
+      supported_features: 63
+      state: 'on'
+    light.kitchen_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 264.844
+      - 50.196
+      rgb_color:
+      - 180
+      - 127
+      - 255
+      xy_color:
+      - 0.274
+      - 0.175
+      effect: none
+      friendly_name: Kitchen 5
+      supported_features: 63
+      state: 'on'
+    light.kitchen_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 263.038
+      - 92.941
+      rgb_color:
+      - 109
+      - 18
+      - 255
+      xy_color:
+      - 0.197
+      - 0.071
+      effect: none
+      friendly_name: Kitchen 6
+      supported_features: 63
+      state: 'on'
+    light.kitchen_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 233.654
+      - 40.784
+      rgb_color:
+      - 151
+      - 162
+      - 255
+      xy_color:
+      - 0.234
+      - 0.208
+      effect: none
+      friendly_name: Kitchen Stairs
+      supported_features: 63
+      state: 'on'
+    light.lr_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 276.977
+      - 33.725
+      rgb_color:
+      - 222
+      - 169
+      - 255
+      xy_color:
+      - 0.316
+      - 0.232
+      effect: none
+      friendly_name: LR 1
+      supported_features: 63
+      state: 'on'
+    light.lr_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 263.038
+      - 92.941
+      rgb_color:
+      - 109
+      - 18
+      - 255
+      xy_color:
+      - 0.197
+      - 0.071
+      effect: none
+      friendly_name: LR 2
+      supported_features: 63
+      state: 'on'
+    light.lr_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 233.654
+      - 40.784
+      rgb_color:
+      - 151
+      - 162
+      - 255
+      xy_color:
+      - 0.234
+      - 0.208
+      effect: none
+      friendly_name: LR 3
+      supported_features: 63
+      state: 'on'
+    light.lr_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 320.27
+      - 29.02
+      rgb_color:
+      - 255
+      - 180
+      - 229
+      xy_color:
+      - 0.376
+      - 0.273
+      effect: none
+      friendly_name: LR 4
+      supported_features: 63
+      state: 'on'
+    light.lr_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 264.844
+      - 50.196
+      rgb_color:
+      - 180
+      - 127
+      - 255
+      xy_color:
+      - 0.274
+      - 0.175
+      effect: none
+      friendly_name: LR 5
+      supported_features: 63
+      state: 'on'
+- id: '1631493713000'
+  name: Common Area Moonlight
+  entities:
+    light.kitchen_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 235.5
+      - 62.745
+      rgb_color:
+      - 95
+      - 107
+      - 255
+      xy_color:
+      - 0.182
+      - 0.124
+      effect: none
+      friendly_name: Kitchen 1
+      supported_features: 63
+      state: 'on'
+    light.kitchen_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 255.059
+      - 100
+      rgb_color:
+      - 64
+      - 0
+      - 255
+      xy_color:
+      - 0.158
+      - 0.05
+      effect: none
+      friendly_name: Kitchen 2
+      supported_features: 63
+      state: 'on'
+    light.kitchen_2_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 235.5
+      - 62.745
+      rgb_color:
+      - 95
+      - 107
+      - 255
+      xy_color:
+      - 0.182
+      - 0.124
+      effect: none
+      friendly_name: Kitchen 4
+      supported_features: 63
+      state: 'on'
+    light.kitchen_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 223.548
+      - 48.627
+      rgb_color:
+      - 131
+      - 165
+      - 255
+      xy_color:
+      - 0.212
+      - 0.208
+      effect: none
+      friendly_name: Kitchen 3
+      supported_features: 63
+      state: 'on'
+    light.kitchen_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 255.059
+      - 100
+      rgb_color:
+      - 64
+      - 0
+      - 255
+      xy_color:
+      - 0.158
+      - 0.05
+      effect: none
+      friendly_name: Kitchen 5
+      supported_features: 63
+      state: 'on'
+    light.kitchen_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 105
+      - 3.137
+      rgb_color:
+      - 249
+      - 255
+      - 247
+      xy_color:
+      - 0.322
+      - 0.338
+      effect: none
+      friendly_name: Kitchen 6
+      supported_features: 63
+      state: 'on'
+    light.kitchen_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 223.114
+      - 65.49
+      rgb_color:
+      - 88
+      - 134
+      - 255
+      xy_color:
+      - 0.176
+      - 0.156
+      effect: none
+      friendly_name: Kitchen Stairs
+      supported_features: 63
+      state: 'on'
+    light.lr_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 223.548
+      - 48.627
+      rgb_color:
+      - 131
+      - 165
+      - 255
+      xy_color:
+      - 0.212
+      - 0.208
+      effect: none
+      friendly_name: LR 1
+      supported_features: 63
+      state: 'on'
+    light.lr_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 105
+      - 3.137
+      rgb_color:
+      - 249
+      - 255
+      - 247
+      xy_color:
+      - 0.322
+      - 0.338
+      effect: none
+      friendly_name: LR 2
+      supported_features: 63
+      state: 'on'
+    light.lr_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 223.114
+      - 65.49
+      rgb_color:
+      - 88
+      - 134
+      - 255
+      xy_color:
+      - 0.176
+      - 0.156
+      effect: none
+      friendly_name: LR 3
+      supported_features: 63
+      state: 'on'
+    light.lr_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 235.5
+      - 62.745
+      rgb_color:
+      - 95
+      - 107
+      - 255
+      xy_color:
+      - 0.182
+      - 0.124
+      effect: none
+      friendly_name: LR 4
+      supported_features: 63
+      state: 'on'
+    light.lr_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 255.059
+      - 100
+      rgb_color:
+      - 64
+      - 0
+      - 255
+      xy_color:
+      - 0.158
+      - 0.05
+      effect: none
+      friendly_name: LR 5
+      supported_features: 63
+      state: 'on'
+- id: '1631493791320'
+  name: Common Area Lake Placid
+  entities:
+    light.kitchen_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 220.851
+      - 55.294
+      rgb_color:
+      - 114
+      - 159
+      - 255
+      xy_color:
+      - 0.197
+      - 0.196
+      effect: none
+      friendly_name: Kitchen 1
+      supported_features: 63
+      state: 'on'
+    light.kitchen_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.328
+      - 53.725
+      rgb_color:
+      - 255
+      - 152
+      - 118
+      xy_color:
+      - 0.513
+      - 0.347
+      effect: none
+      friendly_name: Kitchen 2
+      supported_features: 63
+      state: 'on'
+    light.kitchen_2_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 220.851
+      - 55.294
+      rgb_color:
+      - 114
+      - 159
+      - 255
+      xy_color:
+      - 0.197
+      - 0.196
+      effect: none
+      friendly_name: Kitchen 4
+      supported_features: 63
+      state: 'on'
+    light.kitchen_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 9.231
+      - 30.588
+      rgb_color:
+      - 255
+      - 189
+      - 177
+      xy_color:
+      - 0.422
+      - 0.334
+      effect: none
+      friendly_name: Kitchen 3
+      supported_features: 63
+      state: 'on'
+    light.kitchen_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.328
+      - 53.725
+      rgb_color:
+      - 255
+      - 152
+      - 118
+      xy_color:
+      - 0.513
+      - 0.347
+      effect: none
+      friendly_name: Kitchen 5
+      supported_features: 63
+      state: 'on'
+    light.kitchen_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.963
+      - 42.745
+      rgb_color:
+      - 255
+      - 174
+      - 146
+      xy_color:
+      - 0.465
+      - 0.347
+      effect: none
+      friendly_name: Kitchen 6
+      supported_features: 63
+      state: 'on'
+    light.kitchen_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 221.124
+      - 34.902
+      rgb_color:
+      - 165
+      - 193
+      - 255
+      xy_color:
+      - 0.244
+      - 0.252
+      effect: none
+      friendly_name: Kitchen Stairs
+      supported_features: 63
+      state: 'on'
+    light.lr_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 9.231
+      - 30.588
+      rgb_color:
+      - 255
+      - 189
+      - 177
+      xy_color:
+      - 0.422
+      - 0.334
+      effect: none
+      friendly_name: LR 1
+      supported_features: 63
+      state: 'on'
+    light.lr_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.963
+      - 42.745
+      rgb_color:
+      - 255
+      - 174
+      - 146
+      xy_color:
+      - 0.465
+      - 0.347
+      effect: none
+      friendly_name: LR 2
+      supported_features: 63
+      state: 'on'
+    light.lr_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 221.124
+      - 34.902
+      rgb_color:
+      - 165
+      - 193
+      - 255
+      xy_color:
+      - 0.244
+      - 0.252
+      effect: none
+      friendly_name: LR 3
+      supported_features: 63
+      state: 'on'
+    light.lr_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 220.851
+      - 55.294
+      rgb_color:
+      - 114
+      - 159
+      - 255
+      xy_color:
+      - 0.197
+      - 0.196
+      effect: none
+      friendly_name: LR 4
+      supported_features: 63
+      state: 'on'
+    light.lr_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.328
+      - 53.725
+      rgb_color:
+      - 255
+      - 152
+      - 118
+      xy_color:
+      - 0.513
+      - 0.347
+      effect: none
+      friendly_name: LR 5
+      supported_features: 63
+      state: 'on'
+- id: '1631493851110'
+  name: Common Area Palm Beach
+  entities:
+    light.kitchen_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 178.11
+      - 49.804
+      rgb_color:
+      - 127
+      - 255
+      - 250
+      xy_color:
+      - 0.201
+      - 0.346
+      effect: none
+      friendly_name: Kitchen 1
+      supported_features: 63
+      state: 'on'
+    light.kitchen_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 17.206
+      - 53.333
+      rgb_color:
+      - 255
+      - 158
+      - 119
+      xy_color:
+      - 0.507
+      - 0.353
+      effect: none
+      friendly_name: Kitchen 2
+      supported_features: 63
+      state: 'on'
+    light.kitchen_2_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 178.11
+      - 49.804
+      rgb_color:
+      - 127
+      - 255
+      - 250
+      xy_color:
+      - 0.201
+      - 0.346
+      effect: none
+      friendly_name: Kitchen 4
+      supported_features: 63
+      state: 'on'
+    light.kitchen_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 16.842
+      - 67.059
+      rgb_color:
+      - 255
+      - 131
+      - 83
+      xy_color:
+      - 0.569
+      - 0.35
+      effect: none
+      friendly_name: Kitchen 3
+      supported_features: 63
+      state: 'on'
+    light.kitchen_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 17.206
+      - 53.333
+      rgb_color:
+      - 255
+      - 158
+      - 119
+      xy_color:
+      - 0.507
+      - 0.353
+      effect: none
+      friendly_name: Kitchen 5
+      supported_features: 63
+      state: 'on'
+    light.kitchen_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 339.091
+      - 25.882
+      rgb_color:
+      - 255
+      - 189
+      - 212
+      xy_color:
+      - 0.388
+      - 0.299
+      effect: none
+      friendly_name: Kitchen 6
+      supported_features: 63
+      state: 'on'
+    light.kitchen_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 191.642
+      - 26.275
+      rgb_color:
+      - 187
+      - 241
+      - 255
+      xy_color:
+      - 0.256
+      - 0.316
+      effect: none
+      friendly_name: Kitchen Stairs
+      supported_features: 63
+      state: 'on'
+    light.lr_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 16.842
+      - 67.059
+      rgb_color:
+      - 255
+      - 131
+      - 83
+      xy_color:
+      - 0.569
+      - 0.35
+      effect: none
+      friendly_name: LR 1
+      supported_features: 63
+      state: 'on'
+    light.lr_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 339.091
+      - 25.882
+      rgb_color:
+      - 255
+      - 189
+      - 212
+      xy_color:
+      - 0.388
+      - 0.299
+      effect: none
+      friendly_name: LR 2
+      supported_features: 63
+      state: 'on'
+    light.lr_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 191.642
+      - 26.275
+      rgb_color:
+      - 187
+      - 241
+      - 255
+      xy_color:
+      - 0.256
+      - 0.316
+      effect: none
+      friendly_name: LR 3
+      supported_features: 63
+      state: 'on'
+    light.lr_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 178.11
+      - 49.804
+      rgb_color:
+      - 127
+      - 255
+      - 250
+      xy_color:
+      - 0.201
+      - 0.346
+      effect: none
+      friendly_name: LR 4
+      supported_features: 63
+      state: 'on'
+    light.lr_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 17.206
+      - 53.333
+      rgb_color:
+      - 255
+      - 158
+      - 119
+      xy_color:
+      - 0.507
+      - 0.353
+      effect: none
+      friendly_name: LR 5
+      supported_features: 63
+      state: 'on'
