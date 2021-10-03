@@ -292,6 +292,14 @@
     - condition: template
       value_template: "{{ states('sensor.bedroom_next_alarm') != 'unavailable' and as_timestamp(states('sensor.bedroom_next_alarm')) - as_timestamp(now()) <= 3600 }}"
   action:
+    # execute pre-warm script and do not wait for completion
+    - service: script.turn_on
+      target:
+        entity_id: script.pre_warm
+      data:
+        variables:
+          room: master_bedroom
+    # trigger wake-up script and wait for it to complete
     - service: script.wake_up
       data:
         warmer: master_bath_towel_warmer
@@ -318,6 +326,14 @@
     - condition: template
       value_template: "{{ state_attr('automation.smart_wake_up_master_bedroom', 'last_triggered').day != utcnow().day }}"
   action:
+    # execute pre-warm script and do not wait for completion
+    - service: script.turn_on
+      target:
+        entity_id: script.pre_warm
+      data:
+        variables:
+          room: master_bedroom
+    # trigger wake-up script and wait for it to complete
     - service: script.wake_up
       data:
         warmer: master_bath_towel_warmer
@@ -379,8 +395,12 @@
         - Home
         - With Guests
   action:
-    - service: switch.turn_on
-      entity_id: switch.master_bedroom_ac_climate_react
+    - service: script.turn_on
+      target:
+        entity_id: script.pre_warm
+      data:
+        variables:
+          room: master_bedroom
 
 # Enable master bedroom motion sensor
 - id: EnableMBRMotion

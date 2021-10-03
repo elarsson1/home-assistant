@@ -7,6 +7,39 @@ alexa_going_out:
         entity_id: input_select.presence
         option: "Away"
 
+# pre-warm bedroom script
+pre_warm:
+  alias: Pre-warm
+  description: Pre-warm bedroom before bed and at morning
+  mode: parallel
+  fields:
+    room:
+      description: "Room for climate device for bedroom"
+      example: master_bedroom
+  sequence:
+    # activate cliamte react
+    - service: switch.turn_on
+      data_template:
+        entity_id: "switch.{{ room }}_ac_climate_react"
+    # continue if temprature is below pre-warm threshold
+    - condition: template 
+      value_template: "{{ ( state_attr('climate.' + room, 'current_temperature') < states('input_number.prewarm_threshold') | int ) }}"
+    # activate heat for one and a half hours
+    - service: climate.set_hvac_mode
+      data_template:
+        entity_id: "climate.{{ room }}"
+        hvac_mode: heat
+    - service: climate.set_temperature
+      data_template: 
+        entity_id: "cliamte.{{ room }}"
+        temperature: "{{ states('input_number.prewarm_temperature') }}"
+    - delay: "01:30"
+    # deactivate heat
+    - service: climate.set_hvac_mode
+      data_template: 
+        entity_id: "cliamte.{{ room }}"
+        hvac_mode: "off"
+
 # wake up script
 wake_up:
   alias: Wake Up
