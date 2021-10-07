@@ -76,7 +76,6 @@ good_night:
       entity_id:
         - light.den_lights
         - light.vestibule_switch
-        - light.bedroom_lamp
         - light.under_stoop_lights
         - light.living_room
         - light.laundry_room
