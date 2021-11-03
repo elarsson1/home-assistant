@@ -12,6 +12,7 @@ zones.yaml
 
 home-assistant.log
 home-assistant.log.1
+home-assistant.log.fault
 image
 *.db
 *.db-shm

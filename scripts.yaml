@@ -22,21 +22,24 @@ pre_warm:
       data_template:
         entity_id: "switch.{{ room }}_ac_climate_react"
     # continue if temprature is below pre-warm threshold
-    - condition: template 
+    - condition: template
       value_template: "{{ ( state_attr('climate.' + room, 'current_temperature') < states('input_number.prewarm_threshold') | int ) }}"
     # activate heat for one and a half hours
     - service: climate.set_hvac_mode
       data_template:
         entity_id: "climate.{{ room }}"
         hvac_mode: heat
+    # delay to address race condition before setting temp on thermostat.
+    - delay: "00:00:30"
+    # set temp
     - service: climate.set_temperature
-      data_template: 
+      data_template:
         entity_id: "cliamte.{{ room }}"
         temperature: "{{ states('input_number.prewarm_temperature') }}"
     - delay: "01:30"
     # deactivate heat
     - service: climate.set_hvac_mode
-      data_template: 
+      data_template:
         entity_id: "cliamte.{{ room }}"
         hvac_mode: "off"
 

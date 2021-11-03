@@ -2838,3 +2838,3765 @@
       friendly_name: LR 5
       supported_features: 63
       state: 'on'
+- id: '1633742776115'
+  name: Den Normal Lighting
+  entities:
+    light.den_lights:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 38.54
+      - 53.725
+      rgb_color:
+      - 255
+      - 206
+      - 118
+      xy_color:
+      - 0.459
+      - 0.411
+      is_hue_group: true
+      friendly_name: Den
+      supported_features: 63
+      state: 'on'
+    light.office:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 38.222
+      - 52.941
+      rgb_color:
+      - 255
+      - 205
+      - 120
+      xy_color:
+      - 0.459
+      - 0.408
+      is_hue_group: true
+      friendly_name: Office
+      supported_features: 63
+      state: 'on'
+- id: '1633742921928'
+  name: Den Light Dim
+  entities:
+    light.den_lights:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 38.382
+      - 53.333
+      rgb_color:
+      - 255
+      - 205
+      - 119
+      xy_color:
+      - 0.46
+      - 0.408
+      is_hue_group: true
+      friendly_name: Den
+      supported_features: 63
+      state: 'on'
+    light.office:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 77
+      hs_color:
+      - 37.778
+      - 52.941
+      rgb_color:
+      - 255
+      - 205
+      - 120
+      xy_color:
+      - 0.459
+      - 0.408
+      is_hue_group: true
+      friendly_name: Office
+      supported_features: 63
+      state: 'on'
+- id: '1633743420713'
+  name: Den Light Off
+  entities:
+    light.den_lights:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      is_hue_group: true
+      friendly_name: Den
+      supported_features: 63
+      state: 'off'
+    light.office:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      is_hue_group: true
+      friendly_name: Office
+      supported_features: 63
+      state: 'off'
+- id: '1633743580078'
+  name: Den Arctic Aurora
+  entities:
+    light.den_center_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 66
+      hs_color:
+      - 226.4
+      - 58.824
+      rgb_color:
+      - 104
+      - 138
+      - 255
+      xy_color:
+      - 0.189
+      - 0.165
+      effect: none
+      friendly_name: Den Center 1
+      supported_features: 63
+      state: 'on'
+    light.den_center_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 66
+      hs_color:
+      - 217.979
+      - 73.725
+      rgb_color:
+      - 67
+      - 135
+      - 255
+      xy_color:
+      - 0.161
+      - 0.154
+      effect: none
+      friendly_name: Den Center 2
+      supported_features: 63
+      state: 'on'
+    light.den_center_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 66
+      hs_color:
+      - 217.979
+      - 73.725
+      rgb_color:
+      - 67
+      - 135
+      - 255
+      xy_color:
+      - 0.161
+      - 0.154
+      effect: none
+      friendly_name: Den Center 3
+      supported_features: 63
+      state: 'on'
+    light.den_center_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 66
+      hs_color:
+      - 159.208
+      - 39.608
+      rgb_color:
+      - 153
+      - 255
+      - 219
+      xy_color:
+      - 0.235
+      - 0.388
+      effect: none
+      friendly_name: Den Center 4
+      supported_features: 63
+      state: 'on'
+    light.den_center_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 66
+      hs_color:
+      - 161.751
+      - 85.098
+      rgb_color:
+      - 38
+      - 255
+      - 188
+      xy_color:
+      - 0.164
+      - 0.461
+      effect: none
+      friendly_name: Den Center 5
+      supported_features: 63
+      state: 'on'
+    light.den_center_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 66
+      hs_color:
+      - 234.063
+      - 75.294
+      rgb_color:
+      - 63
+      - 81
+      - 255
+      xy_color:
+      - 0.158
+      - 0.089
+      effect: none
+      friendly_name: Den Center 6
+      supported_features: 63
+      state: 'on'
+    light.den_door:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 66
+      hs_color:
+      - 79.5
+      - 15.686
+      rgb_color:
+      - 242
+      - 255
+      - 215
+      xy_color:
+      - 0.335
+      - 0.374
+      effect: none
+      friendly_name: Den Door
+      supported_features: 63
+      state: 'on'
+    light.den_window:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 66
+      hs_color:
+      - 159.208
+      - 39.608
+      rgb_color:
+      - 153
+      - 255
+      - 219
+      xy_color:
+      - 0.235
+      - 0.388
+      effect: none
+      friendly_name: Den Window
+      supported_features: 63
+      state: 'on'
+    light.den_rear_corner:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 78
+      hs_color:
+      - 158.901
+      - 35.686
+      rgb_color:
+      - 164
+      - 255
+      - 223
+      xy_color:
+      - 0.244
+      - 0.38
+      effect: none
+      friendly_name: Den Rear Corner
+      supported_features: 63
+      state: 'on'
+    light.den_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 237.188
+      - 75.294
+      rgb_color:
+      - 63
+      - 71
+      - 255
+      xy_color:
+      - 0.158
+      - 0.08
+      effect: none
+      friendly_name: Den Stairs
+      supported_features: 63
+      state: 'on'
+    light.office_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 215.426
+      - 73.725
+      rgb_color:
+      - 67
+      - 143
+      - 255
+      xy_color:
+      - 0.162
+      - 0.165
+      effect: none
+      friendly_name: Office 1
+      supported_features: 63
+      state: 'on'
+    light.office_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 202.41
+      - 65.098
+      rgb_color:
+      - 89
+      - 192
+      - 255
+      xy_color:
+      - 0.176
+      - 0.243
+      effect: none
+      friendly_name: Office 2
+      supported_features: 63
+      state: 'on'
+    light.office_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 215.426
+      - 73.725
+      rgb_color:
+      - 67
+      - 143
+      - 255
+      xy_color:
+      - 0.162
+      - 0.165
+      effect: none
+      friendly_name: Office 3
+      supported_features: 63
+      state: 'on'
+    light.office_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 169.891
+      - 72.157
+      rgb_color:
+      - 70
+      - 255
+      - 223
+      xy_color:
+      - 0.171
+      - 0.393
+      effect: none
+      friendly_name: Office 4
+      supported_features: 63
+      state: 'on'
+    light.office_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 157.412
+      - 33.333
+      rgb_color:
+      - 170
+      - 255
+      - 223
+      xy_color:
+      - 0.251
+      - 0.379
+      effect: none
+      friendly_name: Office 5
+      supported_features: 63
+      state: 'on'
+    light.den_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 66
+      hs_color:
+      - 255.849
+      - 83.137
+      rgb_color:
+      - 99
+      - 43
+      - 255
+      xy_color:
+      - 0.186
+      - 0.074
+      effect: none
+      friendly_name: Den end table
+      supported_features: 63
+      state: 'on'
+- id: '1633743688013'
+  name: Den Spring Blossom
+  entities:
+    light.den_center_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 153
+      hs_color:
+      - 338.182
+      - 12.941
+      rgb_color:
+      - 255
+      - 222
+      - 234
+      xy_color:
+      - 0.352
+      - 0.314
+      effect: none
+      friendly_name: Den Center 1
+      supported_features: 63
+      state: 'on'
+    light.den_center_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 153
+      hs_color:
+      - 319.481
+      - 30.196
+      rgb_color:
+      - 255
+      - 178
+      - 229
+      xy_color:
+      - 0.377
+      - 0.271
+      effect: none
+      friendly_name: Den Center 2
+      supported_features: 63
+      state: 'on'
+    light.den_center_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 153
+      hs_color:
+      - 319.481
+      - 30.196
+      rgb_color:
+      - 255
+      - 178
+      - 229
+      xy_color:
+      - 0.377
+      - 0.271
+      effect: none
+      friendly_name: Den Center 3
+      supported_features: 63
+      state: 'on'
+    light.den_center_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 153
+      hs_color:
+      - 328.819
+      - 49.804
+      rgb_color:
+      - 255
+      - 127
+      - 193
+      xy_color:
+      - 0.441
+      - 0.254
+      effect: none
+      friendly_name: Den Center 4
+      supported_features: 63
+      state: 'on'
+    light.den_center_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 153
+      hs_color:
+      - 8.837
+      - 50.588
+      rgb_color:
+      - 255
+      - 145
+      - 126
+      xy_color:
+      - 0.511
+      - 0.333
+      effect: none
+      friendly_name: Den Center 5
+      supported_features: 63
+      state: 'on'
+    light.den_center_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 153
+      hs_color:
+      - 323.529
+      - 20
+      rgb_color:
+      - 255
+      - 204
+      - 235
+      xy_color:
+      - 0.359
+      - 0.293
+      effect: none
+      friendly_name: Den Center 6
+      supported_features: 63
+      state: 'on'
+    light.den_door:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 153
+      hs_color:
+      - 8.837
+      - 50.588
+      rgb_color:
+      - 255
+      - 145
+      - 126
+      xy_color:
+      - 0.511
+      - 0.333
+      effect: none
+      friendly_name: Den Door
+      supported_features: 63
+      state: 'on'
+    light.den_window:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 153
+      hs_color:
+      - 328.819
+      - 49.804
+      rgb_color:
+      - 255
+      - 127
+      - 193
+      xy_color:
+      - 0.441
+      - 0.254
+      effect: none
+      friendly_name: Den Window
+      supported_features: 63
+      state: 'on'
+    light.den_rear_corner:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 207
+      hs_color:
+      - 341.25
+      - 12.549
+      rgb_color:
+      - 255
+      - 223
+      - 233
+      xy_color:
+      - 0.352
+      - 0.316
+      effect: none
+      friendly_name: Den Rear Corner
+      supported_features: 63
+      state: 'on'
+    light.den_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 204
+      hs_color:
+      - 18.214
+      - 43.922
+      rgb_color:
+      - 255
+      - 176
+      - 142
+      xy_color:
+      - 0.467
+      - 0.353
+      effect: none
+      friendly_name: Den Stairs
+      supported_features: 63
+      state: 'on'
+    light.office_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 204
+      hs_color:
+      - 4.615
+      - 5.098
+      rgb_color:
+      - 255
+      - 243
+      - 242
+      xy_color:
+      - 0.337
+      - 0.329
+      effect: none
+      friendly_name: Office 1
+      supported_features: 63
+      state: 'on'
+    light.office_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 204
+      hs_color:
+      - 51.724
+      - 11.373
+      rgb_color:
+      - 255
+      - 250
+      - 225
+      xy_color:
+      - 0.345
+      - 0.355
+      effect: none
+      friendly_name: Office 2
+      supported_features: 63
+      state: 'on'
+    light.office_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 204
+      hs_color:
+      - 4.615
+      - 5.098
+      rgb_color:
+      - 255
+      - 243
+      - 242
+      xy_color:
+      - 0.337
+      - 0.329
+      effect: none
+      friendly_name: Office 3
+      supported_features: 63
+      state: 'on'
+    light.office_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 204
+      hs_color:
+      - 325
+      - 42.353
+      rgb_color:
+      - 255
+      - 146
+      - 209
+      xy_color:
+      - 0.413
+      - 0.257
+      effect: none
+      friendly_name: Office 4
+      supported_features: 63
+      state: 'on'
+    light.office_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 204
+      hs_color:
+      - 323.529
+      - 20
+      rgb_color:
+      - 255
+      - 204
+      - 235
+      xy_color:
+      - 0.359
+      - 0.293
+      effect: none
+      friendly_name: Office 5
+      supported_features: 63
+      state: 'on'
+    light.den_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 153
+      hs_color:
+      - 323.529
+      - 20
+      rgb_color:
+      - 255
+      - 204
+      - 235
+      xy_color:
+      - 0.359
+      - 0.293
+      effect: none
+      friendly_name: Den end table
+      supported_features: 63
+      state: 'on'
+- id: '1633743809872'
+  name: Den Emerald Isle
+  entities:
+    light.den_center_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 42
+      - 58.824
+      rgb_color:
+      - 255
+      - 209
+      - 104
+      xy_color:
+      - 0.466
+      - 0.425
+      effect: none
+      friendly_name: Den Center 1
+      supported_features: 63
+      state: 'on'
+    light.den_center_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 52.258
+      - 36.471
+      rgb_color:
+      - 255
+      - 242
+      - 161
+      xy_color:
+      - 0.396
+      - 0.412
+      effect: none
+      friendly_name: Den Center 2
+      supported_features: 63
+      state: 'on'
+    light.den_center_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 52.258
+      - 36.471
+      rgb_color:
+      - 255
+      - 242
+      - 161
+      xy_color:
+      - 0.396
+      - 0.412
+      effect: none
+      friendly_name: Den Center 3
+      supported_features: 63
+      state: 'on'
+    light.den_center_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 101.538
+      - 25.49
+      rgb_color:
+      - 210
+      - 255
+      - 190
+      xy_color:
+      - 0.314
+      - 0.413
+      effect: none
+      friendly_name: Den Center 4
+      supported_features: 63
+      state: 'on'
+    light.den_center_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 142.826
+      - 36.078
+      rgb_color:
+      - 163
+      - 255
+      - 198
+      xy_color:
+      - 0.255
+      - 0.417
+      effect: none
+      friendly_name: Den Center 5
+      supported_features: 63
+      state: 'on'
+    light.den_center_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 190.588
+      - 20
+      rgb_color:
+      - 204
+      - 246
+      - 255
+      xy_color:
+      - 0.272
+      - 0.322
+      effect: none
+      friendly_name: Den Center 6
+      supported_features: 63
+      state: 'on'
+    light.den_door:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 78.571
+      - 16.471
+      rgb_color:
+      - 241
+      - 255
+      - 212
+      xy_color:
+      - 0.336
+      - 0.377
+      effect: none
+      friendly_name: Den Door
+      supported_features: 63
+      state: 'on'
+    light.den_window:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 101.538
+      - 25.49
+      rgb_color:
+      - 210
+      - 255
+      - 190
+      xy_color:
+      - 0.314
+      - 0.413
+      effect: none
+      friendly_name: Den Window
+      supported_features: 63
+      state: 'on'
+    light.den_rear_corner:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 52.258
+      - 36.471
+      rgb_color:
+      - 255
+      - 242
+      - 161
+      xy_color:
+      - 0.396
+      - 0.412
+      effect: none
+      friendly_name: Den Rear Corner
+      supported_features: 63
+      state: 'on'
+    light.den_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 190.588
+      - 20
+      rgb_color:
+      - 204
+      - 246
+      - 255
+      xy_color:
+      - 0.272
+      - 0.322
+      effect: none
+      friendly_name: Den Stairs
+      supported_features: 63
+      state: 'on'
+    light.office_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 101.538
+      - 25.49
+      rgb_color:
+      - 210
+      - 255
+      - 190
+      xy_color:
+      - 0.314
+      - 0.413
+      effect: none
+      friendly_name: Office 1
+      supported_features: 63
+      state: 'on'
+    light.office_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 52.258
+      - 36.471
+      rgb_color:
+      - 255
+      - 242
+      - 161
+      xy_color:
+      - 0.396
+      - 0.412
+      effect: none
+      friendly_name: Office 2
+      supported_features: 63
+      state: 'on'
+    light.office_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 101.538
+      - 25.49
+      rgb_color:
+      - 210
+      - 255
+      - 190
+      xy_color:
+      - 0.314
+      - 0.413
+      effect: none
+      friendly_name: Office 3
+      supported_features: 63
+      state: 'on'
+    light.office_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 42
+      - 58.824
+      rgb_color:
+      - 255
+      - 209
+      - 104
+      xy_color:
+      - 0.466
+      - 0.425
+      effect: none
+      friendly_name: Office 4
+      supported_features: 63
+      state: 'on'
+    light.office_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 142.826
+      - 36.078
+      rgb_color:
+      - 163
+      - 255
+      - 198
+      xy_color:
+      - 0.255
+      - 0.417
+      effect: none
+      friendly_name: Office 5
+      supported_features: 63
+      state: 'on'
+    light.den_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 192
+      hs_color:
+      - 228.462
+      - 10.196
+      rgb_color:
+      - 229
+      - 233
+      - 255
+      xy_color:
+      - 0.303
+      - 0.305
+      effect: none
+      friendly_name: Den end table
+      supported_features: 63
+      state: 'on'
+- id: '1633743944921'
+  name: Den Starlight
+  entities:
+    light.den_center_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 28.269
+      - 40.784
+      rgb_color:
+      - 255
+      - 200
+      - 151
+      xy_color:
+      - 0.438
+      - 0.373
+      effect: none
+      friendly_name: Den Center 1
+      supported_features: 63
+      state: 'on'
+    light.den_center_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 278.333
+      - 42.353
+      rgb_color:
+      - 215
+      - 146
+      - 255
+      xy_color:
+      - 0.314
+      - 0.206
+      effect: none
+      friendly_name: Den Center 2
+      supported_features: 63
+      state: 'on'
+    light.den_center_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 278.333
+      - 42.353
+      rgb_color:
+      - 215
+      - 146
+      - 255
+      xy_color:
+      - 0.314
+      - 0.206
+      effect: none
+      friendly_name: Den Center 3
+      supported_features: 63
+      state: 'on'
+    light.den_center_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 10.5
+      - 31.373
+      rgb_color:
+      - 255
+      - 188
+      - 174
+      xy_color:
+      - 0.426
+      - 0.336
+      effect: none
+      friendly_name: Den Center 4
+      supported_features: 63
+      state: 'on'
+    light.den_center_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 325.479
+      - 28.627
+      rgb_color:
+      - 255
+      - 182
+      - 224
+      xy_color:
+      - 0.38
+      - 0.28
+      effect: none
+      friendly_name: Den Center 5
+      supported_features: 63
+      state: 'on'
+    light.den_center_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 251.429
+      - 57.647
+      rgb_color:
+      - 136
+      - 108
+      - 255
+      xy_color:
+      - 0.223
+      - 0.139
+      effect: none
+      friendly_name: Den Center 6
+      supported_features: 63
+      state: 'on'
+    light.den_door:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 325.479
+      - 28.627
+      rgb_color:
+      - 255
+      - 182
+      - 224
+      xy_color:
+      - 0.38
+      - 0.28
+      effect: none
+      friendly_name: Den Door
+      supported_features: 63
+      state: 'on'
+    light.den_window:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 10.5
+      - 31.373
+      rgb_color:
+      - 255
+      - 188
+      - 174
+      xy_color:
+      - 0.426
+      - 0.336
+      effect: none
+      friendly_name: Den Window
+      supported_features: 63
+      state: 'on'
+    light.den_rear_corner:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 278.333
+      - 42.353
+      rgb_color:
+      - 215
+      - 146
+      - 255
+      xy_color:
+      - 0.314
+      - 0.206
+      effect: none
+      friendly_name: Den Rear Corner
+      supported_features: 63
+      state: 'on'
+    light.den_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 251.429
+      - 57.647
+      rgb_color:
+      - 136
+      - 108
+      - 255
+      xy_color:
+      - 0.223
+      - 0.139
+      effect: none
+      friendly_name: Den Stairs
+      supported_features: 63
+      state: 'on'
+    light.office_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 10.5
+      - 31.373
+      rgb_color:
+      - 255
+      - 188
+      - 174
+      xy_color:
+      - 0.426
+      - 0.336
+      effect: none
+      friendly_name: Office 1
+      supported_features: 63
+      state: 'on'
+    light.office_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 278.333
+      - 42.353
+      rgb_color:
+      - 215
+      - 146
+      - 255
+      xy_color:
+      - 0.314
+      - 0.206
+      effect: none
+      friendly_name: Office 2
+      supported_features: 63
+      state: 'on'
+    light.office_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 10.5
+      - 31.373
+      rgb_color:
+      - 255
+      - 188
+      - 174
+      xy_color:
+      - 0.426
+      - 0.336
+      effect: none
+      friendly_name: Office 3
+      supported_features: 63
+      state: 'on'
+    light.office_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 28.269
+      - 40.784
+      rgb_color:
+      - 255
+      - 200
+      - 151
+      xy_color:
+      - 0.438
+      - 0.373
+      effect: none
+      friendly_name: Office 4
+      supported_features: 63
+      state: 'on'
+    light.office_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 325.479
+      - 28.627
+      rgb_color:
+      - 255
+      - 182
+      - 224
+      xy_color:
+      - 0.38
+      - 0.28
+      effect: none
+      friendly_name: Office 5
+      supported_features: 63
+      state: 'on'
+    light.den_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 251.429
+      - 57.647
+      rgb_color:
+      - 136
+      - 108
+      - 255
+      xy_color:
+      - 0.223
+      - 0.139
+      effect: none
+      friendly_name: Den end table
+      supported_features: 63
+      state: 'on'
+- id: '1633744058875'
+  name: Den Tropical Twilight
+  entities:
+    light.den_center_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 112
+      hs_color:
+      - 314.118
+      - 26.667
+      rgb_color:
+      - 255
+      - 186
+      - 238
+      xy_color:
+      - 0.365
+      - 0.271
+      effect: none
+      friendly_name: Den Center 1
+      supported_features: 63
+      state: 'on'
+    light.den_center_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 112
+      hs_color:
+      - 25.161
+      - 48.627
+      rgb_color:
+      - 255
+      - 183
+      - 131
+      xy_color:
+      - 0.471
+      - 0.372
+      effect: none
+      friendly_name: Den Center 2
+      supported_features: 63
+      state: 'on'
+    light.den_center_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 112
+      hs_color:
+      - 25.161
+      - 48.627
+      rgb_color:
+      - 255
+      - 183
+      - 131
+      xy_color:
+      - 0.471
+      - 0.372
+      effect: none
+      friendly_name: Den Center 3
+      supported_features: 63
+      state: 'on'
+    light.den_center_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 112
+      hs_color:
+      - 276.462
+      - 50.98
+      rgb_color:
+      - 204
+      - 125
+      - 255
+      xy_color:
+      - 0.305
+      - 0.182
+      effect: none
+      friendly_name: Den Center 4
+      supported_features: 63
+      state: 'on'
+    light.den_center_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 112
+      hs_color:
+      - 264.483
+      - 68.235
+      rgb_color:
+      - 152
+      - 81
+      - 255
+      xy_color:
+      - 0.245
+      - 0.122
+      effect: none
+      friendly_name: Den Center 5
+      supported_features: 63
+      state: 'on'
+    light.den_center_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 112
+      hs_color:
+      - 21.905
+      - 74.118
+      rgb_color:
+      - 255
+      - 135
+      - 65
+      xy_color:
+      - 0.578
+      - 0.365
+      effect: none
+      friendly_name: Den Center 6
+      supported_features: 63
+      state: 'on'
+    light.den_door:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 112
+      hs_color:
+      - 264.483
+      - 68.235
+      rgb_color:
+      - 152
+      - 81
+      - 255
+      xy_color:
+      - 0.245
+      - 0.122
+      effect: none
+      friendly_name: Den Door
+      supported_features: 63
+      state: 'on'
+    light.den_window:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 112
+      hs_color:
+      - 276.462
+      - 50.98
+      rgb_color:
+      - 204
+      - 125
+      - 255
+      xy_color:
+      - 0.305
+      - 0.182
+      effect: none
+      friendly_name: Den Window
+      supported_features: 63
+      state: 'on'
+    light.den_rear_corner:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 111
+      hs_color:
+      - 31.622
+      - 87.059
+      rgb_color:
+      - 255
+      - 150
+      - 32
+      xy_color:
+      - 0.576
+      - 0.394
+      effect: none
+      friendly_name: Den Rear Corner
+      supported_features: 63
+      state: 'on'
+    light.den_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 114
+      hs_color:
+      - 28.8
+      - 88.235
+      rgb_color:
+      - 255
+      - 138
+      - 30
+      xy_color:
+      - 0.592
+      - 0.381
+      effect: none
+      friendly_name: Den Stairs
+      supported_features: 63
+      state: 'on'
+    light.office_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 114
+      hs_color:
+      - 311
+      - 23.529
+      rgb_color:
+      - 255
+      - 195
+      - 244
+      xy_color:
+      - 0.355
+      - 0.275
+      effect: none
+      friendly_name: Office 1
+      supported_features: 63
+      state: 'on'
+    light.office_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 114
+      hs_color:
+      - 26.512
+      - 50.588
+      rgb_color:
+      - 255
+      - 183
+      - 126
+      xy_color:
+      - 0.476
+      - 0.376
+      effect: none
+      friendly_name: Office 2
+      supported_features: 63
+      state: 'on'
+    light.office_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 114
+      hs_color:
+      - 311
+      - 23.529
+      rgb_color:
+      - 255
+      - 195
+      - 244
+      xy_color:
+      - 0.355
+      - 0.275
+      effect: none
+      friendly_name: Office 3
+      supported_features: 63
+      state: 'on'
+    light.office_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 114
+      hs_color:
+      - 263.351
+      - 72.549
+      rgb_color:
+      - 141
+      - 70
+      - 255
+      xy_color:
+      - 0.232
+      - 0.109
+      effect: none
+      friendly_name: Office 4
+      supported_features: 63
+      state: 'on'
+    light.office_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 114
+      hs_color:
+      - 273.913
+      - 54.118
+      rgb_color:
+      - 194
+      - 116
+      - 255
+      xy_color:
+      - 0.294
+      - 0.17
+      effect: none
+      friendly_name: Office 5
+      supported_features: 63
+      state: 'on'
+    light.den_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 112
+      hs_color:
+      - 21.905
+      - 74.118
+      rgb_color:
+      - 255
+      - 135
+      - 65
+      xy_color:
+      - 0.578
+      - 0.365
+      effect: none
+      friendly_name: Den end table
+      supported_features: 63
+      state: 'on'
+- id: '1633744116256'
+  name: Den Nebula
+  entities:
+    light.den_center_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 276.977
+      - 33.725
+      rgb_color:
+      - 222
+      - 169
+      - 255
+      xy_color:
+      - 0.316
+      - 0.232
+      effect: none
+      friendly_name: Den Center 1
+      supported_features: 63
+      state: 'on'
+    light.den_center_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 264.844
+      - 50.196
+      rgb_color:
+      - 180
+      - 127
+      - 255
+      xy_color:
+      - 0.274
+      - 0.175
+      effect: none
+      friendly_name: Den Center 2
+      supported_features: 63
+      state: 'on'
+    light.den_center_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 264.844
+      - 50.196
+      rgb_color:
+      - 180
+      - 127
+      - 255
+      xy_color:
+      - 0.274
+      - 0.175
+      effect: none
+      friendly_name: Den Center 3
+      supported_features: 63
+      state: 'on'
+    light.den_center_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 320.27
+      - 29.02
+      rgb_color:
+      - 255
+      - 180
+      - 229
+      xy_color:
+      - 0.376
+      - 0.273
+      effect: none
+      friendly_name: Den Center 4
+      supported_features: 63
+      state: 'on'
+    light.den_center_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 233.654
+      - 40.784
+      rgb_color:
+      - 151
+      - 162
+      - 255
+      xy_color:
+      - 0.234
+      - 0.208
+      effect: none
+      friendly_name: Den Center 5
+      supported_features: 63
+      state: 'on'
+    light.den_center_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 263.038
+      - 92.941
+      rgb_color:
+      - 109
+      - 18
+      - 255
+      xy_color:
+      - 0.197
+      - 0.071
+      effect: none
+      friendly_name: Den Center 6
+      supported_features: 63
+      state: 'on'
+    light.den_door:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 245.347
+      - 39.608
+      rgb_color:
+      - 163
+      - 153
+      - 255
+      xy_color:
+      - 0.249
+      - 0.199
+      effect: none
+      friendly_name: Den Door
+      supported_features: 63
+      state: 'on'
+    light.den_window:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 320.27
+      - 29.02
+      rgb_color:
+      - 255
+      - 180
+      - 229
+      xy_color:
+      - 0.376
+      - 0.273
+      effect: none
+      friendly_name: Den Window
+      supported_features: 63
+      state: 'on'
+    light.den_rear_corner:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 264.844
+      - 50.196
+      rgb_color:
+      - 180
+      - 127
+      - 255
+      xy_color:
+      - 0.274
+      - 0.175
+      effect: none
+      friendly_name: Den Rear Corner
+      supported_features: 63
+      state: 'on'
+    light.den_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 263.038
+      - 92.941
+      rgb_color:
+      - 109
+      - 18
+      - 255
+      xy_color:
+      - 0.197
+      - 0.071
+      effect: none
+      friendly_name: Den Stairs
+      supported_features: 63
+      state: 'on'
+    light.office_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 320.27
+      - 29.02
+      rgb_color:
+      - 255
+      - 180
+      - 229
+      xy_color:
+      - 0.376
+      - 0.273
+      effect: none
+      friendly_name: Office 1
+      supported_features: 63
+      state: 'on'
+    light.office_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 264.844
+      - 50.196
+      rgb_color:
+      - 180
+      - 127
+      - 255
+      xy_color:
+      - 0.274
+      - 0.175
+      effect: none
+      friendly_name: Office 2
+      supported_features: 63
+      state: 'on'
+    light.office_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 320.27
+      - 29.02
+      rgb_color:
+      - 255
+      - 180
+      - 229
+      xy_color:
+      - 0.376
+      - 0.273
+      effect: none
+      friendly_name: Office 3
+      supported_features: 63
+      state: 'on'
+    light.office_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 276.977
+      - 33.725
+      rgb_color:
+      - 222
+      - 169
+      - 255
+      xy_color:
+      - 0.316
+      - 0.232
+      effect: none
+      friendly_name: Office 4
+      supported_features: 63
+      state: 'on'
+    light.office_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 233.654
+      - 40.784
+      rgb_color:
+      - 151
+      - 162
+      - 255
+      xy_color:
+      - 0.234
+      - 0.208
+      effect: none
+      friendly_name: Office 5
+      supported_features: 63
+      state: 'on'
+    light.den_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 61
+      hs_color:
+      - 263.038
+      - 92.941
+      rgb_color:
+      - 109
+      - 18
+      - 255
+      xy_color:
+      - 0.197
+      - 0.071
+      effect: none
+      friendly_name: Den end table
+      supported_features: 63
+      state: 'on'
+- id: '1633744244795'
+  name: Den Moonlight
+  entities:
+    light.den_center_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 255.059
+      - 100
+      rgb_color:
+      - 64
+      - 0
+      - 255
+      xy_color:
+      - 0.158
+      - 0.05
+      effect: none
+      friendly_name: Den Center 1
+      supported_features: 63
+      state: 'on'
+    light.den_center_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 235.5
+      - 62.745
+      rgb_color:
+      - 95
+      - 107
+      - 255
+      xy_color:
+      - 0.182
+      - 0.124
+      effect: none
+      friendly_name: Den Center 2
+      supported_features: 63
+      state: 'on'
+    light.den_center_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 105
+      - 3.137
+      rgb_color:
+      - 249
+      - 255
+      - 247
+      xy_color:
+      - 0.322
+      - 0.338
+      effect: none
+      friendly_name: Den Center 3
+      supported_features: 63
+      state: 'on'
+    light.den_center_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 235.5
+      - 62.745
+      rgb_color:
+      - 95
+      - 107
+      - 255
+      xy_color:
+      - 0.182
+      - 0.124
+      effect: none
+      friendly_name: Den Center 4
+      supported_features: 63
+      state: 'on'
+    light.den_center_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 223.548
+      - 48.627
+      rgb_color:
+      - 131
+      - 165
+      - 255
+      xy_color:
+      - 0.212
+      - 0.208
+      effect: none
+      friendly_name: Den Center 5
+      supported_features: 63
+      state: 'on'
+    light.den_center_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 223.114
+      - 65.49
+      rgb_color:
+      - 88
+      - 134
+      - 255
+      xy_color:
+      - 0.176
+      - 0.156
+      effect: none
+      friendly_name: Den Center 6
+      supported_features: 63
+      state: 'on'
+    light.den_door:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 248.98
+      - 57.647
+      rgb_color:
+      - 130
+      - 108
+      - 255
+      xy_color:
+      - 0.216
+      - 0.137
+      effect: none
+      friendly_name: Den Door
+      supported_features: 63
+      state: 'on'
+    light.den_window:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 255.059
+      - 100
+      rgb_color:
+      - 64
+      - 0
+      - 255
+      xy_color:
+      - 0.158
+      - 0.05
+      effect: none
+      friendly_name: Den Window
+      supported_features: 63
+      state: 'on'
+    light.den_rear_corner:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 255.059
+      - 100
+      rgb_color:
+      - 64
+      - 0
+      - 255
+      xy_color:
+      - 0.158
+      - 0.05
+      effect: none
+      friendly_name: Den Rear Corner
+      supported_features: 63
+      state: 'on'
+    light.den_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 105
+      - 3.137
+      rgb_color:
+      - 249
+      - 255
+      - 247
+      xy_color:
+      - 0.322
+      - 0.338
+      effect: none
+      friendly_name: Den Stairs
+      supported_features: 63
+      state: 'on'
+    light.office_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 235.5
+      - 62.745
+      rgb_color:
+      - 95
+      - 107
+      - 255
+      xy_color:
+      - 0.182
+      - 0.124
+      effect: none
+      friendly_name: Office 1
+      supported_features: 63
+      state: 'on'
+    light.office_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 255.059
+      - 100
+      rgb_color:
+      - 64
+      - 0
+      - 255
+      xy_color:
+      - 0.158
+      - 0.05
+      effect: none
+      friendly_name: Office 2
+      supported_features: 63
+      state: 'on'
+    light.office_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 235.5
+      - 62.745
+      rgb_color:
+      - 95
+      - 107
+      - 255
+      xy_color:
+      - 0.182
+      - 0.124
+      effect: none
+      friendly_name: Office 3
+      supported_features: 63
+      state: 'on'
+    light.office_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 223.548
+      - 48.627
+      rgb_color:
+      - 131
+      - 165
+      - 255
+      xy_color:
+      - 0.212
+      - 0.208
+      effect: none
+      friendly_name: Office 4
+      supported_features: 63
+      state: 'on'
+    light.office_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 223.114
+      - 65.49
+      rgb_color:
+      - 88
+      - 134
+      - 255
+      xy_color:
+      - 0.176
+      - 0.156
+      effect: none
+      friendly_name: Office 5
+      supported_features: 63
+      state: 'on'
+    light.den_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 51
+      hs_color:
+      - 105
+      - 3.137
+      rgb_color:
+      - 249
+      - 255
+      - 247
+      xy_color:
+      - 0.322
+      - 0.338
+      effect: none
+      friendly_name: Den end table
+      supported_features: 63
+      state: 'on'
+- id: '1633744302197'
+  name: Den Lake Placid
+  entities:
+    light.den_center_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 9.231
+      - 30.588
+      rgb_color:
+      - 255
+      - 189
+      - 177
+      xy_color:
+      - 0.422
+      - 0.334
+      effect: none
+      friendly_name: Den Center 1
+      supported_features: 63
+      state: 'on'
+    light.den_center_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.328
+      - 53.725
+      rgb_color:
+      - 255
+      - 152
+      - 118
+      xy_color:
+      - 0.513
+      - 0.347
+      effect: none
+      friendly_name: Den Center 2
+      supported_features: 63
+      state: 'on'
+    light.den_center_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.328
+      - 53.725
+      rgb_color:
+      - 255
+      - 152
+      - 118
+      xy_color:
+      - 0.513
+      - 0.347
+      effect: none
+      friendly_name: Den Center 3
+      supported_features: 63
+      state: 'on'
+    light.den_center_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 220.851
+      - 55.294
+      rgb_color:
+      - 114
+      - 159
+      - 255
+      xy_color:
+      - 0.197
+      - 0.196
+      effect: none
+      friendly_name: Den Center 4
+      supported_features: 63
+      state: 'on'
+    light.den_center_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 221.124
+      - 34.902
+      rgb_color:
+      - 165
+      - 193
+      - 255
+      xy_color:
+      - 0.244
+      - 0.252
+      effect: none
+      friendly_name: Den Center 5
+      supported_features: 63
+      state: 'on'
+    light.den_center_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.963
+      - 42.745
+      rgb_color:
+      - 255
+      - 174
+      - 146
+      xy_color:
+      - 0.465
+      - 0.347
+      effect: none
+      friendly_name: Den Center 6
+      supported_features: 63
+      state: 'on'
+    light.den_door:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 242.5
+      - 28.235
+      rgb_color:
+      - 186
+      - 183
+      - 255
+      xy_color:
+      - 0.269
+      - 0.241
+      effect: none
+      friendly_name: Den Door
+      supported_features: 63
+      state: 'on'
+    light.den_window:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 220.851
+      - 55.294
+      rgb_color:
+      - 114
+      - 159
+      - 255
+      xy_color:
+      - 0.197
+      - 0.196
+      effect: none
+      friendly_name: Den Window
+      supported_features: 63
+      state: 'on'
+    light.den_rear_corner:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.328
+      - 53.725
+      rgb_color:
+      - 255
+      - 152
+      - 118
+      xy_color:
+      - 0.513
+      - 0.347
+      effect: none
+      friendly_name: Den Rear Corner
+      supported_features: 63
+      state: 'on'
+    light.den_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.963
+      - 42.745
+      rgb_color:
+      - 255
+      - 174
+      - 146
+      xy_color:
+      - 0.465
+      - 0.347
+      effect: none
+      friendly_name: Den Stairs
+      supported_features: 63
+      state: 'on'
+    light.office_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 220.851
+      - 55.294
+      rgb_color:
+      - 114
+      - 159
+      - 255
+      xy_color:
+      - 0.197
+      - 0.196
+      effect: none
+      friendly_name: Office 1
+      supported_features: 63
+      state: 'on'
+    light.office_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.328
+      - 53.725
+      rgb_color:
+      - 255
+      - 152
+      - 118
+      xy_color:
+      - 0.513
+      - 0.347
+      effect: none
+      friendly_name: Office 2
+      supported_features: 63
+      state: 'on'
+    light.office_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 220.851
+      - 55.294
+      rgb_color:
+      - 114
+      - 159
+      - 255
+      xy_color:
+      - 0.197
+      - 0.196
+      effect: none
+      friendly_name: Office 3
+      supported_features: 63
+      state: 'on'
+    light.office_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 9.231
+      - 30.588
+      rgb_color:
+      - 255
+      - 189
+      - 177
+      xy_color:
+      - 0.422
+      - 0.334
+      effect: none
+      friendly_name: Office 4
+      supported_features: 63
+      state: 'on'
+    light.office_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 221.124
+      - 34.902
+      rgb_color:
+      - 165
+      - 193
+      - 255
+      xy_color:
+      - 0.244
+      - 0.252
+      effect: none
+      friendly_name: Office 5
+      supported_features: 63
+      state: 'on'
+    light.den_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 76
+      hs_color:
+      - 15.963
+      - 42.745
+      rgb_color:
+      - 255
+      - 174
+      - 146
+      xy_color:
+      - 0.465
+      - 0.347
+      effect: none
+      friendly_name: Den end table
+      supported_features: 63
+      state: 'on'
+- id: '1633744366409'
+  name: Den Palm Beach
+  entities:
+    light.den_center_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 17.206
+      - 53.333
+      rgb_color:
+      - 255
+      - 158
+      - 119
+      xy_color:
+      - 0.507
+      - 0.353
+      effect: none
+      friendly_name: Den Center 1
+      supported_features: 63
+      state: 'on'
+    light.den_center_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 178.11
+      - 49.804
+      rgb_color:
+      - 127
+      - 255
+      - 250
+      xy_color:
+      - 0.201
+      - 0.346
+      effect: none
+      friendly_name: Den Center 2
+      supported_features: 63
+      state: 'on'
+    light.den_center_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 339.091
+      - 25.882
+      rgb_color:
+      - 255
+      - 189
+      - 212
+      xy_color:
+      - 0.388
+      - 0.299
+      effect: none
+      friendly_name: Den Center 3
+      supported_features: 63
+      state: 'on'
+    light.den_center_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 178.11
+      - 49.804
+      rgb_color:
+      - 127
+      - 255
+      - 250
+      xy_color:
+      - 0.201
+      - 0.346
+      effect: none
+      friendly_name: Den Center 4
+      supported_features: 63
+      state: 'on'
+    light.den_center_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 16.842
+      - 67.059
+      rgb_color:
+      - 255
+      - 131
+      - 83
+      xy_color:
+      - 0.569
+      - 0.35
+      effect: none
+      friendly_name: Den Center 5
+      supported_features: 63
+      state: 'on'
+    light.den_center_6:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 191.642
+      - 26.275
+      rgb_color:
+      - 187
+      - 241
+      - 255
+      xy_color:
+      - 0.256
+      - 0.316
+      effect: none
+      friendly_name: Den Center 6
+      supported_features: 63
+      state: 'on'
+    light.den_door:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 232.727
+      - 12.941
+      rgb_color:
+      - 222
+      - 226
+      - 255
+      xy_color:
+      - 0.298
+      - 0.297
+      effect: none
+      friendly_name: Den Door
+      supported_features: 63
+      state: 'on'
+    light.den_window:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 17.206
+      - 53.333
+      rgb_color:
+      - 255
+      - 158
+      - 119
+      xy_color:
+      - 0.507
+      - 0.353
+      effect: none
+      friendly_name: Den Window
+      supported_features: 63
+      state: 'on'
+    light.den_rear_corner:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 17.206
+      - 53.333
+      rgb_color:
+      - 255
+      - 158
+      - 119
+      xy_color:
+      - 0.507
+      - 0.353
+      effect: none
+      friendly_name: Den Rear Corner
+      supported_features: 63
+      state: 'on'
+    light.den_stairs:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 339.091
+      - 25.882
+      rgb_color:
+      - 255
+      - 189
+      - 212
+      xy_color:
+      - 0.388
+      - 0.299
+      effect: none
+      friendly_name: Den Stairs
+      supported_features: 63
+      state: 'on'
+    light.office_1:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 178.11
+      - 49.804
+      rgb_color:
+      - 127
+      - 255
+      - 250
+      xy_color:
+      - 0.201
+      - 0.346
+      effect: none
+      friendly_name: Office 1
+      supported_features: 63
+      state: 'on'
+    light.office_2:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 17.206
+      - 53.333
+      rgb_color:
+      - 255
+      - 158
+      - 119
+      xy_color:
+      - 0.507
+      - 0.353
+      effect: none
+      friendly_name: Office 2
+      supported_features: 63
+      state: 'on'
+    light.office_3:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 178.11
+      - 49.804
+      rgb_color:
+      - 127
+      - 255
+      - 250
+      xy_color:
+      - 0.201
+      - 0.346
+      effect: none
+      friendly_name: Office 3
+      supported_features: 63
+      state: 'on'
+    light.office_4:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 16.842
+      - 67.059
+      rgb_color:
+      - 255
+      - 131
+      - 83
+      xy_color:
+      - 0.569
+      - 0.35
+      effect: none
+      friendly_name: Office 4
+      supported_features: 63
+      state: 'on'
+    light.office_5:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 191.642
+      - 26.275
+      rgb_color:
+      - 187
+      - 241
+      - 255
+      xy_color:
+      - 0.256
+      - 0.316
+      effect: none
+      friendly_name: Office 5
+      supported_features: 63
+      state: 'on'
+    light.den_end_table:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - colorloop
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 97
+      hs_color:
+      - 339.091
+      - 25.882
+      rgb_color:
+      - 255
+      - 189
+      - 212
+      xy_color:
+      - 0.388
+      - 0.299
+      effect: none
+      friendly_name: Den end table
+      supported_features: 63
+      state: 'on'
