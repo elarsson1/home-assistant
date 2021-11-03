@@ -6,7 +6,7 @@
     - platform: time
       at: input_datetime.auto_backup_time
   action:
-    - service: auto_backup.snapshot_full
+    - service: auto_backup.backup_full
       data:
         name: "DailyBackup: {{ now().strftime('%A, %B %-d, %Y') }}"
         keep_days: 14
