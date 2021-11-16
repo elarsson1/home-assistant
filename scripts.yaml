@@ -36,7 +36,7 @@ pre_warm:
       data_template:
         entity_id: "climate.{{ room }}"
         temperature: "{{ states('input_number.prewarm_temperature') }}"
-    - delay: "01:30"
+    - delay: "02:00"
     # deactivate heat
     - service: climate.set_hvac_mode
       data_template:
