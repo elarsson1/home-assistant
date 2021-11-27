@@ -401,6 +401,87 @@
         variables:
           room: master_bedroom
 
+# turn on HVAC to prevent freezing
+- id: AntiFreezeOn
+  alias: Anti-Freeze On
+  trigger: 
+    - minutes: 5
+      platform: time_pattern
+  condition:
+    - condition: numeric_state
+      entity_id: weather.home
+      attribute: temperature
+      below: input_number.anti_freeze_low_outdoor_threshold
+  action:
+    - service: script.anti_freeze_on
+      data: 
+        thermostat: climate.den_thermostat
+    - service: script.anti_freeze_on
+      data: 
+        thermostat: climate.den
+    - service: script.anti_freeze_on
+      data: 
+        thermostat: climate.guest_room_thermostat
+    - service: script.anti_freeze_on
+      data: 
+        thermostat: climate.guest_room
+    - service: script.anti_freeze_on
+      data: 
+        thermostat: climate.living_room_thermostat
+    - service: script.anti_freeze_on
+      data: 
+        thermostat: climate.living_room
+    - service: script.anti_freeze_on
+      data: 
+        thermostat: climate.master_bedroom_thermostat
+    - service: script.anti_freeze_on
+      data: 
+        thermostat: climate.master_bedroom
+    - service: script.anti_freeze_on
+      data: 
+        thermostat: climate.den_baseboard
+
+# turn off anti-freeze when outdoor temp rises
+- id: AntiFreezeOff
+  alias: Anti-Freeze Off
+  trigger: 
+    - minutes: 5
+      platform: time_pattern
+  condition:
+    - condition: numeric_state
+      entity_id: weather.home
+      attribute: temperature
+      above: input_number.anti_freeze_high_outdoor_threshold
+  action:
+    - service: script.anti_freeze_off
+      data: 
+        thermostat: climate.den_thermostat
+    - service: script.anti_freeze_off
+      data: 
+        thermostat: climate.den
+    - service: script.anti_freeze_off
+      data: 
+        thermostat: climate.guest_room_thermostat
+    - service: script.anti_freeze_off
+      data: 
+        thermostat: climate.guest_room
+    - service: script.anti_freeze_off
+      data: 
+        thermostat: climate.living_room_thermostat
+    - service: script.anti_freeze_off
+      data: 
+        thermostat: climate.living_room
+    - service: script.anti_freeze_off
+      data: 
+        thermostat: climate.master_bedroom_thermostat
+    - service: script.anti_freeze_off
+      data: 
+        thermostat: climate.master_bedroom
+    - service: script.anti_freeze_off
+      data: 
+        thermostat: climate.den_baseboard
+  
+
 # Enable master bedroom motion sensor
 - id: EnableMBRMotion
   alias: Enable Master Bed Motion Sensor

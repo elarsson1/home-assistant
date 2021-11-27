@@ -7,6 +7,55 @@ alexa_going_out:
         entity_id: input_select.presence
         option: "Away"
 
+# anti-freeze activate script
+anti_freeze_on:
+  alias: Anti-Freeze On
+  description: Turn on heaters to prevent freezing
+  mode: parallel
+  fields:
+    thermostat:
+      description: "Thermostat to check and update"
+      example: climate.living_room
+  sequence:
+    # continue if unit is currently off
+    - condition: template
+      value_template: "{{ states(thermostat) == 'off' }}"
+    # continue if current room temp is below the low threshold
+    - condition: template
+      value_template: "{{ ( state_attr(thermostat, 'current_temperature') < states('input_number.anti_freeze_low_indoor_threshold') | int ) }}"
+    # turn on the heat and set it to the anti-freeze setpoint
+    - service: climate.set_hvac_mode
+      data_template:
+        entity_id: "{{ thermostat }}"
+        hvac_mode: heat
+    - delay: "00:00:30"
+    - service: climate.set_temperature
+      data_template:
+        entity_id: "{{ thermostat }}"
+        temperature: "{{ states('input_number.anti_freeze_temperature') }}"
+
+# anti-freeze off script
+anti_freeze_off:
+  alias: Anti-Freeze Off
+  description: Turn off heaters when outdoor temp is sufficient to prevent freezing
+  mode: parallel
+  fields:
+    thermostat:
+      description: "Thermostat to check and update"
+      example: climate.living_room
+  sequence:
+    # continue if unit is currently on heat
+    - condition: template
+      value_template: "{{ states(thermostat) == 'heat' }}"
+    # continue if current set point matches the anti-freeze setpoint. 
+    - condition: template
+      value_template: "{{ ( state_attr(thermostat, 'temperature') == states('input_number.anti_freeze_temperature') | int ) }}"
+    # turn on the heat and set it to the anti-freeze setpoint
+    - service: climate.set_hvac_mode
+      data_template:
+        entity_id: "{{ thermostat }}"
+        hvac_mode: 'off'
+
 # pre-warm bedroom script
 pre_warm:
   alias: Pre-warm
