@@ -5,6 +5,9 @@ default_config:
 recorder:
   commit_interval: 30
 
+homeassistant:
+  customize: !include customize.yaml
+
 http:
   # For extra security set this to only accept connections on localhost if NGINX is on the same machine
   # Uncommenting this will mean that you can only reach Home Assistant using the proxy, not directly via IP from other clients.
