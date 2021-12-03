@@ -47,14 +47,14 @@ anti_freeze_off:
     # continue if unit is currently on heat
     - condition: template
       value_template: "{{ states(thermostat) == 'heat' }}"
-    # continue if current set point matches the anti-freeze setpoint. 
+    # continue if current set point matches the anti-freeze setpoint.
     - condition: template
       value_template: "{{ ( state_attr(thermostat, 'temperature') == states('input_number.anti_freeze_temperature') | int ) }}"
     # turn on the heat and set it to the anti-freeze setpoint
     - service: climate.set_hvac_mode
       data_template:
         entity_id: "{{ thermostat }}"
-        hvac_mode: 'off'
+        hvac_mode: "off"
 
 # pre-warm bedroom script
 pre_warm:
@@ -118,6 +118,25 @@ wake_up:
       data_template:
         entity_id: "switch.{{ warmer }}"
 
+# morning bathroom heater routine
+wake_up_bath_heater:
+  alias: Wake Up Bathroom Heater
+  description: Routine to run during wake-up for bathroom heater
+  sequence:
+    # only run if its cold outside
+    - condition: numeric_state
+      entity_id: weather.home
+      attribute: temperature
+      below: input_number.bathroom_heater_warm_up_low_threshold
+    # run heater for two hours
+    - service: climate.set_hvac_mode
+      entity_id: climate.master_bath_heater
+      data:
+        hvac_mode: "heat_cool"
+    - delay: "02:00:00"
+    - service: climate.turn_off
+      entity_id: climate.master_bath_heater
+
 # Good Night Script
 good_night:
   alias: Good Night
@@ -148,6 +167,8 @@ good_night:
         - climate.den
         - climate.living_room
         - climate.living_room_thermostat
+        - climate.master_bath_heater
+        - climate.vestibule_heater
     # turn off climate react
     - service: switch.turn_off
       entity_id:

@@ -298,6 +298,10 @@
       data:
         variables:
           room: master_bedroom
+    # execute bathroom heater script and do not wait for completion
+    - service: script.turn_on
+      target:
+        entity_id: script.wake_up_bath_heater
     # trigger wake-up script and wait for it to complete
     - service: script.wake_up
       data:
@@ -332,6 +336,10 @@
       data:
         variables:
           room: master_bedroom
+    # execute bathroom heater script and do not wait for completion
+    - service: script.turn_on
+      target:
+        entity_id: script.wake_up_bath_heater
     # trigger wake-up script and wait for it to complete
     - service: script.wake_up
       data:
@@ -404,7 +412,7 @@
 # turn on HVAC to prevent freezing
 - id: AntiFreezeOn
   alias: Anti-Freeze On
-  trigger: 
+  trigger:
     - minutes: 5
       platform: time_pattern
   condition:
@@ -414,37 +422,37 @@
       below: input_number.anti_freeze_low_outdoor_threshold
   action:
     - service: script.anti_freeze_on
-      data: 
+      data:
         thermostat: climate.den_thermostat
     - service: script.anti_freeze_on
-      data: 
+      data:
         thermostat: climate.den
     - service: script.anti_freeze_on
-      data: 
+      data:
         thermostat: climate.guest_room_thermostat
     - service: script.anti_freeze_on
-      data: 
+      data:
         thermostat: climate.guest_room
     - service: script.anti_freeze_on
-      data: 
+      data:
         thermostat: climate.living_room_thermostat
     - service: script.anti_freeze_on
-      data: 
+      data:
         thermostat: climate.living_room
     - service: script.anti_freeze_on
-      data: 
+      data:
         thermostat: climate.master_bedroom_thermostat
     - service: script.anti_freeze_on
-      data: 
+      data:
         thermostat: climate.master_bedroom
     - service: script.anti_freeze_on
-      data: 
+      data:
         thermostat: climate.den_baseboard
 
 # turn off anti-freeze when outdoor temp rises
 - id: AntiFreezeOff
   alias: Anti-Freeze Off
-  trigger: 
+  trigger:
     - minutes: 5
       platform: time_pattern
   condition:
@@ -454,33 +462,32 @@
       above: input_number.anti_freeze_high_outdoor_threshold
   action:
     - service: script.anti_freeze_off
-      data: 
+      data:
         thermostat: climate.den_thermostat
     - service: script.anti_freeze_off
-      data: 
+      data:
         thermostat: climate.den
     - service: script.anti_freeze_off
-      data: 
+      data:
         thermostat: climate.guest_room_thermostat
     - service: script.anti_freeze_off
-      data: 
+      data:
         thermostat: climate.guest_room
     - service: script.anti_freeze_off
-      data: 
+      data:
         thermostat: climate.living_room_thermostat
     - service: script.anti_freeze_off
-      data: 
+      data:
         thermostat: climate.living_room
     - service: script.anti_freeze_off
-      data: 
+      data:
         thermostat: climate.master_bedroom_thermostat
     - service: script.anti_freeze_off
-      data: 
+      data:
         thermostat: climate.master_bedroom
     - service: script.anti_freeze_off
-      data: 
+      data:
         thermostat: climate.den_baseboard
-  
 
 # Enable master bedroom motion sensor
 - id: EnableMBRMotion
