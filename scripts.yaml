@@ -73,7 +73,7 @@ pre_warm:
     # continue if temprature is below pre-warm threshold
     - condition: template
       value_template: "{{ ( state_attr('climate.' + room, 'current_temperature') < states('input_number.prewarm_threshold') | int ) }}"
-    # activate heat for one and a half hours
+    # activate heat for two hours
     - service: climate.set_hvac_mode
       data_template:
         entity_id: "climate.{{ room }}"
@@ -85,12 +85,27 @@ pre_warm:
       data_template:
         entity_id: "climate.{{ room }}"
         temperature: "{{ states('input_number.prewarm_temperature') }}"
+    # run for two hours
     - delay: "02:00"
-    # deactivate heat
-    - service: climate.set_hvac_mode
-      data_template:
-        entity_id: "climate.{{ room }}"
-        hvac_mode: "off"
+    # set to nighttime setpoint or deactivate heat depending on outdoor temp
+    - choose:
+      # if outdoor temp is below threshold
+      - conditions:
+          - condition: numeric_state
+            entity_id: weather.home
+            attribute: temperature
+            below: input_number.nighttime_outdoor_cold_threshold
+        sequence:
+          - service: climate.set_temperature
+            data_template: 
+              entity_id: "climate.{{ room }}"
+              temperature: "{{ states('input_number.nighttime_setpoint') }}"
+      # otherwise, turn off the heat
+      default: 
+      - service: climate.set_hvac_mode
+        data_template:
+          entity_id: "climate.{{ room }}"
+          hvac_mode: "off"
 
 # wake up script
 wake_up:
@@ -160,17 +175,48 @@ good_night:
     # turn off TV
     - service: remote.turn_off
       entity_id: remote.living_room_2
-    # turn off split units in Den and Living Room
-    - service: climate.turn_off
-      entity_id:
-        - climate.den_thermostat
-        - climate.den
-        - climate.living_room
-        - climate.living_room_thermostat
-        - climate.master_bath_heater
-        - climate.vestibule_heater
     # turn off climate react
     - service: switch.turn_off
       entity_id:
         - switch.den_ac_climate_react
         - switch.living_room_ac_climate_react
+    # turn off master bath and vestibule heaters
+    - service: climate.turn_off
+      entity_id:
+        - climate.master_bath_heater
+        - climate.vestibule_heater    
+    # set split units in Den and Living Room to nighttime temp if outdoor temp is below maint threshold.
+    - choose:
+      # if outdoor temp is below threshold
+      - conditions:
+          - condition: numeric_state
+            entity_id: weather.home
+            attribute: temperature
+            below: input_number.nighttime_outdoor_cold_threshold
+        sequence:
+          - service: climate.set_hvac_mode
+            data:
+              entity_id:
+                - climate.den_thermostat
+                - climate.den
+                - climate.living_room
+                - climate.living_room_thermostat
+              hvac_mode: "heat"
+          - service: climate.set_temperature
+            data_template: 
+              entity_id: 
+                - climate.den_thermostat
+                - climate.den
+                - climate.living_room
+                - climate.living_room_thermostat
+              temperature: "{{ states('input_number.nighttime_setpoint') }}"
+      # otherwise, turn off the heat
+      default: 
+        - service: climate.turn_off
+          entity_id:
+            - climate.den_thermostat
+            - climate.den
+            - climate.living_room
+            - climate.living_room_thermostat
+
+
