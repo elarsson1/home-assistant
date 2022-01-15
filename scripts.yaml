@@ -100,6 +100,11 @@ pre_warm:
             data_template: 
               entity_id: "climate.{{ room }}"
               temperature: "{{ states('input_number.nighttime_setpoint') }}"
+          # re-enable climate react
+          - delay: "00:01:00"
+          - service: switch.turn_on
+            data_template:
+              entity_id: "switch.{{ room }}_ac_climate_react"
       # otherwise, turn off the heat
       default: 
       - service: climate.set_hvac_mode
