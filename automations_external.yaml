@@ -153,6 +153,9 @@
         - climate.living_room_thermostat
         - climate.master_bedroom
         - climate.master_bedroom_thermostat
+        - climate.den_heater
+        - climate.den_baseboard
+        - climate.master_bedroom_heater
     - service: switch.turn_off
       entity_id:
         - switch.den_ac_climate_react
@@ -423,31 +426,16 @@
   action:
     - service: script.anti_freeze_on
       data:
-        thermostat: climate.den_thermostat
+        thermostat: climate.living_room_heater
     - service: script.anti_freeze_on
       data:
-        thermostat: climate.den
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.guest_room_thermostat
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.guest_room
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.living_room_thermostat
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.living_room
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.master_bedroom_thermostat
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.master_bedroom
+        thermostat: climate.den_heater
     - service: script.anti_freeze_on
       data:
         thermostat: climate.den_baseboard
+    - service: script.anti_freeze_on
+      data:
+        thermostat: climate.master_bedroom_heater
 
 # turn off anti-freeze when outdoor temp rises
 - id: AntiFreezeOff
@@ -463,31 +451,16 @@
   action:
     - service: script.anti_freeze_off
       data:
-        thermostat: climate.den_thermostat
+        thermostat: climate.living_room_heater
     - service: script.anti_freeze_off
       data:
-        thermostat: climate.den
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.guest_room_thermostat
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.guest_room
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.living_room_thermostat
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.living_room
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.master_bedroom_thermostat
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.master_bedroom
+        thermostat: climate.den_heater
     - service: script.anti_freeze_off
       data:
         thermostat: climate.den_baseboard
+    - service: script.anti_freeze_off
+      data:
+        thermostat: climate.master_bedroom_heater
 
 # Enable master bedroom motion sensor
 - id: EnableMBRMotion
