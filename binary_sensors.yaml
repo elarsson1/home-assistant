@@ -4,4 +4,4 @@
     wifi_guests:
       friendly_name: "Wifi Guest"
       value_template: >-
-        {{ state_attr('sensor.wifi', 'AkitaNetworks-Guest')|int > 0 }}
+        {{ state_attr('sensor.wifi', 'Axeltech-Guest')|int > 0 }}
