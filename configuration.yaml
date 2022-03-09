@@ -21,12 +21,6 @@ http:
 
 stream:
 
-# Jersey City Cam
-camera:
-  - platform: mjpeg
-    name: "Jersey City Cam"
-    mjpeg_url: http://10.70.8.5/nphMotionJpeg?Resolution=640x480&Quality=Standard
-
 # nest SDM
 nest:
   client_id: !secret nest_client_id
