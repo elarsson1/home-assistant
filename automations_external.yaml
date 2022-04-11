@@ -485,3 +485,29 @@
       target:
         entity_id: switch.master_bedroom_motion_sensor
   mode: single
+
+# Toggle motion sensor to prevent lights from turning off in Den when working
+- id: ToggleDenMotion
+  alias: Toggle Den Motion Sensor
+  trigger: 
+    - platform: state
+      entity_id: 
+        - binary_sensor.3c063016341b_active
+        - binary_sensor.axel_larsson_s_mac_active
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: light.office
+      state: "on"
+    - condition: state
+      entity_id: switch.den_motion_sensor
+      state: "on"
+  action:
+    - service: switch.turn_off
+      target: 
+        entity_id: switch.den_motion_sensor
+    - delay: "00:01:00"
+    - service: switch.turn_on
+      target: 
+        entity_id: switch.den_motion_sensor
+  mode: single
