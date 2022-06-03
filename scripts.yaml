@@ -89,28 +89,28 @@ pre_warm:
     - delay: "02:00"
     # set to nighttime setpoint or deactivate heat depending on outdoor temp
     - choose:
-      # if outdoor temp is below threshold
-      - conditions:
-          - condition: numeric_state
-            entity_id: weather.home
-            attribute: temperature
-            below: input_number.nighttime_outdoor_cold_threshold
-        sequence:
-          - service: climate.set_temperature
-            data_template: 
-              entity_id: "climate.{{ room }}"
-              temperature: "{{ states('input_number.nighttime_setpoint') }}"
-          # re-enable climate react
-          - delay: "00:01:00"
-          - service: switch.turn_on
-            data_template:
-              entity_id: "switch.{{ room }}_ac_climate_react"
+        # if outdoor temp is below threshold
+        - conditions:
+            - condition: numeric_state
+              entity_id: weather.home
+              attribute: temperature
+              below: input_number.nighttime_outdoor_cold_threshold
+          sequence:
+            - service: climate.set_temperature
+              data_template:
+                entity_id: "climate.{{ room }}"
+                temperature: "{{ states('input_number.nighttime_setpoint') }}"
+            # re-enable climate react
+            - delay: "00:01:00"
+            - service: switch.turn_on
+              data_template:
+                entity_id: "switch.{{ room }}_ac_climate_react"
       # otherwise, turn off the heat
-      default: 
-      - service: climate.set_hvac_mode
-        data_template:
-          entity_id: "climate.{{ room }}"
-          hvac_mode: "off"
+      default:
+        - service: climate.set_hvac_mode
+          data_template:
+            entity_id: "climate.{{ room }}"
+            hvac_mode: "off"
 
 # wake up script
 wake_up:
@@ -122,6 +122,9 @@ wake_up:
       description: "Towel warmer for Bedroom"
       example: "guest_bath_towel_warmer"
   sequence:
+    # disarm alarm
+    - service: alarm_control_panel.alarm_disarm
+      entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
     # activate towel warmer
     - service: switch.turn_on
       data_template:
@@ -189,39 +192,40 @@ good_night:
     - service: climate.turn_off
       entity_id:
         - climate.master_bath_heater
-        - climate.vestibule_heater    
+        - climate.vestibule_heater
     # set split units in Den and Living Room to nighttime temp if outdoor temp is below maint threshold.
     - choose:
-      # if outdoor temp is below threshold
-      - conditions:
-          - condition: numeric_state
-            entity_id: weather.home
-            attribute: temperature
-            below: input_number.nighttime_outdoor_cold_threshold
-        sequence:
-          - service: climate.set_hvac_mode
-            data:
-              entity_id:
-                - climate.den_thermostat
-                - climate.den
-                - climate.living_room
-                - climate.living_room_thermostat
-              hvac_mode: "heat"
-          - service: climate.set_temperature
-            data_template: 
-              entity_id: 
-                - climate.den_thermostat
-                - climate.den
-                - climate.living_room
-                - climate.living_room_thermostat
-              temperature: "{{ states('input_number.nighttime_setpoint') }}"
+        # if outdoor temp is below threshold
+        - conditions:
+            - condition: numeric_state
+              entity_id: weather.home
+              attribute: temperature
+              below: input_number.nighttime_outdoor_cold_threshold
+          sequence:
+            - service: climate.set_hvac_mode
+              data:
+                entity_id:
+                  - climate.den_thermostat
+                  - climate.den
+                  - climate.living_room
+                  - climate.living_room_thermostat
+                hvac_mode: "heat"
+            - service: climate.set_temperature
+              data_template:
+                entity_id:
+                  - climate.den_thermostat
+                  - climate.den
+                  - climate.living_room
+                  - climate.living_room_thermostat
+                temperature: "{{ states('input_number.nighttime_setpoint') }}"
       # otherwise, turn off the heat
-      default: 
+      default:
         - service: climate.turn_off
           entity_id:
             - climate.den_thermostat
             - climate.den
             - climate.living_room
             - climate.living_room_thermostat
-
-
+    # arm alarm in home mode
+    - service: alarm_control_panel.alarm_arm_home
+      entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
