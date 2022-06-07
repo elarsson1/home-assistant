@@ -176,10 +176,7 @@
         - Home
         - With Guests
   action:
-    - service: alarm_control_panel.alarm_disarm
-      entity_id: alarm_control_panel.alexa_guard_b0cd9
-    - service: alarm_control_panel.alarm_disarm
-      entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+    - service: script.alarm_disarm
 
 # reset HVAC state when arriving.
 - id: TurnHVACOnWhenArriving

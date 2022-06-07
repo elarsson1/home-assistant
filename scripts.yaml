@@ -122,9 +122,6 @@ wake_up:
       description: "Towel warmer for Bedroom"
       example: "guest_bath_towel_warmer"
   sequence:
-    # disarm alarm
-    - service: alarm_control_panel.alarm_disarm
-      entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
     # activate towel warmer
     - service: switch.turn_on
       data_template:
@@ -134,8 +131,14 @@ wake_up:
       entity_id: switch.living_room_ac_climate_react
     - service: switch.turn_on
       entity_id: switch.den_ac_climate_react
-    # wait two hours
-    - delay: "02:00:00"
+    # wait one hour
+    - delay: "01:00:00"
+    # disarm alarm
+    - service: script.turn_on
+      target:
+        entity_id: script.alarm_disarm
+    # wait one hours
+    - delay: "01:00:00"
     # switch off towel warmer
     - service: switch.turn_off
       data_template:
@@ -229,3 +232,23 @@ good_night:
     # arm alarm in home mode
     - service: alarm_control_panel.alarm_arm_home
       entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+
+# conditionally disarm alarms
+# needed to avoid spurious simplisafe notifications if alarm is aready disarmed
+alarm_disarm:
+  alias: Disarm Alarms
+  description: Disable Alexa Guard and Simplisafe
+  sequence:
+    # alexa does not care about disarm if already off, so just do it
+    - service: alarm_control_panel.alarm_disarm
+      entity_id: alarm_control_panel.alexa_guard_b0cd9
+    # disarm SimpliSafe if it is not already off
+    - if:
+        not:
+          - alias: "Alarm disarmed"
+            condition: state
+            entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+            state: "disarmed"
+      then:
+        - service: alarm_control_panel.alarm_disarm
+          entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
