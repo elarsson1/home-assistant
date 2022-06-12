@@ -96,6 +96,16 @@
                 entity_id: input_select.presence
                 option: Home
 
+# trigger away mode if alarm is armed
+- id: AwayOnAlarmArm
+  alias: "Set Away when Alarm is armed"
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+      to: "armed_away"
+  action:
+    - service: script.going_out
+
 # turn off TVs and lights when leaving.
 - id: TurnOffWhenLeaving
   alias: Turn_Off_When_Leaving
@@ -510,7 +520,7 @@
     - service: switch.turn_off
       target:
         entity_id: switch.den_motion_sensor
-    - delay: "00:30:00"
+    - delay: "04:00:00"
     - service: switch.turn_on
       target:
         entity_id: switch.den_motion_sensor
