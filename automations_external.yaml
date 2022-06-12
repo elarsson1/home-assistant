@@ -142,10 +142,7 @@
       to: Away
       for: 00:30:00
   action:
-    - service: alarm_control_panel.alarm_arm_away
-      entity_id: alarm_control_panel.alexa_guard_b0cd9
-    - service: alarm_control_panel.alarm_arm_away
-      entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+    - service: script.alarm_arm_away
 
 # Turn off HVAC when leaving after 30 minutes
 - id: OffHVACWhenLeaving
