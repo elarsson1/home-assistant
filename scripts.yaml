@@ -19,10 +19,10 @@ going_out:
     - condition: state
       entity_id: input_boolean.hold_presence
       state: "off"
-    # hold setting for five minutes to keep from toggling from other sensors
+    # hold setting for 35 minutes to keep from toggling from other sensors
     - service: input_boolean.turn_on
       entity_id: input_boolean.hold_presence
-    - delay: "00:05:00"
+    - delay: "00:35:00"
     - service: input_boolean.turn_off
       entity_id: input_boolean.hold_presence
 
