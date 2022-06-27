@@ -103,6 +103,16 @@
     - platform: state
       entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
       to: "armed_away"
+  condition:
+    # add condition check to prevent race conditions when disarming.
+    # SS will sometimes revert back to Armed Aay if there is a delay when disarming.
+    # must have been home for at least 30 minutes.
+    - condition: state
+      entity_id: input_select.presence
+      state:
+        - "Home"
+        - "With Guests"
+      for: "00:30:00"
   action:
     - service: script.going_out
 
