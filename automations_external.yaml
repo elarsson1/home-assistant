@@ -158,7 +158,7 @@
     - service: remote.turn_off
       entity_id: remote.den
 
-# turn off a subset of lights if the dog is alone
+# turn off a subset of devices if the dog is alone
 - id: TurnOffWhenLeavingDog
   alias: Turn_Off_When_Leaving_Dog
   description: Turn devices off when leaving dog alone
@@ -175,6 +175,10 @@
         - light.laundry_room
         - light.guest_room
         - light.master_bedroom
+    - service: switch.turn_off
+      entity_id:
+        - switch.guest_bath_towel_warmer
+        - switch.master_bath_towel_warmer
 
 # Arm alarm 30 minutes after leaving
 - id: ArmWhenLeaving
