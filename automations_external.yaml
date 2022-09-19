@@ -54,6 +54,7 @@
       entity_id:
         - person.guest
         - person.axel_larsson
+        - person.sophie
       to:
         - home
         - not_home
@@ -69,6 +70,7 @@
               entity_id:
                 - person.guest
                 - person.axel_larsson
+                - person.sophie
               state: not_home
           sequence:
             - service: input_select.select_option
@@ -95,6 +97,16 @@
               data:
                 entity_id: input_select.presence
                 option: Home
+        - alias: If only Sophie is home set to Dog Alone
+          conditions:
+            - condition: state
+              entity_id: person.sophie
+              state: home
+          sequence:
+            - service: input_select.select_option
+              data:
+                entity_id: input_select.presence
+                option: Dog Alone
 
 # trigger away mode if alarm is armed
 - id: AwayOnAlarmArm
@@ -116,7 +128,7 @@
   action:
     - service: script.going_out
 
-# turn off TVs and lights when leaving.
+# turn off TVs, warmers, and lights when leaving.
 - id: TurnOffWhenLeaving
   alias: Turn_Off_When_Leaving
   description: Turn devices off when leaving
@@ -137,10 +149,32 @@
         - light.guest_room
         - light.master_bedroom
         - light.kitchen
+    - service: switch.turn_off
+      entity_id:
+        - switch.guest_bath_towel_warmer
+        - switch.master_bath_towel_warmer
     - service: remote.turn_off
       entity_id: remote.living_room_2
     - service: remote.turn_off
       entity_id: remote.den
+
+# turn off a subset of lights if the dog is alone
+- id: TurnOffWhenLeavingDog
+  alias: Turn_Off_When_Leaving_Dog
+  description: Turn devices off when leaving dog alone
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      to: Dog Alone
+      for: 00:00:45
+  action:
+    - service: light.turn_off
+      entity_id:
+        - light.vestibule_switch
+        - light.under_stoop_lights
+        - light.laundry_room
+        - light.guest_room
+        - light.master_bedroom
 
 # Arm alarm 30 minutes after leaving
 - id: ArmWhenLeaving
@@ -149,7 +183,9 @@
   trigger:
     - platform: state
       entity_id: input_select.presence
-      to: Away
+      to:
+        - Away
+        - Dog Alone
       for: 00:30:00
   action:
     - service: script.alarm_arm_away
@@ -188,7 +224,9 @@
   trigger:
     - platform: state
       entity_id: input_select.presence
-      from: Away
+      from:
+        - Away
+        - Dog Alone
       to:
         - Home
         - With Guests
@@ -202,7 +240,9 @@
   trigger:
     - platform: state
       entity_id: input_select.presence
-      from: Away
+      from:
+        - Away
+        - Dog Alone
       to:
         - Home
         - With Guests
@@ -225,7 +265,9 @@
   trigger:
     - platform: state
       entity_id: input_select.presence
-      from: Away
+      from:
+        - Away
+        - Dog Alone
       to:
         - Home
         - With Guests

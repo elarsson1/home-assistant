@@ -3,28 +3,25 @@ going_out:
   alias: "Going Out"
   mode: single
   sequence:
-    # activate alarm
-    - service: script.alarm_arm_away
-    # continue if presence not already set to away
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: input_select.presence
-          state: "Away"
-    - service: input_select.select_option
-      data:
-        entity_id: input_select.presence
-        option: "Away"
-    # continue only if hold_presence is off
-    - condition: state
-      entity_id: input_boolean.hold_presence
-      state: "off"
-    # hold setting for 35 minutes to keep from toggling from other sensors
-    - service: input_boolean.turn_on
-      entity_id: input_boolean.hold_presence
-    - delay: "00:35:00"
-    - service: input_boolean.turn_off
-      entity_id: input_boolean.hold_presence
+    - service: light.turn_off
+      entity_id:
+        - light.den_lights
+        - light.vestibule_switch
+        - light.under_stoop_lights
+        - light.living_room
+        - light.laundry_room
+        - light.office
+        - light.guest_room
+        - light.master_bedroom
+        - light.kitchen
+    - service: switch.turn_off
+      entity_id:
+        - switch.guest_bath_towel_warmer
+        - switch.master_bath_towel_warmer
+    - service: remote.turn_off
+      entity_id: remote.living_room_2
+    - service: remote.turn_off
+      entity_id: remote.den
 
 # anti-freeze activate script
 anti_freeze_on:
@@ -281,13 +278,19 @@ alarm_arm_away:
     # alexa does not care about disarm if already on, so just do it
     - service: alarm_control_panel.alarm_arm_away
       entity_id: alarm_control_panel.alexa_guard_b0cd9
-    # arm SimpliSafe if it is not already on
+    # only proceed if Simplisafe is currently disarmed
+    - condition: state
+      entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+      state: "disarmed"
+    # arm SimpliSafe to home if the dog is present, otherwise, Away
     - if:
-        not:
-          - alias: "Alarm armed"
-            condition: state
-            entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
-            state: "armed_away"
+        - alias: Sophie home
+          condition: state
+          entity_id: person.sophie
+          state: home
       then:
+        - service: alarm_control_panel.alarm_arm_home
+          entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+      else:
         - service: alarm_control_panel.alarm_arm_away
           entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
