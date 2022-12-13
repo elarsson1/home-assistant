@@ -1,2 +1,5 @@
 climate.vestibule_heater:
   unit_of_measurement: °F
+
+climate.master_bath_heater:
+  unit_of_measurement: °F
