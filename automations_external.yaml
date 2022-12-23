@@ -194,33 +194,6 @@
   action:
     - service: script.alarm_arm_away
 
-# Turn off HVAC when leaving after 30 minutes
-- id: OffHVACWhenLeaving
-  alias: Off_HVAC_When_Leaving
-  description: Disable HVAC when leaving
-  trigger:
-    - platform: state
-      entity_id: input_select.presence
-      to: Away
-      for: 00:30:00
-  action:
-    - service: climate.turn_off
-      entity_id:
-        - climate.den
-        - climate.den_thermostat
-        - climate.living_room
-        - climate.living_room_thermostat
-        - climate.master_bedroom
-        - climate.master_bedroom_thermostat
-        - climate.den_heater
-        - climate.den_baseboard
-        - climate.master_bedroom_heater
-    - service: switch.turn_off
-      entity_id:
-        - switch.den_ac_climate_react
-        - switch.living_room_ac_climate_react
-        - switch.master_bedroom_ac_climate_react
-
 # disarm alarm when arriving
 - id: DisarmWhenArriving
   alias: Disarm Alarm when Arriving
@@ -236,31 +209,6 @@
         - With Guests
   action:
     - service: script.alarm_disarm
-
-# reset HVAC state when arriving.
-- id: TurnHVACOnWhenArriving
-  alias: Turn_HVAC_On_When_Arriving
-  description: Turn HVAC back on when arriving
-  trigger:
-    - platform: state
-      entity_id: input_select.presence
-      from:
-        - Away
-        - Dog Alone
-      to:
-        - Home
-        - With Guests
-  action:
-    - service: switch.turn_on
-      entity_id:
-        - switch.den_ac_climate_react
-        - switch.living_room_ac_climate_react
-    # also bedroom if its after the pre-warm time.
-    - condition: time
-      after: input_datetime.bedroom_preheatcool
-      before: "05:00"
-    - service: switch.turn_on
-      entity_id: switch.master_bedroom_ac_climate_react
 
 # turn lights on when arriving, if its after sunset.
 - id: TurnLight123
@@ -296,7 +244,7 @@
   action:
     - service: switch.turn_off
       target:
-        entity_id: switch.living_room_motion_sensor
+        entity_id: switch.living_room_motion
   mode: single
 
 - id: "1617150949699"
@@ -310,7 +258,7 @@
   action:
     - service: switch.turn_on
       target:
-        entity_id: switch.living_room_motion_sensor
+        entity_id: switch.living_room_motion
   mode: single
 
 # TV watching motion sensor control
@@ -325,7 +273,7 @@
   action:
     - service: switch.turn_off
       target:
-        entity_id: switch.den_motion_sensor
+        entity_id: switch.office_motion
   mode: single
 
 - id: "1617150949699b"
@@ -339,7 +287,7 @@
   action:
     - service: switch.turn_on
       target:
-        entity_id: switch.den_motion_sensor
+        entity_id: switch.office_motion
   mode: single
 
 # smart wake up trigers.
@@ -358,13 +306,6 @@
     - condition: template
       value_template: "{{ states('sensor.bedroom_next_alarm') != 'unavailable' and as_timestamp(states('sensor.bedroom_next_alarm')) - as_timestamp(now()) <= 3600 }}"
   action:
-    # execute pre-warm script and do not wait for completion
-    - service: script.turn_on
-      target:
-        entity_id: script.pre_warm
-      data:
-        variables:
-          room: master_bedroom
     # execute bathroom heater script and do not wait for completion
     - service: script.turn_on
       target:
@@ -373,13 +314,7 @@
     - service: script.wake_up
       data:
         warmer: master_bath_towel_warmer
-    # turn off mini split and climate react
-    - service: climate.turn_off
-      entity_id:
-        - climate.master_bedroom
-        - climate.master_bedroom_thermostat
-    - service: switch.turn_off
-      entity_id: switch.master_bedroom_ac_climate_react
+        hvac: master_bedroom
 
 # master bedroom fallback
 - id: SmartWakeUpMasterBedroomFallback
@@ -396,13 +331,6 @@
     - condition: template
       value_template: "{{ state_attr('automation.smart_wake_up_master_bedroom', 'last_triggered').day != utcnow().day }}"
   action:
-    # execute pre-warm script and do not wait for completion
-    - service: script.turn_on
-      target:
-        entity_id: script.pre_warm
-      data:
-        variables:
-          room: master_bedroom
     # execute bathroom heater script and do not wait for completion
     - service: script.turn_on
       target:
@@ -411,13 +339,7 @@
     - service: script.wake_up
       data:
         warmer: master_bath_towel_warmer
-    # turn off mini split and climate react
-    - service: climate.turn_off
-      entity_id:
-        - climate.master_bedroom
-        - climate.master_bedroom_thermostat
-    - service: switch.turn_off
-      entity_id: switch.master_bedroom_ac_climate_react
+        hvac: master_bedroom
 
 # guest room alexa alarm trigger
 - id: SmartWakeUpGuestRoom
@@ -437,6 +359,7 @@
     - service: script.wake_up
       data:
         warmer: guest_bath_towel_warmer
+        hvac: guest_room
 
 # guest room fallback
 - id: SmartWakeUpGuestRoomFallback
@@ -455,100 +378,7 @@
     - service: script.wake_up
       data:
         warmer: guest_bath_towel_warmer
-
-# Pre-cool or warm master bedroom before bed.
-- id: BedtimePreHVAC
-  alias: Get HVAC ready for bed
-  trigger:
-    - at: input_datetime.bedroom_preheatcool
-      platform: time
-  condition:
-    - condition: state
-      entity_id: input_select.presence
-      state:
-        - Home
-        - With Guests
-  action:
-    - service: script.turn_on
-      target:
-        entity_id: script.pre_warm
-      data:
-        variables:
-          room: master_bedroom
-
-# turn on HVAC to prevent freezing
-- id: AntiFreezeOn
-  alias: Anti-Freeze On
-  trigger:
-    - minutes: 5
-      platform: time_pattern
-  condition:
-    - condition: numeric_state
-      entity_id: weather.home
-      attribute: temperature
-      below: input_number.anti_freeze_low_outdoor_threshold
-  action:
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.living_room_heater
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.den_heater
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.den_baseboard
-    - service: script.anti_freeze_on
-      data:
-        thermostat: climate.master_bedroom_heater
-
-# turn off anti-freeze when outdoor temp rises
-- id: AntiFreezeOff
-  alias: Anti-Freeze Off
-  trigger:
-    - minutes: 5
-      platform: time_pattern
-  condition:
-    - condition: numeric_state
-      entity_id: weather.home
-      attribute: temperature
-      above: input_number.anti_freeze_high_outdoor_threshold
-  action:
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.living_room_heater
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.den_heater
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.den_baseboard
-    - service: script.anti_freeze_off
-      data:
-        thermostat: climate.master_bedroom_heater
-
-# Enable master bedroom motion sensor
-- id: EnableMBRMotion
-  alias: Enable Master Bed Motion Sensor
-  trigger:
-    - at: input_datetime.bedroom_motion_sensor_on_time
-      platform: time
-  action:
-    - service: switch.turn_on
-      target:
-        entity_id: switch.master_bedroom_motion_sensor
-  mode: single
-
-# Disable master bedroom motion sensor
-- id: DisableMBRMotion
-  alias: Disable Master Bed Motion Sensor
-  trigger:
-    - at: input_datetime.bedroom_motion_sensor_off_time
-      platform: time
-  action:
-    - service: switch.turn_off
-      target:
-        entity_id: switch.master_bedroom_motion_sensor
-  mode: single
+        hvac: guest_room
 
 # Toggle motion sensor to prevent lights from turning off in Den when working
 - id: ToggleDenMotion
@@ -567,14 +397,146 @@
       entity_id: light.office
       state: "on"
     - condition: state
-      entity_id: switch.den_motion_sensor
+      entity_id: switch.office_motion
       state: "on"
   action:
     - service: switch.turn_off
       target:
-        entity_id: switch.den_motion_sensor
+        entity_id: switch.office_motion
     - delay: "04:00:00"
     - service: switch.turn_on
       target:
-        entity_id: switch.den_motion_sensor
+        entity_id: switch.office_motion
   mode: single
+
+# New HVAC Controller automations
+# Deal with House Mode changes
+- id: HVACHouseModeAway
+  alias: HVAC Controller House Mode Away
+  trigger:
+    - platform: state
+      entity_id: input_select.hvac_controller_house_mode
+      to:
+        - Away
+        - ExtAway
+  action:
+    - service: script.hvac_enable_preset
+      data:
+        zone: living_room
+        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
+    - service: script.hvac_enable_preset
+      data:
+        zone: den
+        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
+    - service: script.hvac_enable_preset
+      data:
+        zone: master_bedroom
+        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
+    - service: script.hvac_enable_preset
+      data:
+        zone: guest_room
+        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
+
+# Deal with House mode being reset to Home or preset mode changes
+- id: HVACHouseModeHome
+  alias: HVAC Controller House Mode Home
+  trigger:
+    - platform: state
+      entity_id:
+        - input_select.hvac_controller_house_mode
+        - input_select.hvac_controller_common_area_preset
+        - input_select.hvac_controller_master_bedroom_preset
+        - input_select.hvac_controller_guest_room_preset
+  condition:
+    - condition: state
+      entity_id: input_select.hvac_controller_house_mode
+      state: Home
+  mode: parallel
+  action:
+    # Set some vars to figure out what changed
+    - variables:
+        house_mode: "{{ trigger.entity_id == 'input_select.hvac_controller_house_mode' }}"
+        common_area: "{{ trigger.entity_id == 'input_select.hvac_controller_common_area_preset' }}"
+        master_bedroom: "{{ trigger.entity_id == 'input_select.hvac_controller_master_bedroom_preset' }}"
+        guest_room: "{{ trigger.entity_id == 'input_select.hvac_controller_guest_room_preset' }}"
+    # only set HVAC preset if we are returning to home mode for the entire house or
+    # the specific area's preset mode has changed.
+    - if:
+        condition: template
+        value_template: "{{ house_mode or common_area }}"
+      then:
+        - service: script.hvac_enable_preset
+          data:
+            zone: living_room
+            preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
+        - service: script.hvac_enable_preset
+          data:
+            zone: den
+            preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
+    - if:
+        condition: template
+        value_template: "{{ house_mode or master_bedroom }}"
+      then:
+        - service: script.hvac_enable_preset
+          data:
+            zone: master_bedroom
+            preset: "{{ states('input_select.hvac_controller_master_bedroom_preset') }}"
+    - if:
+        condition: template
+        value_template: "{{ house_mode or guest_room }}"
+      then:
+        - service: script.hvac_enable_preset
+          data:
+            zone: guest_room
+            preset: "{{ states('input_select.hvac_controller_guest_room_preset') }}"
+
+# Set HVAC away 30 minutes after leaving
+- id: HVACAway
+  alias: HVAC Controller Set Away
+  description: Set HVAC Controller to Away mode
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      to:
+        - Away
+      for: 00:30:00
+  action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_house_mode
+        option: Away
+
+# Set HVAC ExtAway 6 hours after leaving
+- id: HVACExtAway
+  alias: HVAC Controller Set ExtAway
+  description: Set HVAC Controller to ExtAway mode
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      to:
+        - Away
+      for: 06:00:00
+  action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_house_mode
+        option: ExtAway
+
+# Set HVAC mode home
+- id: HVACHome
+  alias: HVAC Controller Set Home
+  description: Set HVAC Controller to ExtAway mode
+  trigger:
+    - platform: state
+      entity_id: input_select.presence
+      to:
+        - Home
+        - With Guests
+        - Dog Alone
+      from:
+        - Away
+  action:
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_house_mode
+        option: Home

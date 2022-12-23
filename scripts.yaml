@@ -1,3 +1,48 @@
+# HVAC Controller Scripts
+# Set a single unit to a given preset temp
+hvac_enable_preset:
+  alias: "HVAC Enable Preset"
+  mode: parallel
+  fields:
+    zone:
+      name: Zone
+      description: "The climate zone to change"
+      required: true
+      selector:
+        select:
+          options:
+            - Living_Room
+            - Den
+            - Master_Bedroom
+            - Guest_Room
+    preset:
+      name: Preset
+      description: "Temprature Preset"
+      required: true
+      selector:
+        select:
+          options:
+            - PreWake
+            - Day
+            - PreSleep
+            - Night
+            - Away
+            - ExtAway
+  sequence:
+    - variables:
+        unit: "climate.{{ zone }}"
+        state: "{{ states('climate.' + zone) }}"
+    # only continue if we are heating or cooling
+    - condition: "{{ state in ('heat', 'cool') }}"
+    # get target temp value
+    - variables:
+        temp: "{{ states('input_number.hvac_' + zone + '_' + preset + '_' + state) }}"
+    # set the temprature
+    - service: climate.set_temperature
+      data:
+        entity_id: "{{ unit }}"
+        temperature: "{{ temp }}"
+
 # going out script
 going_out:
   alias: "Going Out"
@@ -22,111 +67,10 @@ going_out:
       entity_id: remote.living_room_2
     - service: remote.turn_off
       entity_id: remote.den
-
-# anti-freeze activate script
-anti_freeze_on:
-  alias: Anti-Freeze On
-  description: Turn on heaters to prevent freezing
-  mode: parallel
-  fields:
-    thermostat:
-      description: "Thermostat to check and update"
-      example: climate.living_room
-  sequence:
-    # continue if unit is currently off
-    - condition: template
-      value_template: "{{ states(thermostat) == 'off' }}"
-    # continue if current room temp is below the low threshold
-    - condition: template
-      value_template: "{{ ( state_attr(thermostat, 'current_temperature') < states('input_number.anti_freeze_low_indoor_threshold') | int ) }}"
-    # turn on the heat and set it to the anti-freeze setpoint
-    - service: climate.set_hvac_mode
-      data_template:
-        entity_id: "{{ thermostat }}"
-        hvac_mode: heat
-    - delay: "00:00:30"
-    - service: climate.set_temperature
-      data_template:
-        entity_id: "{{ thermostat }}"
-        temperature: "{{ states('input_number.anti_freeze_temperature') }}"
-
-# anti-freeze off script
-anti_freeze_off:
-  alias: Anti-Freeze Off
-  description: Turn off heaters when outdoor temp is sufficient to prevent freezing
-  mode: parallel
-  fields:
-    thermostat:
-      description: "Thermostat to check and update"
-      example: climate.living_room
-  sequence:
-    # continue if unit is currently on heat
-    - condition: template
-      value_template: "{{ states(thermostat) == 'heat' }}"
-    # continue if current set point matches the anti-freeze setpoint.
-    - condition: template
-      value_template: "{{ ( state_attr(thermostat, 'temperature') == states('input_number.anti_freeze_temperature') | int ) }}"
-    # turn on the heat and set it to the anti-freeze setpoint
-    - service: climate.set_hvac_mode
-      data_template:
-        entity_id: "{{ thermostat }}"
-        hvac_mode: "off"
-
-# pre-warm bedroom script
-pre_warm:
-  alias: Pre-warm
-  description: Pre-warm bedroom before bed and at morning
-  mode: parallel
-  fields:
-    room:
-      description: "Room for climate device for bedroom"
-      example: master_bedroom
-  sequence:
-    # activate cliamte react
-    - service: switch.turn_on
-      data_template:
-        entity_id: "switch.{{ room }}_ac_climate_react"
-    # continue if temprature is below pre-warm threshold
-    - condition: template
-      value_template: "{{ ( state_attr('climate.' + room, 'current_temperature') < states('input_number.prewarm_threshold') | int ) }}"
-    # activate heat for two hours
-    - service: climate.set_hvac_mode
-      data_template:
-        entity_id: "climate.{{ room }}"
-        hvac_mode: heat
-    # delay to address race condition before setting temp on thermostat.
-    - delay: "00:00:30"
-    # set temp
-    - service: climate.set_temperature
-      data_template:
-        entity_id: "climate.{{ room }}"
-        temperature: "{{ states('input_number.prewarm_temperature') }}"
-    # run for two hours
-    - delay: "02:00"
-    # set to nighttime setpoint or deactivate heat depending on outdoor temp
-    - choose:
-        # if outdoor temp is below threshold
-        - conditions:
-            - condition: numeric_state
-              entity_id: weather.home
-              attribute: temperature
-              below: input_number.nighttime_outdoor_cold_threshold
-          sequence:
-            - service: climate.set_temperature
-              data_template:
-                entity_id: "climate.{{ room }}"
-                temperature: "{{ states('input_number.nighttime_setpoint') }}"
-            # re-enable climate react
-            - delay: "00:01:00"
-            - service: switch.turn_on
-              data_template:
-                entity_id: "switch.{{ room }}_ac_climate_react"
-      # otherwise, turn off the heat
-      default:
-        - service: climate.set_hvac_mode
-          data_template:
-            entity_id: "climate.{{ room }}"
-            hvac_mode: "off"
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_house_mode
+        option: Away
 
 # wake up script
 wake_up:
@@ -137,16 +81,24 @@ wake_up:
     warmer:
       description: "Towel warmer for Bedroom"
       example: "guest_bath_towel_warmer"
+    hvac:
+      description: "HVAC Zone"
+      example: master_bedroom
   sequence:
     # activate towel warmer
     - service: switch.turn_on
-      data_template:
+      data:
         entity_id: "switch.{{ warmer }}"
-    # activate common area AC climate react
-    - service: switch.turn_on
-      entity_id: switch.living_room_ac_climate_react
-    - service: switch.turn_on
-      entity_id: switch.den_ac_climate_react
+    # set HVAC mode for common area
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_common_area_preset
+        option: Day
+    # set HVAC pre-wake mode for bedroom
+    - service: input_select.select_option
+      data:
+        entity_id: "input_select.hvac_controller_{{ hvac }}_preset"
+        option: PreWake
     # wait one hour
     - delay: "01:00:00"
     # disarm alarm
@@ -157,8 +109,13 @@ wake_up:
     - delay: "01:00:00"
     # switch off towel warmer
     - service: switch.turn_off
-      data_template:
+      data:
         entity_id: "switch.{{ warmer }}"
+    # set HVAC Day mode for bedroom
+    - service: input_select.select_option
+      data:
+        entity_id: "input_select.hvac_controller_{{ hvac }}_preset"
+        option: Day
 
 # morning bathroom heater routine
 wake_up_bath_heater:
@@ -202,49 +159,23 @@ good_night:
     # turn off TV
     - service: remote.turn_off
       entity_id: remote.living_room_2
-    # turn off climate react
-    - service: switch.turn_off
-      entity_id:
-        - switch.den_ac_climate_react
-        - switch.living_room_ac_climate_react
-    # turn off master bath and vestibule heaters
+    # Set HVAC modes to nightime
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_common_area_preset
+        option: Night
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_master_bedroom_preset
+        option: Night
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_guest_room_preset
+        option: Night
+    # turn off master bath heaters
     - service: climate.turn_off
       entity_id:
         - climate.master_bath_heater
-        - climate.vestibule_heater
-    # set split units in Den and Living Room to nighttime temp if outdoor temp is below maint threshold.
-    - choose:
-        # if outdoor temp is below threshold
-        - conditions:
-            - condition: numeric_state
-              entity_id: weather.home
-              attribute: temperature
-              below: input_number.nighttime_outdoor_cold_threshold
-          sequence:
-            - service: climate.set_hvac_mode
-              data:
-                entity_id:
-                  - climate.den_thermostat
-                  - climate.den
-                  - climate.living_room
-                  - climate.living_room_thermostat
-                hvac_mode: "heat"
-            - service: climate.set_temperature
-              data_template:
-                entity_id:
-                  - climate.den_thermostat
-                  - climate.den
-                  - climate.living_room
-                  - climate.living_room_thermostat
-                temperature: "{{ states('input_number.nighttime_setpoint') }}"
-      # otherwise, turn off the heat
-      default:
-        - service: climate.turn_off
-          entity_id:
-            - climate.den_thermostat
-            - climate.den
-            - climate.living_room
-            - climate.living_room_thermostat
     # arm alarm in home mode
     - service: alarm_control_panel.alarm_arm_home
       entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
