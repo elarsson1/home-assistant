@@ -1,7 +1,17 @@
-# Sensor is On if the Guest network has any devices.
 - platform: template
   sensors:
+    # Sensor is On if the Guest network has any devices.
     wifi_guests:
       friendly_name: "Wifi Guest"
       value_template: >-
         {{ state_attr('sensor.wifi', 'Axeltech-Guest')|int > 0 }}
+
+    # Sensor if any HVAC unit is in defrost mode
+    hvac_defrost:
+      friendly_name: "HVAC Defrosting"
+      device_class: "running"
+      value_template: >-
+        {{ is_state_attr('climate.den', 'defrost', true) or 
+        is_state_attr('climate.living_room', 'defrost', true) or
+        is_state_attr('climate.master_bedroom', 'defrost', true) or
+        is_state_attr('climate.guest_room', 'defrost', true) }}
