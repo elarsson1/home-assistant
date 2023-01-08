@@ -499,6 +499,10 @@
       entity_id: input_select.presence
       to:
         - Away
+        - Dog Alone
+      from:
+        - Home
+        - With Guests
       for: 00:30:00
   action:
     - service: input_select.select_option
@@ -532,9 +536,9 @@
       to:
         - Home
         - With Guests
-        - Dog Alone
       from:
         - Away
+        - Dog Alone
   action:
     - service: input_select.select_option
       data:
