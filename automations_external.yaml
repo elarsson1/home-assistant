@@ -436,6 +436,10 @@
       data:
         zone: guest_room
         preset: "{{ states('input_select.hvac_controller_house_mode') }}"
+    - service: script.hvac_enable_preset
+      data:
+        zone: den_baseboard
+        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
 
 # Deal with House mode being reset to Home or preset mode changes
 - id: HVACHouseModeHome
@@ -472,6 +476,10 @@
         - service: script.hvac_enable_preset
           data:
             zone: den
+            preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
+        - service: script.hvac_enable_preset
+          data:
+            zone: den_baseboard
             preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
     - if:
         condition: template
