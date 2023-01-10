@@ -387,7 +387,7 @@
     - platform: state
       entity_id:
         - binary_sensor.3c063016341b_active
-        - binary_sensor.axel_larsson_s_mac_active
+        - binary_sensor.axel_larssons_mac_active
       to: "on"
   condition:
     - condition: state
