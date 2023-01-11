@@ -1,3 +1,12 @@
+# Restart Alexa Media integration
+reload_alexa_media:
+  alias: "Reload Alexa Media"
+  mode: single
+  sequence:
+    - service: homeassistant.reload_config_entry
+      target:
+        device_id: 0942ca36495e2d4c0e185549e4c42773
+
 # HVAC Controller Scripts
 # Set a single unit to a given preset temp
 hvac_enable_preset:

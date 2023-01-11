@@ -304,7 +304,7 @@
     - condition: template
       value_template: "{{ state_attr('automation.smart_wake_up_master_bedroom', 'last_triggered').day != utcnow().day }}"
     - condition: template
-      value_template: "{{ states('sensor.bedroom_next_alarm') != 'unavailable' and as_timestamp(states('sensor.bedroom_next_alarm')) - as_timestamp(now()) <= 3600 }}"
+      value_template: "{{ states('sensor.bedroom_next_alarm') != 'unavailable' and as_timestamp(states('sensor.bedroom_next_alarm')) - as_timestamp(now()) <= 3600 and as_timestamp(states('sensor.bedroom_next_alarm')) - as_timestamp(now()) > 0 }}"
   action:
     # execute bathroom heater script and do not wait for completion
     - service: script.turn_on
@@ -354,7 +354,7 @@
     - condition: template
       value_template: "{{ state_attr('automation.smart_wake_up_guest_room','last_triggered').day != utcnow().day }}"
     - condition: template
-      value_template: "{{ states('sensor.guest_room_next_alarm') != 'unavailable' and as_timestamp(states('sensor.guest_room_next_alarm')) - as_timestamp(now()) <= 3600 }}"
+      value_template: "{{ states('sensor.guest_room_next_alarm') != 'unavailable' and as_timestamp(states('sensor.guest_room_next_alarm')) - as_timestamp(now()) <= 3600 and as_timestamp(states('sensor.guest_room_next_alarm')) - as_timestamp(now()) > 0 }}"
   action:
     - service: script.wake_up
       data:
