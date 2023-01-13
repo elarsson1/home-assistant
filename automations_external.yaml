@@ -511,6 +511,7 @@
       from:
         - Home
         - With Guests
+        - Dog Alone
       for: 00:30:00
   action:
     - service: input_select.select_option
@@ -537,7 +538,7 @@
 # Set HVAC mode home
 - id: HVACHome
   alias: HVAC Controller Set Home
-  description: Set HVAC Controller to ExtAway mode
+  description: Set HVAC Controller to Home mode
   trigger:
     - platform: state
       entity_id: input_select.presence
