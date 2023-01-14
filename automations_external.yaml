@@ -64,19 +64,6 @@
       state: "off"
   action:
     - choose:
-        - alias: If nobody is home, set to Away
-          conditions:
-            - condition: state
-              entity_id:
-                - person.guest
-                - person.axel_larsson
-                - person.sophie
-              state: not_home
-          sequence:
-            - service: input_select.select_option
-              data:
-                entity_id: input_select.presence
-                option: Away
         - alias: If Guest is home, set to With Guests
           conditions:
             - condition: state
@@ -107,6 +94,12 @@
               data:
                 entity_id: input_select.presence
                 option: Dog Alone
+      # if no one is home, set to Away
+      default:
+        - service: input_select.select_option
+          data:
+            entity_id: input_select.presence
+            option: Away
 
 # trigger away mode if alarm is armed
 - id: AwayOnAlarmArm
