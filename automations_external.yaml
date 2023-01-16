@@ -546,3 +546,49 @@
       data:
         entity_id: input_select.hvac_controller_house_mode
         option: Home
+
+# HVAC Controller anticipation automations. Prepare for return home based
+# on certain triggers.
+
+# Prepare for return home if at family house on Sunday night
+- id: PrepareHVACReturnSunday
+  alias: HVAC Controller Prepare Return Sunday
+  description: Prepare for return home on Sundays
+  mode: single
+  max_exceeded: silent
+  trigger:
+    - platform: time_pattern
+      minutes: "/10"
+  condition:
+    # only on a Sunday between 17:00-19:00 hours
+    - condition: time
+      after: "17:00:00"
+      before: "19:00:00"
+      weekday:
+        - sun
+    # only if I'm at the Family House
+    - condition: state
+      entity_id: person.axel_larsson
+      state: "Family House"
+  action:
+    # run the script
+    - service: script.hvac_prepare_return_from_extaway
+
+# Prepare for return home if I'm returning from a trip and have landed at a
+# local airport. The ExtAway time check in the script prevents this from
+# firing for depatures.
+- id: PrepareHVACReturnAirport
+  alias: "HVAC Controller Prepare Return Airport"
+  description: Prepare for return home from a business trip
+  mode: single
+  max_exceeded: silent
+  trigger:
+    - platform: state
+      entity_id: person.axel_larsson
+      to:
+        - EWR
+        - JFK
+        - LGA
+  action:
+    # run the script
+    - service: script.hvac_prepare_return_from_extaway

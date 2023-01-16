@@ -52,6 +52,33 @@ hvac_enable_preset:
         entity_id: "{{ unit }}"
         temperature: "{{ temp }}"
 
+# script which is triggered when a return home is anticipated
+# sets HVAC mode back to Home mode for up to 6 hours waiting for return home
+hvac_prepare_return_from_extaway:
+  alias: "HVAC Prepare Return from ExtAway"
+  mode: single # only run one of these at a time
+  max_exceeded: silent # don't log errors if attempt to run more than 1 as in time based triggers
+  sequence:
+    # only do this if we have been at Extended Away for at least 10 hours
+    - condition: state
+      entity_id: input_select.hvac_controller_house_mode
+      state: "ExtAway"
+      for: "10:00:00"
+    # set the HVAC mode to Home
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_house_mode
+        option: "Home"
+    # wait up to 5 hours for the return home
+    - wait_template: "{{ is_state('person.axel_larsson', 'home') }}"
+      timeout: "05:00:00"
+    # if condition was not met and we timed out, then set things back.
+    - condition: "{{ not wait.completed }}"
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_house_mode
+        option: "ExtAway"
+
 # going out script
 going_out:
   alias: "Going Out"
