@@ -413,26 +413,23 @@
         - Away
         - ExtAway
   action:
-    - service: script.hvac_enable_preset
-      data:
-        zone: living_room
-        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
-    - service: script.hvac_enable_preset
-      data:
-        zone: den
-        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
-    - service: script.hvac_enable_preset
-      data:
-        zone: master_bedroom
-        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
-    - service: script.hvac_enable_preset
-      data:
-        zone: guest_room
-        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
-    - service: script.hvac_enable_preset
-      data:
-        zone: den_baseboard
-        preset: "{{ states('input_select.hvac_controller_house_mode') }}"
+    - variables:
+        house_mode: "{{ states('input_select.hvac_controller_house_mode') }}"
+    - repeat:
+        for_each:
+          - living_room
+          - den
+          - master_bedroom
+          - guest_room
+          - den_baseboard
+        sequence:
+          - service: script.turn_on
+            target:
+              entity_id: script.hvac_enable_preset
+            data:
+              variables:
+                zone: "{{ repeat.item }}"
+                preset: "{{ house_mode }}"
 
 # Deal with House mode being reset to Home or preset mode changes
 - id: HVACHouseModeHome
@@ -462,34 +459,41 @@
         condition: template
         value_template: "{{ house_mode or common_area }}"
       then:
-        - service: script.hvac_enable_preset
-          data:
-            zone: living_room
-            preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
-        - service: script.hvac_enable_preset
-          data:
-            zone: den
-            preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
-        - service: script.hvac_enable_preset
-          data:
-            zone: den_baseboard
-            preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
+        - repeat:
+            for_each:
+              - living_room
+              - den
+              - den_baseboard
+            sequence:
+              - service: script.turn_on
+                target:
+                  entity_id: script.hvac_enable_preset
+                data:
+                  variables:
+                    zone: "{{ repeat.item }}"
+                    preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
     - if:
         condition: template
         value_template: "{{ house_mode or master_bedroom }}"
       then:
-        - service: script.hvac_enable_preset
+        - service: script.turn_on
+          target:
+            entity_id: script.hvac_enable_preset
           data:
-            zone: master_bedroom
-            preset: "{{ states('input_select.hvac_controller_master_bedroom_preset') }}"
+            variables:
+              zone: master_bedroom
+              preset: "{{ states('input_select.hvac_controller_master_bedroom_preset') }}"
     - if:
         condition: template
         value_template: "{{ house_mode or guest_room }}"
       then:
-        - service: script.hvac_enable_preset
+        - service: script.turn_on
+          target:
+            entity_id: script.hvac_enable_preset
           data:
-            zone: guest_room
-            preset: "{{ states('input_select.hvac_controller_guest_room_preset') }}"
+            variables:
+              zone: guest_room
+              preset: "{{ states('input_select.hvac_controller_guest_room_preset') }}"
 
 # Set HVAC away 30 minutes after leaving
 - id: HVACAway

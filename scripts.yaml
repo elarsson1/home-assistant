@@ -196,18 +196,16 @@ good_night:
     - service: remote.turn_off
       entity_id: remote.living_room_2
     # Set HVAC modes to nightime
-    - service: input_select.select_option
-      data:
-        entity_id: input_select.hvac_controller_common_area_preset
-        option: Night
-    - service: input_select.select_option
-      data:
-        entity_id: input_select.hvac_controller_master_bedroom_preset
-        option: Night
-    - service: input_select.select_option
-      data:
-        entity_id: input_select.hvac_controller_guest_room_preset
-        option: Night
+    - repeat:
+        for_each:
+          - common_area
+          - master_bedroom
+          - guest_room
+        sequence:
+          - service: input_select.select_option
+            data:
+              option: Night
+              entity_id: "input_select.hvac_controller_{{ repeat.item }}_preset"
     # turn off master bath heaters
     - service: climate.turn_off
       entity_id:
