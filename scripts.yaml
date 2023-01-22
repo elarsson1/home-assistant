@@ -40,11 +40,11 @@ hvac_enable_preset:
   sequence:
     - variables:
         unit: "climate.{{ zone }}"
-    # wait for unavaialble unit to become available up to 2 minutes
+    # wait for unavaialble unit to become available up to 5 minutes
     - repeat:
-        while: "{{ states(unit) in ('unavailable', 'unknown') and repeat.index <= 12 }}"
+        while: "{{ states(unit) in ('unavailable', 'unknown') and repeat.index <= 10 }}"
         sequence:
-          - delay: 10
+          - delay: 30
     - variables:
         state: "{{ states(unit) }}"
     # only continue if we are heating or cooling
@@ -52,7 +52,7 @@ hvac_enable_preset:
     # get target temp value
     - variables:
         temp: "{{ states('input_number.hvac_' + zone + '_' + preset + '_' + state) }}"
-    # set the temprature, try for up to 5 minutes
+    # set the temperature, try for up to 5 minutes
     - repeat:
         while: "{{ not is_state_attr(unit, 'temperature', temp) and repeat.index <= 10 }}"
         sequence:
