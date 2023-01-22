@@ -40,17 +40,27 @@ hvac_enable_preset:
   sequence:
     - variables:
         unit: "climate.{{ zone }}"
-        state: "{{ states('climate.' + zone) }}"
+    # wait for unavaialble unit to become available up to 2 minutes
+    - repeat:
+        while: "{{ states(unit) in ('unavailable', 'unknown') and repeat.index <= 12 }}"
+        sequence:
+          - delay: 10
+    - variables:
+        state: "{{ states(unit) }}"
     # only continue if we are heating or cooling
     - condition: "{{ state in ('heat', 'cool') }}"
     # get target temp value
     - variables:
         temp: "{{ states('input_number.hvac_' + zone + '_' + preset + '_' + state) }}"
-    # set the temprature
-    - service: climate.set_temperature
-      data:
-        entity_id: "{{ unit }}"
-        temperature: "{{ temp }}"
+    # set the temprature, try for up to 5 minutes
+    - repeat:
+        while: "{{ not is_state_attr(unit, 'temperature', temp) and repeat.index <= 10 }}"
+        sequence:
+          - service: climate.set_temperature
+            data:
+              entity_id: "{{ unit }}"
+              temperature: "{{ temp }}"
+          - delay: 30
 
 # script which is triggered when a return home is anticipated
 # sets HVAC mode back to Home mode for up to 6 hours waiting for return home
