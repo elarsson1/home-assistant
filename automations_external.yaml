@@ -403,6 +403,87 @@
   mode: single
 
 # New HVAC Controller automations
+# Windows open
+- id: HVACWindowsOpen
+  alias: HVAC Controller Windows Open
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.hvac_windows_den
+        - binary_sensor.hvac_windows_living_room
+        - binary_sensor.hvac_windows_master_bedroom
+      to: "on"
+      for: "00:01:00"
+  mode: parallel
+  action:
+    # figure out what zone triggered us
+    - variables:
+        zone: >
+          {{ trigger.entity_id|regex_replace( find='binary_sensor.hvac_windows_(.+)$', replace='\\1' ) }}
+        unit: "climate.{{ zone }}"
+    # wait for unavaialble unit to become available up to 2 minutes
+    - wait_template: "{{ states(unit) not in ('unavailable', 'unknown') }}"
+      timeout: "00:02:00"
+    # only continue if we are in a supported mode
+    - variables:
+        state: "{{ states(unit) }}"
+    - condition: "{{ state in ('heat', 'cool', 'dry', 'fan_only', 'off') }}"
+    # save current state
+    - service: input_text.set_value
+      data:
+        entity_id: "input_text.hvac_windows_state_{{ zone }}"
+        value: "{{ state }}"
+    - service: input_datetime.set_datetime
+      data:
+        entity_id: "input_datetime.hvac_windows_last_{{ zone }}"
+        timestamp: "{{ now().timestamp() }}"
+    # only continue if we are not already off
+    - condition: "{{ state != 'off' }}"
+    # turn unit off
+    - service: climate.turn_off
+      data:
+        entity_id: "{{ unit }}"
+
+# Windows closed
+- id: HVACWindowsClosed
+  alias: HVAC Controller Windows Closed
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.hvac_windows_den
+        - binary_sensor.hvac_windows_living_room
+        - binary_sensor.hvac_windows_master_bedroom
+      to: "off"
+      for: "00:00:30"
+  mode: parallel
+  action:
+    # figure out what zone triggered us
+    - variables:
+        zone: >
+          {{ trigger.entity_id|regex_replace( find='binary_sensor.hvac_windows_(.+)$', replace='\\1' ) }}
+        unit: "climate.{{ zone }}"
+    # get saved state
+    - variables:
+        saved_state: "{{ states('input_text.hvac_windows_state_' + zone) }}"
+    # continue if saved state is not 'off'
+    - condition: "{{ saved_state != 'off' }}"
+    # clear saved state
+    - service: input_text.set_value
+      data:
+        entity_id: "input_text.hvac_windows_state_{{ zone }}"
+        value: "off"
+    # contiue only if saved state if not stale (less than a day old)
+    - condition: >
+        {{ as_timestamp(now()) - as_timestamp(states('input_datetime.hvac_windows_last_' + zone)) < 86400 }}
+    # wait for unavaialble unit to become available up to 2 minutes
+    - wait_template: "{{ states(unit) not in ('unavailable', 'unknown') }}"
+      timeout: "00:02:00"
+    # set climate mode to saved state
+    - service: climate.set_hvac_mode
+      data:
+        entity_id: "{{ unit }}"
+        hvac_mode: "{{ saved_state }}"
+
 # Deal with House Mode changes
 - id: HVACHouseModeAway
   alias: HVAC Controller House Mode Away
