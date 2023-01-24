@@ -55,6 +55,7 @@ hvac_enable_preset:
         while: "{{ not is_state_attr(unit, 'temperature', temp) and repeat.index <= 10 }}"
         sequence:
           - service: climate.set_temperature
+            continue_on_error: true
             data:
               entity_id: "{{ unit }}"
               temperature: "{{ temp }}"
