@@ -41,10 +41,8 @@ hvac_enable_preset:
     - variables:
         unit: "climate.{{ zone }}"
     # wait for unavaialble unit to become available up to 5 minutes
-    - repeat:
-        while: "{{ states(unit) in ('unavailable', 'unknown') and repeat.index <= 10 }}"
-        sequence:
-          - delay: 30
+    - wait_template: "{{ states(unit) not in ('unavailable', 'unknown') }}"
+      timeout: "00:05:00"
     - variables:
         state: "{{ states(unit) }}"
     # only continue if we are heating or cooling
