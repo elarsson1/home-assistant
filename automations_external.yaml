@@ -373,35 +373,6 @@
         warmer: guest_bath_towel_warmer
         hvac: guest_room
 
-# Toggle motion sensor to prevent lights from turning off in Den when working
-- id: ToggleDenMotion
-  alias: Toggle Den Motion Sensor
-  trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.3c063016341b_active
-        - binary_sensor.axel_larssons_mac_active
-      to: "on"
-  condition:
-    - condition: state
-      entity_id: person.axel_larsson
-      state: home
-    - condition: state
-      entity_id: light.office
-      state: "on"
-    - condition: state
-      entity_id: switch.office_motion
-      state: "on"
-  action:
-    - service: switch.turn_off
-      target:
-        entity_id: switch.office_motion
-    - delay: "04:00:00"
-    - service: switch.turn_on
-      target:
-        entity_id: switch.office_motion
-  mode: single
-
 # New HVAC Controller automations
 # Windows open
 - id: HVACWindowsOpen
