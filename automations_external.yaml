@@ -569,11 +569,53 @@
         option: Home
 
 # HVAC Controller Auto-changerover automations
+# Main unit changeover
+- id: HVACAutoChangeover
+  alias: "HVAC Auto Changeover"
+  description: "HVAC Auto Changeover"
+  trigger:
+    # trigger when weather is above or below configured thresholds
+    # set mode variable for heat or cool depending on temp is above or below
+    - platform: numeric_state
+      entity_id: weather.home
+      attribute: temperature
+      below: input_number.hvac_changeover_heat
+      for: "00:10:00"
+      variables:
+        mode: "heat"
+    - platform: numeric_state
+      entity_id: weather.home
+      attribute: temperature
+      above: input_number.hvac_changeover_cool
+      for: "00:10:00"
+      variables:
+        mode: "cool"
+  action:
+    - repeat:
+        for_each:
+          - "den"
+          - "living_room"
+          - "master_bedroom"
+        sequence:
+          # only if windows for that zone are closed
+          - condition: >
+              {{ is_state('binary_sensor.hvac_windows_' + repeat.item, 'off') }}
+          # set mode and target temp based on preset
+          - service: script.turn_on
+            target:
+              entity_id: script.hvac_enable_mode
+            data:
+              variables:
+                zone: "{{ repeat.item }}"
+                mode: "{{ mode }}"
+
 # Supplemental heat
 - id: HVACSupplementalHeat
   alias: "HVAC Supplemental Heat"
   description: "HVAC Supplemental Heat"
   trigger:
+    # trigger when weather is above or below configured thresholds
+    # set mode variable for heat or off depending on temp is above or below
     - platform: numeric_state
       entity_id: weather.home
       attribute: temperature
@@ -596,6 +638,7 @@
           - "living_room_heater"
           - "master_bedroom_heater"
         sequence:
+          # set mode and target temp based on preset
           - service: script.turn_on
             target:
               entity_id: script.hvac_enable_mode
