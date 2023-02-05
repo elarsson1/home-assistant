@@ -55,6 +55,8 @@ hvac_enable_mode:
               entity_id: "{{ unit }}"
               hvac_mode: "{{ mode }}"
           - delay: 30
+    # only continue if mode is heat or cool
+    - condition: "{{ mode in ('heat', 'cool') }}"
     # set current preset for this zone
     - service: script.hvac_enable_current
       data:
