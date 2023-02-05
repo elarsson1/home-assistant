@@ -8,6 +8,123 @@ reload_alexa_media:
         device_id: 0942ca36495e2d4c0e185549e4c42773
 
 # HVAC Controller Scripts
+# Set unit mode and current preset temp
+hvac_enable_mode:
+  alias: "HVAC Enable Mode"
+  mode: parallel
+  fields:
+    zone:
+      name: Zone
+      description: "The climate zone to change"
+      required: true
+      selector:
+        select:
+          options:
+            - Living_Room
+            - Den
+            - Master_Bedroom
+            - Guest_Room
+            - Den_Baseboard
+            - Den_Heater
+            - Living_Room_Heater
+            - Master_Bedroom_Heater
+    mode:
+      name: Mode
+      description: "The climate mode to set"
+      required: true
+      selector:
+        select:
+          options:
+            - "off"
+            - "heat"
+            - "cool"
+  sequence:
+    - variables:
+        unit: "climate.{{ zone }}"
+    # wait for unavaialble unit to become available up to 5 minutes
+    - wait_template: "{{ states(unit) not in ('unavailable', 'unknown') }}"
+      timeout: "00:05:00"
+    # only continue if unit became available and continue if current unit state is different then target
+    - condition: "{{ wait.completed and ( not is_state(unit, mode) ) }}"
+    # drive unit to desired state for up to 5 minutes
+    - repeat:
+        while: "{{ ( not is_state(unit, mode) ) and repeat.index <= 10 }}"
+        sequence:
+          - service: climate.set_hvac_mode
+            data:
+              entity_id: "{{ unit }}"
+              hvac_mode: "{{ mode }}"
+          - delay: 30
+    # set current preset for this zone
+    - service: script.hvac_enable_current
+      data:
+        zone: "{{ zone }}"
+
+# Set current preset for unit based upon house and area mode selectors
+hvac_enable_current:
+  alias: "HVAC Enable Current"
+  mode: parallel
+  fields:
+    zone:
+      name: Zone
+      description: "The climate zone to change"
+      required: true
+      selector:
+        select:
+          options:
+            - Living_Room
+            - Den
+            - Master_Bedroom
+            - Guest_Room
+            - Den_Baseboard
+            - Den_Heater
+            - Living_Room_Heater
+            - Master_Bedroom_Heater
+  sequence:
+    # select the preset to set for this zone
+    - choose:
+        # If house mode is away or extended away, use that as preset
+        - conditions: >
+            {{ states('input_select.hvac_controller_house_mode') in ('Away', 'ExtAway') }}
+          sequence:
+            - service: script.turn_on
+              target:
+                entity_id: script.hvac_enable_preset
+              data:
+                variables:
+                  zone: "{{ zone }}"
+                  preset: "{{ states('input_select.hvac_controller_house_mode') }}"
+        # otherwise, select preset based upon zone
+        # master bedroom area
+        - conditions: "{{ zone|slugify() in ('master_bedroom', 'master_bedroom_heater') }}"
+          sequence:
+            - service: script.turn_on
+              target:
+                entity_id: script.hvac_enable_preset
+              data:
+                variables:
+                  zone: "{{ zone }}"
+                  preset: "{{ states('input_select.hvac_controller_master_bedroom_preset') }}"
+        # guest room area
+        - conditions: "{{ zone|slugify() in ('guest_room') }}"
+          sequence:
+            - service: script.turn_on
+              target:
+                entity_id: script.hvac_enable_preset
+              data:
+                variables:
+                  zone: "{{ zone }}"
+                  preset: "{{ states('input_select.hvac_controller_guest_room_preset') }}"
+      # otherwise, common area preset is used
+      default:
+        - service: script.turn_on
+          target:
+            entity_id: script.hvac_enable_preset
+          data:
+            variables:
+              zone: "{{ zone }}"
+              preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
+
 # Set a single unit to a given preset temp
 hvac_enable_preset:
   alias: "HVAC Enable Preset"
@@ -24,6 +141,10 @@ hvac_enable_preset:
             - Den
             - Master_Bedroom
             - Guest_Room
+            - Den_Baseboard
+            - Den_Heater
+            - Living_Room_Heater
+            - Master_Bedroom_Heater
     preset:
       name: Preset
       description: "Temprature Preset"
