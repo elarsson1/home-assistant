@@ -577,15 +577,13 @@
     # trigger when weather is above or below configured thresholds
     # set mode variable for heat or cool depending on temp is above or below
     - platform: numeric_state
-      entity_id: weather.home
-      attribute: temperature
+      entity_id: sensor.home_temperature
       below: input_number.hvac_changeover_heat
       for: "00:10:00"
       variables:
         mode: "heat"
     - platform: numeric_state
-      entity_id: weather.home
-      attribute: temperature
+      entity_id: sensor.home_temperature
       above: input_number.hvac_changeover_cool
       for: "00:10:00"
       variables:
@@ -617,15 +615,13 @@
     # trigger when weather is above or below configured thresholds
     # set mode variable for heat or off depending on temp is above or below
     - platform: numeric_state
-      entity_id: weather.home
-      attribute: temperature
+      entity_id: sensor.home_temperature
       below: input_number.hvac_changeover_supplemental_heat_on
       for: "00:10:00"
       variables:
         mode: "heat"
     - platform: numeric_state
-      entity_id: weather.home
-      attribute: temperature
+      entity_id: sensor.home_temperature
       above: input_number.hvac_changeover_supplemental_heat_off
       for: "00:10:00"
       variables:
