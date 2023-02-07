@@ -588,7 +588,10 @@
       for: "00:10:00"
       variables:
         mode: "cool"
+  # don't do this if we are going from an unavailable state
+  condition: "{{ not is_state(trigger.from_state.state, 'unavailable') }}"
   action:
+    # repeat for each zone
     - repeat:
         for_each:
           - "den"
@@ -626,7 +629,10 @@
       for: "00:10:00"
       variables:
         mode: "off"
+  # don't do this if we are going from an unavailable state
+  condition: "{{ not is_state(trigger.from_state.state, 'unavailable') }}"
   action:
+    # repeat for each zone
     - repeat:
         for_each:
           - "den_baseboard"
