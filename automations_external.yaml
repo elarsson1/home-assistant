@@ -589,7 +589,7 @@
       variables:
         mode: "cool"
   # don't do this if we are going from an unavailable state
-  condition: "{{ not is_state(trigger.from_state, 'unavailable') }}"
+  condition: "{{ trigger.from_state and trigger.from_state.state != 'unavailable'  }}"
   action:
     # repeat for each zone
     - repeat:
@@ -630,7 +630,7 @@
       variables:
         mode: "off"
   # don't do this if we are going from an unavailable state
-  condition: "{{ not is_state(trigger.from_state, 'unavailable') }}"
+  condition: "{{ trigger.from_state and trigger.from_state.state != 'unavailable'  }}"
   action:
     # repeat for each zone
     - repeat:
