@@ -239,6 +239,11 @@ going_out:
       data:
         entity_id: input_select.hvac_controller_house_mode
         option: Away
+    - service: lock.lock
+      target:
+        entity_id:
+          - lock.basement_door_lock
+          - lock.front_door_lock
 
 # wake up script
 wake_up:
@@ -345,6 +350,12 @@ good_night:
     # arm alarm in home mode
     - service: alarm_control_panel.alarm_arm_home
       entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+    # lock doors
+    - service: lock.lock
+      target:
+        entity_id:
+          - lock.basement_door_lock
+          - lock.front_door_lock
 
 # conditionally disarm alarms
 # needed to avoid spurious simplisafe notifications if alarm is aready disarmed
