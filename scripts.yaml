@@ -191,11 +191,15 @@ hvac_prepare_return_from_extaway:
   mode: single # only run one of these at a time
   max_exceeded: silent # don't log errors if attempt to run more than 1 as in time based triggers
   sequence:
-    # only do this if we have been at Extended Away for at least 10 hours
+    # only do this if we are at extended away mode
     - condition: state
       entity_id: input_select.hvac_controller_house_mode
       state: "ExtAway"
-      for: "10:00:00"
+    # check saved timestamp to be sure we have been set for at least 10 hours
+    # changed from using "for" quallifier on state condition because this resets
+    # whenever HA is restarted. The input_datetime value will survive HA restarts
+    - condition: >
+        {{ as_timestamp(now()) - as_timestamp(states('input_datetime.hvac_controller_house_mode_last_set')) > 36000 }}
     # set the HVAC mode to Home
     - service: input_select.select_option
       data:

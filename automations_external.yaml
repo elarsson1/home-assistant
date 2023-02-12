@@ -652,6 +652,19 @@
 # HVAC Controller anticipation automations. Prepare for return home based
 # on certain triggers.
 
+# Update change timestamp on house mode change.
+# Used by anticipation automation to check how long house mode has been set.
+- id: HVACHouseModeTimestamp
+  alias: HVAC Controller House Mode Timestamp
+  trigger:
+    - platform: state
+      entity_id: input_select.hvac_controller_house_mode
+  action:
+    - service: input_datetime.set_datetime
+      data:
+        entity_id: input_datetime.hvac_controller_house_mode_last_set
+        timestamp: "{{ now().timestamp() }}"
+
 # Prepare for return home if at family house on Sunday night
 - id: PrepareHVACReturnSunday
   alias: HVAC Controller Prepare Return Sunday
