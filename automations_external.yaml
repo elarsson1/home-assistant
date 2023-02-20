@@ -101,6 +101,26 @@
             entity_id: input_select.presence
             option: Away
 
+# uodate out of area timestamp if more than 150 km from home
+# used by other automations to deetermine if recently away
+- id: UpdateOutOfArea
+  alias: "Location Update Out of Area Indicator"
+  trigger:
+    - platform: time_pattern
+      minutes: /15
+  condition:
+    - condition: state
+      entity_id: person.axel_larsson
+      state: not_home
+    - condition: template
+      value_template: >
+        {{ distance( states.person.axel_larsson )|round( 1, "floor", 0 ) > 150 }}
+  action:
+    - service: input_datetime.set_datetime
+      data:
+        entity_id: input_datetime.location_last_out_of_area
+        timestamp: "{{ now().timestamp() }}"
+
 # trigger away mode if alarm is armed
 - id: AwayOnAlarmArm
   alias: "Set Away when Alarm is armed"
@@ -690,8 +710,7 @@
     - service: script.hvac_prepare_return_from_extaway
 
 # Prepare for return home if I'm returning from a trip and have landed at a
-# local airport. The ExtAway time check in the script prevents this from
-# firing for depatures.
+# local airport.
 - id: PrepareHVACReturnAirport
   alias: "HVAC Controller Prepare Return Airport"
   description: Prepare for return home from a business trip
@@ -704,6 +723,12 @@
         - EWR
         - JFK
         - LGA
+  condition:
+    # only if out of area in the last 10 hours
+    # prevents from firing when departing
+    - condition: template
+      value_template: >
+        {{ as_timestamp(now()) - as_timestamp(states('input_datetime.location_last_out_of_area')) < 36000 }}
   action:
     # run the script
     - service: script.hvac_prepare_return_from_extaway
