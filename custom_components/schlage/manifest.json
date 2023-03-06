@@ -1,11 +1,16 @@
 {
   "domain": "schlage",
-  "name": "Schlage Encode Lock",
+  "name": "Schlage Encode",
+  "codeowners": [
+    "@dknowles2",
+    "@mcnutter1"
+  ],
   "config_flow": true,
-  "documentation": "https://github.com/mcnutter1/homeasssitant-schlage",
-  "issue_tracker": "https://github.com/mcnutter1/homeasssitant-schlage/issues",
-  "codeowners": ["@mcnutter1"],
-  "requirements": ["pyschlage==2022.12.24"],
+  "documentation": "https://github.com/dknowles2/ha-schlage",
   "iot_class": "cloud_polling",
-  "version": "2023.1.1"
+  "issue_tracker": "https://github.com/dknowles2/ha-schlage/issues",
+  "requirements": [
+    "pyschlage==2023.3.1"
+  ],
+  "version": "2023.3.0"
 }
