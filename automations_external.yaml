@@ -723,6 +723,7 @@
         - EWR
         - JFK
         - LGA
+      for: "00:20:00"
   condition:
     # only if out of area in the last 10 hours
     # prevents from firing when departing
