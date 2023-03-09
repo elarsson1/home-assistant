@@ -177,14 +177,14 @@ class UnifiSensor(Entity):
                     self._attr[name] = 0
 
             for wlan in sorted(wlans, key=lambda x: x.get('name', 'unknow').lower()):
-                self._attr[wlan.get('name')] = 0
+                self._attr[wlan.get('name', 'nolanname')] = 0
 
             for client in clients:
                 total += 1
                 if client.get('is_wired') == True:
                     self._attr['wired'] = self._attr.get('wired', 0) + 1
                     continue
-                ap_name = "AP " + ap_names.get(client.get('ap_mac'))
+                ap_name = "AP " + ap_names.get(client.get('ap_mac', 'noname'))
                 client_essid = client.get('essid', 'unknow')
                 self._attr[ap_name] = self._attr.get(ap_name, 0) + 1
                 self._attr[client_essid] = self._attr.get(client_essid, 0) + 1
@@ -194,6 +194,9 @@ class UnifiSensor(Entity):
         except Exception as e:
             _LOGGER.error("Error while trying to update sensor: %s", e)
             _LOGGER.error("ap_name: %s,  client_essid: %s", ap_name, client_essid)
+            _LOGGER.error("raw data aps: %s", aps)
+            _LOGGER.error("raw data wlans: %s", wlans)
+            _LOGGER.error("raw data clients: %s", clients)
             self._total = 0
 
     def unifi_status(self, state):
