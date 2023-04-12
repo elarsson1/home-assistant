@@ -612,7 +612,7 @@
       entity_id: sensor.home_temperature
       above: input_number.hvac_changeover_off_low
       below: input_number.hvac_changeover_off_high
-      for: "00:10:00"
+      for: "02:00:00"
       variables:
         mode: "off"
   # don't do this if we are going from an unavailable state
