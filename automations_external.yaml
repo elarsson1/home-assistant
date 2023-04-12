@@ -608,6 +608,13 @@
       for: "00:10:00"
       variables:
         mode: "cool"
+    - platform: numeric_state
+      entity_id: sensor.home_temperature
+      above: input_number.hvac_changeover_off_low
+      below: input_number.hvac_changeover_off_high
+      for: "00:10:00"
+      variables:
+        mode: "off"
   # don't do this if we are going from an unavailable state
   condition: "{{ trigger.from_state and trigger.from_state.state != 'unavailable'  }}"
   action:
