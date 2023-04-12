@@ -629,6 +629,17 @@
               variables:
                 zone: "{{ repeat.item }}"
                 mode: "{{ mode }}"
+    # guest room - only do if guest room is currently on
+    # wait for unavaialble unit to become available up to 5 minutes
+    - wait_template: "{{ states('climate.guest_room') not in ('unavailable', 'unknown') }}"
+      timeout: "00:05:00"
+    # only continue if unit became available and continue if current unit state is not off
+    - condition: "{{ wait.completed and ( not is_state('climate.guest_room', 'off') ) }}"
+    # set guest room
+    - service: script.hvac_enable_mode
+      data:
+        zone: "guest_room"
+        mode: "{{ mode }}"
 
 # Supplemental heat
 - id: HVACSupplementalHeat
