@@ -608,15 +608,41 @@
       for: "00:10:00"
       variables:
         mode: "cool"
+    # set mode for off if we cross into the band of optimal outdoor temps
+    # where HVAC is not needed. Wait for at leat 4 hours to accomodate
+    # shoulder season where we are likely to rebound.
+    #
+    # Because the band is small (4 degrees) and we are waiting for 4 hours, we
+    # are using two seperate numeric state triggers instead of one to allow for
+    # situations where the temp is dropping or rising quickly and we move past the band
+    # in the waiting period. This requires an additional condition check (below) to
+    # make sure that we have not now slipped into the auto-changeover range for heat/cool.
+    - platform: numeric_state
+      entity_id: sensor.home_temperature
+      below: input_number.hvac_changeover_off_high
+      for: "04:00:00"
+      variables:
+        mode: "off"
     - platform: numeric_state
       entity_id: sensor.home_temperature
       above: input_number.hvac_changeover_off_low
-      below: input_number.hvac_changeover_off_high
-      for: "02:00:00"
+      for: "04:00:00"
       variables:
         mode: "off"
-  # don't do this if we are going from an unavailable state
-  condition: "{{ trigger.from_state and trigger.from_state.state != 'unavailable'  }}"
+  condition:
+    and:
+      # don't do this if we are going from an unavailable state
+      - "{{ trigger.from_state and trigger.from_state.state != 'unavailable' }}"
+      # and we are setting mode to either heat or cool or if we are setting mode to off,
+      # we have not crossed into the auto-changerover threshold for heat/cool.
+      - or:
+          - "{{ mode in ('heat, cool')}}"
+          - and:
+              - "{{ mode in ('off') }}"
+              - condition: numeric_state
+                entity_id: sensor.home_temperature
+                above: input_number.hvac_changeover_heat
+                below: input_number.hvac_changeover_cool
   action:
     # repeat for each zone
     - repeat:
