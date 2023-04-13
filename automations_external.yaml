@@ -662,7 +662,8 @@
               variables:
                 zone: "{{ repeat.item }}"
                 mode: "{{ mode }}"
-    # guest room - only do if guest room is currently on
+    # guest room - only do if guest room is currently on and changing to heat or cool
+    - condition: "{{ mode in ('heat', 'cool') }}"
     # wait for unavaialble unit to become available up to 5 minutes
     - wait_template: "{{ states('climate.guest_room') not in ('unavailable', 'unknown') }}"
       timeout: "00:05:00"
