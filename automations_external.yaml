@@ -394,86 +394,43 @@
         hvac: guest_room
 
 # New HVAC Controller automations
-# Windows open
-- id: HVACWindowsOpen
-  alias: HVAC Controller Windows Open
+- id: HVACWindows
+  alias: HVAC Controller Windows Automation
   trigger:
     - platform: state
       entity_id:
         - binary_sensor.hvac_windows_den
         - binary_sensor.hvac_windows_living_room
         - binary_sensor.hvac_windows_master_bedroom
-      to: "on"
       for: "00:01:00"
   mode: parallel
   action:
-    # figure out what zone triggered us
     - variables:
+        # figure out what zone triggered us
         zone: >
           {{ trigger.entity_id|regex_replace( find='binary_sensor.hvac_windows_(.+)$', replace='\\1' ) }}
-        unit: "climate.{{ zone }}"
-    # wait for unavaialble unit to become available up to 2 minutes
-    - wait_template: "{{ states(unit) not in ('unavailable', 'unknown') }}"
-      timeout: "00:02:00"
-    # only continue if we are in a supported mode
-    - variables:
-        state: "{{ states(unit) }}"
-    - condition: "{{ state in ('heat', 'cool', 'dry', 'fan_only', 'off') }}"
-    # save current state
-    - service: input_text.set_value
-      data:
-        entity_id: "input_text.hvac_windows_state_{{ zone }}"
-        value: "{{ state }}"
-    - service: input_datetime.set_datetime
-      data:
-        entity_id: "input_datetime.hvac_windows_last_{{ zone }}"
-        timestamp: "{{ now().timestamp() }}"
-    # only continue if we are not already off
-    - condition: "{{ state != 'off' }}"
-    # turn unit off
-    - service: climate.turn_off
-      data:
-        entity_id: "{{ unit }}"
-
-# Windows closed
-- id: HVACWindowsClosed
-  alias: HVAC Controller Windows Closed
-  trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.hvac_windows_den
-        - binary_sensor.hvac_windows_living_room
-        - binary_sensor.hvac_windows_master_bedroom
-      to: "off"
-      for: "00:00:30"
-  mode: parallel
-  action:
-    # figure out what zone triggered us
-    - variables:
-        zone: >
-          {{ trigger.entity_id|regex_replace( find='binary_sensor.hvac_windows_(.+)$', replace='\\1' ) }}
-        unit: "climate.{{ zone }}"
-    # get saved state
-    - variables:
-        saved_state: "{{ states('input_text.hvac_windows_state_' + zone) }}"
-    # continue if saved state is not 'off'
-    - condition: "{{ saved_state != 'off' }}"
-    # clear saved state
-    - service: input_text.set_value
-      data:
-        entity_id: "input_text.hvac_windows_state_{{ zone }}"
-        value: "off"
-    # contiue only if saved state if not stale (less than a day old)
-    - condition: >
-        {{ as_timestamp(now()) - as_timestamp(states('input_datetime.hvac_windows_last_' + zone)) < 86400 }}
-    # wait for unavaialble unit to become available up to 2 minutes
-    - wait_template: "{{ states(unit) not in ('unavailable', 'unknown') }}"
-      timeout: "00:02:00"
-    # set climate mode to saved state
-    - service: climate.set_hvac_mode
-      data:
-        entity_id: "{{ unit }}"
-        hvac_mode: "{{ saved_state }}"
+        # Window open or closed
+        window_status: "{{ trigger.to_state.state }}"
+    - if:
+        condition: template
+        value_template: "{{ window_status == 'on' }}"
+      then:
+        # set unit to off
+        - service: script.hvac_enable_mode
+          data:
+            zone: "{{ zone }}"
+            mode: "off"
+      else:
+        # get house mode
+        - variables:
+            mode: "{{ states('input_select.hvac_climate_mode' ) | lower }}"
+        # continue if mode is not 'off'
+        - condition: "{{ mode != 'off' }}"
+        # set mode and current temp to house mode
+        - service: script.hvac_enable_mode
+          data:
+            zone: "{{ zone }}"
+            mode: "{{ mode }}"
 
 # Deal with House mode or preset mode changes
 - id: HVACPresetChange
@@ -601,13 +558,13 @@
       below: input_number.hvac_changeover_heat
       for: "00:10:00"
       variables:
-        mode: "heat"
+        mode: "Heat"
     - platform: numeric_state
       entity_id: sensor.home_temperature
       above: input_number.hvac_changeover_cool
       for: "00:10:00"
       variables:
-        mode: "cool"
+        mode: "Cool"
     # set mode for off if we cross into the band of optimal outdoor temps
     # where HVAC is not needed. Wait for at leat 4 hours to accomodate
     # shoulder season where we are likely to rebound.
@@ -622,13 +579,13 @@
       below: input_number.hvac_changeover_off_high
       for: "04:00:00"
       variables:
-        mode: "off"
+        mode: "Off"
     - platform: numeric_state
       entity_id: sensor.home_temperature
       above: input_number.hvac_changeover_off_low
       for: "04:00:00"
       variables:
-        mode: "off"
+        mode: "Off"
   condition:
     and:
       # don't do this if we are going from an unavailable state
@@ -636,14 +593,32 @@
       # and we are setting mode to either heat or cool or if we are setting mode to off,
       # we have not crossed into the auto-changerover threshold for heat/cool.
       - or:
-          - "{{ mode in ('heat, cool')}}"
+          - "{{ mode in ('Heat, Cool')}}"
           - and:
-              - "{{ mode in ('off') }}"
+              - "{{ mode in ('Off') }}"
               - condition: numeric_state
                 entity_id: sensor.home_temperature
                 above: input_number.hvac_changeover_heat
                 below: input_number.hvac_changeover_cool
   action:
+    # set house mode
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_climate_mode
+        option: "{{ mode }}"
+
+# House-wide climate mode changing
+- id: HVACHouseClimateModeChanging
+  alias: "HVAC House Climate Mode Changing"
+  description: "HVAC House Climate Mode Changing"
+  trigger:
+    - platform: state
+      entity_id: input_select.hvac_climate_mode
+  mode: restart
+  action:
+    # get new mode
+    - variables:
+        mode: "{{ states('input_select.hvac_climate_mode') | lower }}"
     # repeat for each zone
     - repeat:
         for_each:
