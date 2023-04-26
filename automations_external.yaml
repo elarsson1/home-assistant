@@ -245,6 +245,64 @@
       target:
         entity_id: scene.common_area_normal_lighting
 
+# Guest overnight automations
+# Set up guest room for overnight stay
+- id: GuestOvernight
+  alias: Guest Overnight Actions
+  description: Prepare guest room for overnight stays
+  trigger:
+    - platform: state
+      entity_id: input_boolean.guests_overnight
+  mode: restart
+  action:
+    - if:
+        condition: template
+        value_template: "{{ trigger.to_state.state == 'on' }}"
+      # prepare guest room for overnight
+      then:
+        # disable motion sensors
+        - service: switch.turn_off
+          entity_id:
+            - switch.laundry_room_motion
+            - switch.guest_room_motion
+        # enable climate schedule
+        - service: switch.turn_on
+          entity_id: switch.schedule_4b562a
+        # enable HVAC in Guest Room
+        - service: script.hvac_enable_mode
+          data:
+            zone: "guest_room"
+            mode: "{{ states('input_select.hvac_climate_mode') | lower }}"
+      # reset guest room
+      else:
+        # enable motion sensors
+        - service: switch.turn_on
+          entity_id:
+            - switch.laundry_room_motion
+            - switch.guest_room_motion
+        # turn off lights
+        - service: light.turn_off
+          entity_id:
+            - light.guest_room
+            - light.laundry_room
+        # turn off towel warmer
+        - service: switch.turn_off
+          entity_id:
+            - switch.guest_bath_towel_warmer
+        # disable climate schedule
+        - service: switch.turn_off
+          entity_id: switch.schedule_4b562a
+        # turn off HVAC
+        - service: script.hvac_enable_mode
+          data:
+            zone: "guest_room"
+            mode: "off"
+        # set schedule preset to daytime
+        - service: input_select.select_option
+          data:
+            entity_id: input_select.hvac_controller_guest_room_preset
+            option: Day
+
 # TV watching motion sensor control
 - id: "1617150949677"
   alias: Living Room TV motion sensor off
