@@ -48,13 +48,13 @@ hvac_enable_mode:
     - condition: "{{ wait.completed and ( not is_state(unit, mode) ) }}"
     # drive unit to desired state for up to 10 minutes
     - repeat:
-        while: "{{ ( not is_state(unit, mode) ) and repeat.index <= 10 }}"
+        while: "{{ ( not is_state(unit, mode) ) and repeat.index <= 5 }}"
         sequence:
           - service: climate.set_hvac_mode
             data:
               entity_id: "{{ unit }}"
               hvac_mode: "{{ mode }}"
-          - delay: 60
+          - delay: 125
     # only continue if mode is heat or cool
     - condition: "{{ mode in ('heat', 'cool') }}"
     # set current preset for this zone
@@ -175,14 +175,14 @@ hvac_enable_preset:
         temp: "{{ states('input_number.hvac_' + zone + '_' + preset + '_' + state) }}"
     # set the temperature, try for up to 10 minutes
     - repeat:
-        while: "{{ not is_state_attr(unit, 'temperature', temp) and repeat.index <= 10 }}"
+        while: "{{ not is_state_attr(unit, 'temperature', temp) and repeat.index <= 5 }}"
         sequence:
           - service: climate.set_temperature
             continue_on_error: true
             data:
               entity_id: "{{ unit }}"
               temperature: "{{ temp }}"
-          - delay: 60
+          - delay: 125
 
 # script which is triggered when a return home is anticipated
 # sets HVAC mode back to Home mode for up to 6 hours waiting for return home
