@@ -20,3 +20,4 @@ image
 *.db-shm
 *.db-wal
 *.pyc
+rclone.conf
