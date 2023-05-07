@@ -320,6 +320,7 @@ good_night:
   sequence:
     # turm off lights
     - service: light.turn_off
+      continue_on_error: true
       entity_id:
         - light.den_lights
         - light.vestibule_switch
@@ -330,11 +331,20 @@ good_night:
         - light.guest_room
         - light.master_bedroom
         - light.kitchen
+        - light.porch_switch
+    # turn off candles and deck lights
+    - service: switch.turn_off
+      continue_on_error: true
+      entity_id:
+        - switch.deck_lights
+        - switch.candles
     # turn off towel warmer
     - service: switch.turn_off
+      continue_on_error: true
       entity_id: switch.master_bath_towel_warmer
     # turn off TV
     - service: remote.turn_off
+      continue_on_error: true
       entity_id: remote.living_room_2
     # Set HVAC modes to nightime
     - service: input_select.select_option
@@ -357,13 +367,16 @@ good_night:
             entity_id: input_select.hvac_controller_guest_room_preset
     # turn off master bath heaters
     - service: climate.turn_off
+      continue_on_error: true
       entity_id:
         - climate.master_bath_heater
     # arm alarm in home mode
     - service: alarm_control_panel.alarm_arm_home
+      continue_on_error: true
       entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
     # lock doors
     - service: lock.lock
+      continue_on_error: true
       target:
         entity_id:
           - lock.basement_door_lock
@@ -398,10 +411,12 @@ alarm_arm_away:
     # alexa does not care about disarm if already on, so just do it
     - service: alarm_control_panel.alarm_arm_away
       entity_id: alarm_control_panel.alexa_guard_b0cd9
-    # only proceed if Simplisafe is currently disarmed
+    # only proceed if Simplisafe is currently disarmed or armed in home mode
     - condition: state
       entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
-      state: "disarmed"
+      state:
+        - "disarmed"
+        - "armed_home"
     # arm SimpliSafe to home if the dog is present, otherwise, Away
     - if:
         - alias: Sophie home

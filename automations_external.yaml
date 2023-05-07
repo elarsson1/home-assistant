@@ -193,7 +193,7 @@
         - switch.guest_bath_towel_warmer
         - switch.master_bath_towel_warmer
 
-# Arm alarm 30 minutes after leaving
+# Arm alarm 10 minutes after leaving
 - id: ArmWhenLeaving
   alias: Arm Alarm when Leaving
   description: Arm Alarm when Leaving
@@ -203,7 +203,7 @@
       to:
         - Away
         - Dog Alone
-      for: 00:30:00
+      for: 00:10:00
   action:
     - service: script.alarm_arm_away
 
