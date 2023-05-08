@@ -51,6 +51,7 @@ hvac_enable_mode:
         while: "{{ ( not is_state(unit, mode) ) and repeat.index <= 5 }}"
         sequence:
           - service: climate.set_hvac_mode
+            continue_on_error: true
             data:
               entity_id: "{{ unit }}"
               hvac_mode: "{{ mode }}"
@@ -221,6 +222,7 @@ going_out:
   mode: single
   sequence:
     - service: light.turn_off
+      continue_on_error: true
       entity_id:
         - light.den_lights
         - light.vestibule_switch
@@ -232,18 +234,22 @@ going_out:
         - light.master_bedroom
         - light.kitchen
     - service: switch.turn_off
+      continue_on_error: true
       entity_id:
         - switch.guest_bath_towel_warmer
         - switch.master_bath_towel_warmer
     - service: remote.turn_off
+      continue_on_error: true
       entity_id: remote.living_room_2
     - service: remote.turn_off
+      continue_on_error: true
       entity_id: remote.den
     - service: input_select.select_option
       data:
         entity_id: input_select.hvac_controller_house_mode
         option: Away
     - service: lock.lock
+      continue_on_error: true
       target:
         entity_id:
           - lock.basement_door_lock
@@ -264,6 +270,7 @@ wake_up:
   sequence:
     # activate towel warmer
     - service: switch.turn_on
+      continue_on_error: true
       data:
         entity_id: "switch.{{ warmer }}"
     # set HVAC mode for common area
@@ -286,6 +293,7 @@ wake_up:
     - delay: "01:00:00"
     # switch off towel warmer
     - service: switch.turn_off
+      continue_on_error: true
       data:
         entity_id: "switch.{{ warmer }}"
     # set HVAC Day mode for bedroom
@@ -306,11 +314,13 @@ wake_up_bath_heater:
       below: input_number.bathroom_heater_warm_up_low_threshold
     # run heater for two hours
     - service: climate.set_hvac_mode
+      continue_on_error: true
       entity_id: climate.master_bath_heater
       data:
         hvac_mode: "heat_cool"
     - delay: "02:00:00"
     - service: climate.turn_off
+      continue_on_error: true
       entity_id: climate.master_bath_heater
 
 # Good Night Script
@@ -390,6 +400,7 @@ alarm_disarm:
   sequence:
     # alexa does not care about disarm if already off, so just do it
     - service: alarm_control_panel.alarm_disarm
+      continue_on_error: true
       entity_id: alarm_control_panel.alexa_guard_b0cd9
     # disarm SimpliSafe if it is not already off
     - if:
@@ -400,6 +411,7 @@ alarm_disarm:
             state: "disarmed"
       then:
         - service: alarm_control_panel.alarm_disarm
+          continue_on_error: true
           entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
 
 # conditionally arm alarms
@@ -410,6 +422,7 @@ alarm_arm_away:
   sequence:
     # alexa does not care about disarm if already on, so just do it
     - service: alarm_control_panel.alarm_arm_away
+      continue_on_error: true
       entity_id: alarm_control_panel.alexa_guard_b0cd9
     # only proceed if Simplisafe is currently disarmed or armed in home mode
     - condition: state
@@ -425,7 +438,9 @@ alarm_arm_away:
           state: home
       then:
         - service: alarm_control_panel.alarm_arm_home
+          continue_on_error: true
           entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
       else:
         - service: alarm_control_panel.alarm_arm_away
+          continue_on_error: true
           entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel

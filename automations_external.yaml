@@ -8,7 +8,7 @@
   action:
     - service: auto_backup.backup_full
       data:
-        name: "DailyBackup: {{ now().strftime('%A, %B %-d, %Y') }}"
+        name: "DailyBackup: {{ now().strftime('%Y-%m-%d') }}"
         keep_days: 14
 
 # automations to adjust Guest device tracker, used by Guest person
@@ -152,6 +152,7 @@
       for: 00:00:45
   action:
     - service: light.turn_off
+      continue_on_error: true
       entity_id:
         - light.den_lights
         - light.vestibule_switch
@@ -163,12 +164,15 @@
         - light.master_bedroom
         - light.kitchen
     - service: switch.turn_off
+      continue_on_error: true
       entity_id:
         - switch.guest_bath_towel_warmer
         - switch.master_bath_towel_warmer
     - service: remote.turn_off
+      continue_on_error: true
       entity_id: remote.living_room_2
     - service: remote.turn_off
+      continue_on_error: true
       entity_id: remote.den
 
 # turn off a subset of devices if the dog is alone
@@ -182,6 +186,7 @@
       for: 00:00:45
   action:
     - service: light.turn_off
+      continue_on_error: true
       entity_id:
         - light.vestibule_switch
         - light.under_stoop_lights
@@ -189,6 +194,7 @@
         - light.guest_room
         - light.master_bedroom
     - service: switch.turn_off
+      continue_on_error: true
       entity_id:
         - switch.guest_bath_towel_warmer
         - switch.master_bath_towel_warmer
@@ -262,6 +268,7 @@
       then:
         # disable motion sensors
         - service: switch.turn_off
+          continue_on_error: true
           entity_id:
             - switch.laundry_room_motion
             - switch.guest_room_motion
@@ -277,16 +284,19 @@
       else:
         # enable motion sensors
         - service: switch.turn_on
+          continue_on_error: true
           entity_id:
             - switch.laundry_room_motion
             - switch.guest_room_motion
         # turn off lights
         - service: light.turn_off
+          continue_on_error: true
           entity_id:
             - light.guest_room
             - light.laundry_room
         # turn off towel warmer
         - service: switch.turn_off
+          continue_on_error: true
           entity_id:
             - switch.guest_bath_towel_warmer
         # disable climate schedule
