@@ -470,6 +470,9 @@
         - binary_sensor.hvac_windows_den
         - binary_sensor.hvac_windows_living_room
         - binary_sensor.hvac_windows_master_bedroom
+      to:
+        - "ob"
+        - "off"
       for: "00:01:00"
   mode: parallel
   action:
