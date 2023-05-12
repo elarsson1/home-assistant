@@ -637,7 +637,7 @@
       variables:
         mode: "Cool"
     # set mode for off if we cross into the band of optimal outdoor temps
-    # where HVAC is not needed. Wait for at leat 4 hours to accomodate
+    # where HVAC is not needed. Wait for at leat 8 hours to accomodate
     # shoulder season where we are likely to rebound.
     #
     # Because the band is small (4 degrees) and we are waiting for 4 hours, we
@@ -648,13 +648,13 @@
     - platform: numeric_state
       entity_id: sensor.home_temperature
       below: input_number.hvac_changeover_off_high
-      for: "04:00:00"
+      for: "08:00:00"
       variables:
         mode: "Off"
     - platform: numeric_state
       entity_id: sensor.home_temperature
       above: input_number.hvac_changeover_off_low
-      for: "04:00:00"
+      for: "08:00:00"
       variables:
         mode: "Off"
   condition:
