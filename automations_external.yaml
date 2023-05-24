@@ -699,7 +699,7 @@
         sequence:
           # only if windows for that zone are closed
           - condition: >
-              {{ is_state('binary_sensor.hvac_windows_' + repeat.item, 'off') }}
+              {{ not is_state('binary_sensor.hvac_windows_' + repeat.item, 'on') }}
           # set mode and target temp based on preset
           - service: script.turn_on
             target:
