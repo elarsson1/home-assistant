@@ -17,14 +17,6 @@
         {{ ((as_timestamp(states('sensor.cert_expiry_timestamp_home_axeltech_com')) - as_timestamp(now()) ) / 86400) | int }}
       unit_of_measurement: "days"
 
-# Pi CPU temp
-- platform: command_line
-  name: CPU Temperature
-  command: "cat /sys/class/thermal/thermal_zone0/temp"
-  # If errors occur, make sure configuration file is encoded as UTF-8
-  unit_of_measurement: "°C"
-  value_template: "{{ value | multiply(0.001) | round(1) }}"
-
 # Air Quality index
 - platform: waqi
   token: !secret waqi_token
