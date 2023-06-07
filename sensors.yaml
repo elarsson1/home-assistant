@@ -24,3 +24,9 @@
   # If errors occur, make sure configuration file is encoded as UTF-8
   unit_of_measurement: "°C"
   value_template: "{{ value | multiply(0.001) | round(1) }}"
+
+# Air Quality index
+- platform: waqi
+  token: !secret waqi_token
+  locations:
+    - "jersey city"
