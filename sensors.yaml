@@ -16,9 +16,3 @@
       value_template: >
         {{ ((as_timestamp(states('sensor.cert_expiry_timestamp_home_axeltech_com')) - as_timestamp(now()) ) / 86400) | int }}
       unit_of_measurement: "days"
-
-# Air Quality index
-- platform: waqi
-  token: !secret waqi_token
-  locations:
-    - "jersey city"
