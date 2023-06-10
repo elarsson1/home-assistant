@@ -560,6 +560,42 @@
           data:
             zone: guest_room
 
+# air purifier house mode changes
+- id: PurifierHomeAwayMode
+  alias: Air Purifier Home or Away Mode
+  description: Turn on or off air purifiers based upon home/away status
+  trigger:
+    - platform: state
+      entity_id: input_select.hvac_controller_house_mode
+      to:
+        - Home
+        - ExtAway
+  action:
+    - repeat:
+        for_each:
+          - den
+          - master_bedroom
+        sequence:
+          - if:
+              condition: state
+              entity_id: input_select.hvac_controller_house_mode
+              state: Home
+            then:
+              - service: fan.turn_on
+                continue_on_error: true
+                data:
+                  entity_id: "fan.{{ repeat.item }}_purifier"
+              - service: fan.set_preset_mode
+                continue_on_error: true
+                data:
+                  entity_id: "fan.{{ repeat.item }}_purifier"
+                  preset_mode: auto
+            else:
+              - service: fan.turn_off
+                continue_on_error: true
+                data:
+                  entity_id: "fan.{{ repeat.item }}_purifier"
+
 # Set HVAC away 30 minutes after leaving
 - id: HVACAway
   alias: HVAC Controller Set Away
