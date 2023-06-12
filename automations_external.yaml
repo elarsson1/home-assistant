@@ -573,8 +573,10 @@
   action:
     - repeat:
         for_each:
+          - living_room
           - den
           - master_bedroom
+          - guest_room
         sequence:
           - if:
               condition: state
