@@ -90,9 +90,7 @@ hvac_enable_current:
         - conditions: >
             {{ states('input_select.hvac_controller_house_mode') in ('Away', 'ExtAway') }}
           sequence:
-            - service: script.turn_on
-              target:
-                entity_id: script.hvac_enable_preset
+            - service: script.hvac_enable_preset
               data:
                 variables:
                   zone: "{{ zone }}"
@@ -101,9 +99,7 @@ hvac_enable_current:
         # master bedroom area
         - conditions: "{{ zone|slugify() in ('master_bedroom', 'master_bedroom_heater') }}"
           sequence:
-            - service: script.turn_on
-              target:
-                entity_id: script.hvac_enable_preset
+            - service: script.hvac_enable_preset
               data:
                 variables:
                   zone: "{{ zone }}"
@@ -111,18 +107,14 @@ hvac_enable_current:
         # guest room area
         - conditions: "{{ zone|slugify() in ('guest_room') }}"
           sequence:
-            - service: script.turn_on
-              target:
-                entity_id: script.hvac_enable_preset
+            - service: script.hvac_enable_preset
               data:
                 variables:
                   zone: "{{ zone }}"
                   preset: "{{ states('input_select.hvac_controller_guest_room_preset') }}"
       # otherwise, common area preset is used
       default:
-        - service: script.turn_on
-          target:
-            entity_id: script.hvac_enable_preset
+        - service: script.hvac_enable_preset
           data:
             variables:
               zone: "{{ zone }}"

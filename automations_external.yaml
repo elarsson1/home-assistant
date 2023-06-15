@@ -728,6 +728,12 @@
     # get new mode
     - variables:
         mode: "{{ states('input_select.hvac_climate_mode') | lower }}"
+    # stop all mode or setpoint changes in flight.
+    - service: script.turn_off
+      target:
+        entity_id:
+          - script.hvac_enable_mode
+          - script.hvac_enable_preset
     # repeat for each zone
     - repeat:
         for_each:
