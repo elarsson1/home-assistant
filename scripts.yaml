@@ -92,33 +92,29 @@ hvac_enable_current:
           sequence:
             - service: script.hvac_enable_preset
               data:
-                variables:
-                  zone: "{{ zone }}"
-                  preset: "{{ states('input_select.hvac_controller_house_mode') }}"
+                zone: "{{ zone }}"
+                preset: "{{ states('input_select.hvac_controller_house_mode') }}"
         # otherwise, select preset based upon zone
         # master bedroom area
         - conditions: "{{ zone|slugify() in ('master_bedroom', 'master_bedroom_heater') }}"
           sequence:
             - service: script.hvac_enable_preset
               data:
-                variables:
-                  zone: "{{ zone }}"
-                  preset: "{{ states('input_select.hvac_controller_master_bedroom_preset') }}"
+                zone: "{{ zone }}"
+                preset: "{{ states('input_select.hvac_controller_master_bedroom_preset') }}"
         # guest room area
         - conditions: "{{ zone|slugify() in ('guest_room') }}"
           sequence:
             - service: script.hvac_enable_preset
               data:
-                variables:
-                  zone: "{{ zone }}"
-                  preset: "{{ states('input_select.hvac_controller_guest_room_preset') }}"
+                zone: "{{ zone }}"
+                preset: "{{ states('input_select.hvac_controller_guest_room_preset') }}"
       # otherwise, common area preset is used
       default:
         - service: script.hvac_enable_preset
           data:
-            variables:
-              zone: "{{ zone }}"
-              preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
+            zone: "{{ zone }}"
+            preset: "{{ states('input_select.hvac_controller_common_area_preset') }}"
 
 # Set a single unit to a given preset temp
 hvac_enable_preset:
