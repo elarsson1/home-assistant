@@ -537,9 +537,12 @@
               - den_heater
               - living_room_heater
             sequence:
-              - service: script.hvac_enable_current
+              - service: script.turn_on
+                target:
+                  entity_id: script.hvac_enable_current
                 data:
-                  zone: "{{ repeat.item }}"
+                  variables:
+                    zone: "{{ repeat.item }}"
     - if:
         condition: template
         value_template: "{{ house_mode or master_bedroom }}"
@@ -549,16 +552,22 @@
               - master_bedroom
               - master_bedroom_heater
             sequence:
-              - service: script.hvac_enable_current
+              - service: script.turn_on
+                target:
+                  entity_id: script.hvac_enable_current
                 data:
-                  zone: "{{ repeat.item }}"
+                  variables:
+                    zone: "{{ repeat.item }}"
     - if:
         condition: template
         value_template: "{{ house_mode or guest_room }}"
       then:
-        - service: script.hvac_enable_current
+        - service: script.turn_on
+          target:
+            entity_id: script.hvac_enable_current
           data:
-            zone: guest_room
+            variables:
+              zone: "guest_room"
 
 # air purifier house mode changes
 - id: PurifierHomeAwayMode
