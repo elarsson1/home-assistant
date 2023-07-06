@@ -910,11 +910,7 @@ async def setup_alexa(hass, config_entry, login_obj: AlexaLogin):
                 serial = None
             if command == "PUSH_ACTIVITY":
                 if (
-                    datetime.now().timestamp() * 1000
-                    - hass.data[DATA_ALEXAMEDIA]["accounts"][email][
-                        "last_push_activity"
-                    ]
-                    > 100
+                  1 == 1
                 ):
                     #  Last_Alexa Updated
                     last_called = {
