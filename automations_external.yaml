@@ -524,6 +524,15 @@
     # only continue if the house mode is changed or we are currently home
     # automation should not fire if preset selector is changing while we are away
     - condition: "{{ house_mode or is_state('input_select.hvac_controller_house_mode', 'Home') }}"
+    # stop other scripts trying to make changes if house mode is being changed
+    - if:
+        condition: template
+        value_template: "{{ house_mode }}"
+      then:
+        - service: script.turn_off
+          target:
+            entity_id:
+              - script.hvac_enable_preset
     # decide what zones to change based upon trigger
     - if:
         condition: template
