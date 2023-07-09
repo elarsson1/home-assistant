@@ -232,16 +232,19 @@ going_out:
     - service: remote.turn_off
       continue_on_error: true
       entity_id: remote.den
-    - service: input_select.select_option
-      data:
-        entity_id: input_select.hvac_controller_house_mode
-        option: Away
     - service: lock.lock
       continue_on_error: true
       target:
         entity_id:
           - lock.basement_door_lock
           - lock.front_door_lock
+    # only set HVAC mode to Away if it is currently home
+    - condition: >
+        {{ is_state('input_select.hvac_controller_house_mode', 'Home') }}
+    - service: input_select.select_option
+      data:
+        entity_id: input_select.hvac_controller_house_mode
+        option: Away
 
 # wake up script
 wake_up:
