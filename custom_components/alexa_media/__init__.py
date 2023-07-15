@@ -919,6 +919,7 @@ async def setup_alexa(hass, config_entry, login_obj: AlexaLogin):
                     }
                     try:
                         await coord.async_request_refresh()
+                        await process_notifications(login_obj) 
                         if serial and serial in existing_serials:
                             await update_last_called(login_obj, last_called)
                         async_dispatcher_send(
