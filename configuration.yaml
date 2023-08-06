@@ -46,3 +46,4 @@ zone: !include zones.yaml
 sensor: !include sensors.yaml
 binary_sensor: !include binary_sensors.yaml
 switch: !include switches.yaml
+light: !include lights.yaml
