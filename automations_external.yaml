@@ -368,8 +368,8 @@
       to: "on"
   condition:
     - condition: time
-      after: 02:00:00
-      before: input_datetime.master_bedroom_wake_up_fallback_time
+      after: "02:00:00"
+      before: "11:00:00"
     - condition: template
       value_template: "{{ state_attr('automation.smart_wake_up_master_bedroom', 'last_triggered').day != utcnow().day }}"
   action:
@@ -395,8 +395,8 @@
       to: "on"
   condition:
     - condition: time
-      after: 02:00:00
-      before: input_datetime.guest_bedroom_wake_up_fallback_time
+      after: "02:00:00"
+      before: "11:00:00"
     - condition: template
       value_template: "{{ state_attr('automation.smart_wake_up_guest_room','last_triggered').day != utcnow().day }}"
   action:
