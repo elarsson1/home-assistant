@@ -1,16 +1,3 @@
-# trigger automtic backup.
-- id: AutoBackup
-  alias: Automatic Daily Snapshot
-  description: Run snapshot daily and retain for 14 days
-  trigger:
-    - platform: time
-      at: input_datetime.auto_backup_time
-  action:
-    - service: auto_backup.backup_full
-      data:
-        name: "DailyBackup: {{ now().strftime('%Y-%m-%d') }}"
-        keep_days: 14
-
 # automations to adjust Guest device tracker, used by Guest person
 # when binary sensor is changed.
 - id: "1616560803743"
@@ -399,31 +386,6 @@
     - service: light.turn_off
       entity_id: light.virtual_wake_up_master_bedroom
 
-# master bedroom fallback
-- id: SmartWakeUpMasterBedroomFallback
-  alias: Fallback time for Master Bedroom Wake-up sequence
-  trigger:
-    - at: input_datetime.master_bedroom_wake_up_fallback_time
-      platform: time
-  condition:
-    - condition: state
-      entity_id: input_select.presence
-      state:
-        - Home
-        - With Guests
-    - condition: template
-      value_template: "{{ state_attr('automation.smart_wake_up_master_bedroom', 'last_triggered').day != utcnow().day }}"
-  action:
-    # execute bathroom heater script and do not wait for completion
-    - service: script.turn_on
-      target:
-        entity_id: script.wake_up_bath_heater
-    # trigger wake-up script and wait for it to complete
-    - service: script.wake_up
-      data:
-        warmer: master_bath_towel_warmer
-        hvac: master_bedroom
-
 # guest room alexa alarm trigger
 - id: SmartWakeUpGuestRoom
   alias: Smart Wake Up Guest Room
@@ -445,25 +407,6 @@
     # turn off virtual light for triggering
     - service: light.turn_off
       entity_id: light.virtual_wake_up_guest_room
-
-# guest room fallback
-- id: SmartWakeUpGuestRoomFallback
-  alias: Fallback time for Guest Room Wake-up sequence
-  trigger:
-    - at: input_datetime.guest_bedroom_wake_up_fallback_time
-      platform: time
-  condition:
-    - condition: state
-      entity_id: input_select.presence
-      state:
-        - With Guests
-    - condition: template
-      value_template: "{{ state_attr('automation.smart_wake_up_guest_room','last_triggered').day != utcnow().day }}"
-  action:
-    - service: script.wake_up
-      data:
-        warmer: guest_bath_towel_warmer
-        hvac: guest_room
 
 # New HVAC Controller automations
 - id: HVACWindows
