@@ -56,10 +56,12 @@ from .const import (
     CONF_INCLUDE_DEVICES,
     CONF_OAUTH,
     CONF_OTPSECRET,
+    CONF_PUBLIC_URL,
     CONF_QUEUE_DELAY,
     DATA_ALEXAMEDIA,
     DATA_LISTENER,
     DEFAULT_EXTENDED_ENTITY_DISCOVERY,
+    DEFAULT_PUBLIC_URL,
     DEFAULT_QUEUE_DELAY,
     DEPENDENT_ALEXA_COMPONENTS,
     DOMAIN,
@@ -289,6 +291,9 @@ async def async_setup_entry(hass, config_entry):
             "options": {
                 CONF_QUEUE_DELAY: config_entry.options.get(
                     CONF_QUEUE_DELAY, DEFAULT_QUEUE_DELAY
+                ),
+                CONF_PUBLIC_URL: config_entry.options.get(
+                    CONF_PUBLIC_URL, DEFAULT_PUBLIC_URL
                 ),
                 CONF_EXTENDED_ENTITY_DISCOVERY: config_entry.options.get(
                     CONF_EXTENDED_ENTITY_DISCOVERY, DEFAULT_EXTENDED_ENTITY_DISCOVERY
@@ -910,7 +915,11 @@ async def setup_alexa(hass, config_entry, login_obj: AlexaLogin):
                 serial = None
             if command == "PUSH_ACTIVITY":
                 if (
-                  1 == 1
+                    datetime.now().timestamp() * 1000
+                    - hass.data[DATA_ALEXAMEDIA]["accounts"][email][
+                        "last_push_activity"
+                    ]
+                    > 100
                 ):
                     #  Last_Alexa Updated
                     last_called = {
@@ -919,7 +928,6 @@ async def setup_alexa(hass, config_entry, login_obj: AlexaLogin):
                     }
                     try:
                         await coord.async_request_refresh()
-                        await process_notifications(login_obj) 
                         if serial and serial in existing_serials:
                             await update_last_called(login_obj, last_called)
                         async_dispatcher_send(
