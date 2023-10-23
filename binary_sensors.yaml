@@ -15,3 +15,12 @@
         is_state_attr('climate.living_room', 'defrost', true) or
         is_state_attr('climate.master_bedroom', 'defrost', true) or
         is_state_attr('climate.guest_room', 'defrost', true) }}
+
+    # Sensor if any HVAC unit is in heat mode
+    hvac_heat:
+      friendly_name: "HVAC Heating"
+      value_template: >-
+        {{ is_state('climate.den', 'heat') or 
+        is_state('climate.living_room', 'heat') or
+        is_state('climate.master_bedroom', 'heat') or
+        is_state('climate.guest_room', 'heat') }}
