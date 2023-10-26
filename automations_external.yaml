@@ -563,6 +563,44 @@
                 data:
                   entity_id: "fan.{{ repeat.item }}_purifier"
 
+# humidifier automations
+- id: HumidifierMode
+  alias: Humidifier Mode Automation
+  description: Automatically turn on and off humidifiers based upon HVAC mode and presence
+  trigger:
+    - platform: state
+      entity_id: input_select.hvac_controller_house_mode
+      to:
+        - Home
+        - ExtAway
+    - platform: state
+      entity_id: input_select.hvac_climate_mode
+  action:
+    - repeat:
+        for_each:
+          - den
+          - master_bedroom
+        sequence:
+          - if:
+              - condition: state
+                entity_id: input_select.hvac_climate_mode
+                state: Heat
+              - condition: state
+                entity_id: input_select.hvac_controller_house_mode
+                state:
+                  - Home
+                  - Away
+            then:
+              - service: humidifier.turn_on
+                continue_on_error: true
+                data:
+                  entity_id: "humidifier.{{ repeat.item }}_humidifier"
+            else:
+              - service: humidifier.turn_off
+                continue_on_error: true
+                data:
+                  entity_id: "humidifier.{{ repeat.item }}_humidifier"
+
 # Set HVAC away 30 minutes after leaving
 - id: HVACAway
   alias: HVAC Controller Set Away
