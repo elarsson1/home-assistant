@@ -323,6 +323,25 @@ wake_up_bath_heater:
       continue_on_error: true
       entity_id: climate.master_bath_heater
 
+# script to run when dismissing alexa alarm. enables bedroom motion sensor
+# only if triggered from bedroom (determined by virtual light used as a wake-up
+# trigger from alexa)
+wake_up_motion_sensor:
+  alias: Wake-up Motion Sensor
+  description: Enable bedroom motion sensor when waking up
+  sequence:
+    # only if triggered by bedroom, as indicated by state of virtual light used by alexa alarm
+    - condition: state
+      entity_id: light.virtual_wake_up_master_bedroom
+      state: "on"
+    - condition: numeric_state
+      entity_id: light.virtual_wake_up_master_bedroom
+      attribute: brightness
+      above: 240
+    # turn on motion sensor
+    - service: switch.turn_on
+      entity_id: switch.master_bedroom_motion
+
 # Good Night Script
 good_night:
   alias: Good Night
@@ -338,7 +357,6 @@ good_night:
         - light.living_room
         - light.laundry_room
         - light.office
-        - light.guest_room
         - light.master_bedroom
         - light.kitchen
         - light.porch_switch
