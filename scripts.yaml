@@ -396,16 +396,14 @@ good_night:
                 - light.master_bedroom
                 - light.kitchen
                 - light.porch_switch
-            # turn off candles and deck lights
+            # turn off candles, deck lights, towel warmer, and bedroom motion sensor
             - service: switch.turn_off
               continue_on_error: true
               entity_id:
                 - switch.deck_lights
                 - switch.candles
-            # turn off towel warmer
-            - service: switch.turn_off
-              continue_on_error: true
-              entity_id: switch.master_bath_towel_warmer
+                - switch.master_bedroom_motion
+                - switch.master_bath_towel_warmer
             # turn off TV
             - service: remote.turn_off
               continue_on_error: true
@@ -450,16 +448,14 @@ good_night:
             - light.master_bedroom
             - light.kitchen
             - light.porch_switch
-        # turn off candles and deck lights
+        # turn off candles, deck lights, towel warmer, and bedroom motion sensor
         - service: switch.turn_off
           continue_on_error: true
           entity_id:
             - switch.deck_lights
             - switch.candles
-        # turn off towel warmer
-        - service: switch.turn_off
-          continue_on_error: true
-          entity_id: switch.master_bath_towel_warmer
+            - switch.master_bedroom_motion
+            - switch.master_bath_towel_warmer
         # turn off TV
         - service: remote.turn_off
           continue_on_error: true
