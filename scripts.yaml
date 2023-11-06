@@ -347,68 +347,150 @@ good_night:
   alias: Good Night
   description: Turn everything off for bed
   sequence:
-    # turm off lights
-    - service: light.turn_off
+    # see which Alexa device we were called from
+    - service: alexa_media.update_last_called
       continue_on_error: true
-      entity_id:
-        - light.den_lights
-        - light.vestibule_switch
-        - light.under_stoop_lights
-        - light.living_room
-        - light.laundry_room
-        - light.office
-        - light.master_bedroom
-        - light.kitchen
-        - light.porch_switch
-    # turn off candles and deck lights
-    - service: switch.turn_off
-      continue_on_error: true
-      entity_id:
-        - switch.deck_lights
-        - switch.candles
-    # turn off towel warmer
-    - service: switch.turn_off
-      continue_on_error: true
-      entity_id: switch.master_bath_towel_warmer
-    # turn off TV
-    - service: remote.turn_off
-      continue_on_error: true
-      entity_id: remote.living_room_2
-    # Set HVAC modes to nightime
-    - service: input_select.select_option
-      data:
-        option: Night
-        entity_id: input_select.hvac_controller_common_area_preset
-    - service: input_select.select_option
-      data:
-        option: Night
-        entity_id: input_select.hvac_controller_master_bedroom_preset
-    # only change guest room mode if guest overnight mode is enabled
-    - if:
-        - condition: state
-          entity_id: input_boolean.guests_overnight
-          state: "on"
-      then:
+    - choose:
+        # if we were called from the guest room, shut off a subset of devices
+        - conditions: >
+            {{ is_state_attr('media_player.guest_room_echo_show', 'last_called', true ) }}
+          sequence:
+            # turn off lights
+            - service: light.turn_off
+              continue_on_error: true
+              entity_id:
+                - light.guest_room
+                - light.laundry_room
+                - light.office
+                - light.den_lights
+            # turn off towel warmer
+            - service: switch.turn_off
+              continue_on_error: true
+              entity_id: switch.guest_bath_towel_warmer
+            # turn off TV
+            - service: remote.turn_off
+              continue_on_error: true
+              entity_id: remote.den
+            # set HVAC to night mode
+            # only change guest room mode if guest overnight mode is enabled
+            - if:
+                - condition: state
+                  entity_id: input_boolean.guests_overnight
+                  state: "on"
+              then:
+                - service: input_select.select_option
+                  data:
+                    option: Night
+                    entity_id: input_select.hvac_controller_guest_room_preset
+        # if we were called from elsewhere, but guests are staying over
+        - conditions: >
+            {{ is_state('input_boolean.guests_overnight', 'on' ) }}
+          sequence:
+            # turm off lights
+            - service: light.turn_off
+              continue_on_error: true
+              entity_id:
+                - light.vestibule_switch
+                - light.under_stoop_lights
+                - light.living_room
+                - light.master_bedroom
+                - light.kitchen
+                - light.porch_switch
+            # turn off candles and deck lights
+            - service: switch.turn_off
+              continue_on_error: true
+              entity_id:
+                - switch.deck_lights
+                - switch.candles
+            # turn off towel warmer
+            - service: switch.turn_off
+              continue_on_error: true
+              entity_id: switch.master_bath_towel_warmer
+            # turn off TV
+            - service: remote.turn_off
+              continue_on_error: true
+              entity_id: remote.living_room_2
+            # Set HVAC modes to nightime
+            - service: input_select.select_option
+              data:
+                option: Night
+                entity_id: input_select.hvac_controller_common_area_preset
+            - service: input_select.select_option
+              data:
+                option: Night
+                entity_id: input_select.hvac_controller_master_bedroom_preset
+            # turn off master bath heaters
+            - service: climate.turn_off
+              continue_on_error: true
+              entity_id:
+                - climate.master_bath_heater
+            # arm alarm in home mode
+            - service: alarm_control_panel.alarm_arm_home
+              continue_on_error: true
+              entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+            # lock doors
+            - service: lock.lock
+              continue_on_error: true
+              target:
+                entity_id:
+                  - lock.basement_door_lock
+                  - lock.front_door_lock
+      # guest not here and called from any device but guest room
+      default:
+        # turm off lights
+        - service: light.turn_off
+          continue_on_error: true
+          entity_id:
+            - light.den_lights
+            - light.vestibule_switch
+            - light.under_stoop_lights
+            - light.living_room
+            - light.laundry_room
+            - light.office
+            - light.master_bedroom
+            - light.kitchen
+            - light.porch_switch
+        # turn off candles and deck lights
+        - service: switch.turn_off
+          continue_on_error: true
+          entity_id:
+            - switch.deck_lights
+            - switch.candles
+        # turn off towel warmer
+        - service: switch.turn_off
+          continue_on_error: true
+          entity_id: switch.master_bath_towel_warmer
+        # turn off TV
+        - service: remote.turn_off
+          continue_on_error: true
+          entity_id:
+            - remote.living_room_2
+            - remote.den
+        # Set HVAC modes to nightime
         - service: input_select.select_option
           data:
             option: Night
-            entity_id: input_select.hvac_controller_guest_room_preset
-    # turn off master bath heaters
-    - service: climate.turn_off
-      continue_on_error: true
-      entity_id:
-        - climate.master_bath_heater
-    # arm alarm in home mode
-    - service: alarm_control_panel.alarm_arm_home
-      continue_on_error: true
-      entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
-    # lock doors
-    - service: lock.lock
-      continue_on_error: true
-      target:
-        entity_id:
-          - lock.basement_door_lock
-          - lock.front_door_lock
+            entity_id: input_select.hvac_controller_common_area_preset
+        - service: input_select.select_option
+          data:
+            option: Night
+            entity_id: input_select.hvac_controller_master_bedroom_preset
+        # turn off master bath heaters
+        - service: climate.turn_off
+          continue_on_error: true
+          entity_id:
+            - climate.master_bath_heater
+        # arm alarm in home mode
+        - service: alarm_control_panel.alarm_arm_home
+          continue_on_error: true
+          entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+        # lock doors
+        - service: lock.lock
+          continue_on_error: true
+          target:
+            entity_id:
+              - lock.basement_door_lock
+              - lock.front_door_lock
 
 # conditionally disarm alarms
 # needed to avoid spurious simplisafe notifications if alarm is aready disarmed
