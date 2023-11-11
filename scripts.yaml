@@ -235,18 +235,17 @@ going_out:
       entity_id:
         - switch.guest_bath_towel_warmer
         - switch.master_bath_towel_warmer
-    - service: remote.turn_off
-      continue_on_error: true
-      entity_id: remote.living_room_2
-    - service: remote.turn_off
-      continue_on_error: true
-      entity_id: remote.den
     - service: lock.lock
       continue_on_error: true
       target:
         entity_id:
           - lock.basement_door_lock
           - lock.front_door_lock
+    - service: remote.turn_off
+      continue_on_error: true
+      entity_id:
+        - remote.living_room_2
+        - remote.den
     # only set HVAC mode to Away if it is currently home
     - condition: >
         {{ is_state('input_select.hvac_controller_house_mode', 'Home') }}
@@ -367,10 +366,6 @@ good_night:
             - service: switch.turn_off
               continue_on_error: true
               entity_id: switch.guest_bath_towel_warmer
-            # turn off TV
-            - service: remote.turn_off
-              continue_on_error: true
-              entity_id: remote.den
             # set HVAC to night mode
             # only change guest room mode if guest overnight mode is enabled
             - if:
@@ -382,6 +377,10 @@ good_night:
                   data:
                     option: Night
                     entity_id: input_select.hvac_controller_guest_room_preset
+            # turn off TV
+            - service: remote.turn_off
+              continue_on_error: true
+              entity_id: remote.den
         # if we were called from elsewhere, but guests are staying over
         - conditions: >
             {{ is_state('input_boolean.guests_overnight', 'on' ) }}
@@ -404,10 +403,6 @@ good_night:
               entity_id:
                 - switch.master_bedroom_motion
                 - switch.master_bath_towel_warmer
-            # turn off TV
-            - service: remote.turn_off
-              continue_on_error: true
-              entity_id: remote.living_room_2
             # Set HVAC modes to nightime
             - service: input_select.select_option
               data:
@@ -417,11 +412,6 @@ good_night:
               data:
                 option: Night
                 entity_id: input_select.hvac_controller_master_bedroom_preset
-            # turn off master bath heaters
-            - service: climate.turn_off
-              continue_on_error: true
-              entity_id:
-                - climate.master_bath_heater
             # arm alarm in home mode
             - service: alarm_control_panel.alarm_arm_home
               continue_on_error: true
@@ -433,6 +423,15 @@ good_night:
                 entity_id:
                   - lock.basement_door_lock
                   - lock.front_door_lock
+            # turn off master bath heaters
+            - service: climate.turn_off
+              continue_on_error: true
+              entity_id:
+                - climate.master_bath_heater
+            # turn off TV
+            - service: remote.turn_off
+              continue_on_error: true
+              entity_id: remote.living_room_2
       # guest not here and called from any device but guest room
       default:
         # turm off lights
@@ -456,12 +455,6 @@ good_night:
           entity_id:
             - switch.master_bedroom_motion
             - switch.master_bath_towel_warmer
-        # turn off TV
-        - service: remote.turn_off
-          continue_on_error: true
-          entity_id:
-            - remote.living_room_2
-            - remote.den
         # Set HVAC modes to nightime
         - service: input_select.select_option
           data:
@@ -471,11 +464,6 @@ good_night:
           data:
             option: Night
             entity_id: input_select.hvac_controller_master_bedroom_preset
-        # turn off master bath heaters
-        - service: climate.turn_off
-          continue_on_error: true
-          entity_id:
-            - climate.master_bath_heater
         # arm alarm in home mode
         - service: alarm_control_panel.alarm_arm_home
           continue_on_error: true
@@ -487,6 +475,17 @@ good_night:
             entity_id:
               - lock.basement_door_lock
               - lock.front_door_lock
+        # turn off master bath heaters
+        - service: climate.turn_off
+          continue_on_error: true
+          entity_id:
+            - climate.master_bath_heater
+        # turn off TV
+        - service: remote.turn_off
+          continue_on_error: true
+          entity_id:
+            - remote.living_room_2
+            - remote.den
 
 # conditionally disarm alarms
 # needed to avoid spurious simplisafe notifications if alarm is aready disarmed
