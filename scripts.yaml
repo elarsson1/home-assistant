@@ -316,7 +316,7 @@ wake_up_bath_heater:
       continue_on_error: true
       entity_id: climate.master_bath_heater
       data:
-        hvac_mode: "heat_cool"
+        hvac_mode: "heat"
     - delay: "02:00:00"
     - service: climate.turn_off
       continue_on_error: true
