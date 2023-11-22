@@ -350,9 +350,11 @@ good_night:
     - service: alexa_media.update_last_called
       continue_on_error: true
     - choose:
-        # if we were called from the guest room, shut off a subset of devices
+        # if we were called from the the ground floor, shut off a subset of devices
         - conditions: >
-            {{ is_state_attr('media_player.guest_room_echo_show', 'last_called', true ) }}
+            {{ is_state_attr('media_player.guest_room_echo_show', 'last_called', true) 
+               or is_state_attr('media_player.den_echo_show', 'last_called', true) 
+               or is_state_attr('media_player.office_echo_show', 'last_called', true) }}
           sequence:
             # turn off lights
             - service: light.turn_off
