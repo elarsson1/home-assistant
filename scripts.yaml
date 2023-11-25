@@ -364,6 +364,7 @@ good_night:
                 - light.laundry_room
                 - light.office
                 - light.den_lights
+                - light.den_tree
             # turn off towel warmer
             - service: switch.turn_off
               continue_on_error: true
@@ -399,6 +400,7 @@ good_night:
                 - light.porch_switch
                 - light.deck_lights
                 - light.candles
+                - light.outdoor_christmas_lights
             # turn off towel warmer and bedroom motion sensor
             - service: switch.turn_off
               continue_on_error: true
@@ -451,6 +453,8 @@ good_night:
             - light.porch_switch
             - light.deck_lights
             - light.candles
+            - light.outdoor_christmas_lights
+            - light.den_tree
         # turn off towel warmer and bedroom motion sensor
         - service: switch.turn_off
           continue_on_error: true
