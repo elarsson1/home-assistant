@@ -261,7 +261,7 @@
             - switch.guest_room_motion
         # enable climate schedule
         - service: switch.turn_on
-          entity_id: switch.schedule_4b562a
+          entity_id: switch.schedule_guest_room_hvac_presets
         # enable HVAC in Guest Room
         - service: script.hvac_enable_mode
           data:
@@ -288,7 +288,7 @@
             - switch.guest_bath_towel_warmer
         # disable climate schedule
         - service: switch.turn_off
-          entity_id: switch.schedule_4b562a
+          entity_id: switch.schedule_guest_room_hvac_presets
         # turn off HVAC
         - service: script.hvac_enable_mode
           data:
