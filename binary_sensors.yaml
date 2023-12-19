@@ -4,7 +4,7 @@
     wifi_guests:
       friendly_name: "Wifi Guest"
       value_template: >-
-        {{ state_attr('sensor.wifi', 'Axeltech-Guest')|int > 0 }}
+        {{ states('sensor.axeltech_guest')|int > 0 }}
 
     # Sensor if any HVAC unit is in defrost mode
     hvac_defrost:
