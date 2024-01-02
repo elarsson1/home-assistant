@@ -644,6 +644,10 @@
       to:
         - Away
       for: 06:00:00
+  condition:
+    - condition: state
+      entity_id: input_select.hvac_controller_house_mode
+      state: Away
   action:
     - service: input_select.select_option
       data:
@@ -883,3 +887,30 @@
   action:
     # run the script
     - service: script.hvac_prepare_return_from_extaway
+
+# prepare for return home on a workday
+- id: PrepareHVACReturnWorkday
+  alias: "HVAC Controller Prepare Return Workday"
+  description: Prepare for return home on a workday
+  mode: single
+  max_exceeded: silent
+  trigger:
+    # trigger when leaving the office
+    - platform: state
+      entity_id: person.axel_larsson
+      to: "not_home"
+      from: "Work"
+      for: "00:05:00"
+  condition:
+    # only on weekdays from 4pm onwards
+    - condition: time
+      after: "16:00:00"
+      weekday:
+        - mon
+        - tue
+        - wed
+        - thu
+        - fri
+  action:
+    # run the script
+    - service: script.hvac_prepare_return_from_away
