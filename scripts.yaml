@@ -527,10 +527,6 @@ alarm_disarm:
   alias: Disarm Alarms
   description: Disable Alexa Guard and Simplisafe
   sequence:
-    # alexa does not care about disarm if already off, so just do it
-    - service: alarm_control_panel.alarm_disarm
-      continue_on_error: true
-      entity_id: alarm_control_panel.alexa_guard_b0cd9
     # disarm SimpliSafe if it is not already off
     - if:
         not:
@@ -549,10 +545,6 @@ alarm_arm_away:
   alias: Arm Alarms Away
   description: Arm Alexa Guard and Simplisafe
   sequence:
-    # alexa does not care about disarm if already on, so just do it
-    - service: alarm_control_panel.alarm_arm_away
-      continue_on_error: true
-      entity_id: alarm_control_panel.alexa_guard_b0cd9
     # only proceed if Simplisafe is currently disarmed or armed in home mode
     - condition: state
       entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
