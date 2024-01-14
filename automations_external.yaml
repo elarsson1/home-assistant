@@ -1,15 +1,3 @@
-# reload UnifiCS integration every 20 minutes to address issue
-- id: ReloadUnifCs
-  alias: Reload UnifiCS
-  description: Reload UnifiCS periodically
-  trigger:
-    - platform: time_pattern
-      minutes: "/20"
-  action:
-    - service: homeassistant.reload_config_entry
-      target:
-        entity_id: sensor.wifi
-
 # automations to adjust Guest device tracker, used by Guest person
 # when binary sensor is changed.
 - id: "1616560803743"
