@@ -837,10 +837,9 @@
     - platform: time_pattern
       minutes: "/10"
   condition:
-    # only on a Sunday between 17:00-19:00 hours
+    # only on a Sunday between after 17:00 hours
     - condition: time
       after: "17:00:00"
-      before: "19:00:00"
       weekday:
         - sun
     # only if I'm at the Family House
