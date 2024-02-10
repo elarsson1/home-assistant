@@ -1,4 +1,16 @@
-home.axeltech.com:443, home.axeltech.com:8443 {
+{
+	servers {
+		listener_wrappers {
+			proxy_protocol {
+				timeout 2s
+				allow 10.70.4.1/32
+			}
+			tls
+		}
+	}
+}
+
+home.axeltech.com:443 {
   reverse_proxy homeassistant.local.hass.io:8123
 
   header {
