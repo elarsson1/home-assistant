@@ -891,7 +891,7 @@
   condition:
     # only on weekdays from 4pm onwards
     - condition: time
-      after: "16:00:00"
+      after: "15:00:00"
       weekday:
         - mon
         - tue
