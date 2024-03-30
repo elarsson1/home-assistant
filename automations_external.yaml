@@ -32,6 +32,35 @@
         location_name: not_home
   mode: single
 
+# create a device tracker based upon my iPhone device tracker (using Home Assistant
+# companion app) which filters updates to exclude GPS updates that are below a certain
+# accuracy.
+- id: MirrorPhoneDeviceTracker
+  alias: Mirror Phone Device Tracker
+  description: Mirror phone device tracker, filtering out updates below accuracy threshold
+  trigger:
+    - platform: state
+      entity_id: device_tracker.axel_larsson_s_iphone
+  condition:
+    # filter out updates where GPS accuracy is greater then 100 meters
+    - condition: numeric_state
+      entity_id: device_tracker.axel_larsson_s_iphone
+      attribute: gps_accuracy
+      below: 100
+  action:
+    # mirror state to virtual device tracker
+    - service: device_tracker.see
+      data:
+        dev_id: "axel_phone_filtered"
+        location_name: "{{ states('device_tracker.axel_larsson_s_iphone') }}"
+        gps: >-
+          [{{ state_attr('device_tracker.axel_larsson_s_iphone', 'latitude') }},
+          {{ state_attr('device_tracker.axel_larsson_s_iphone', 'longitude') }}]
+        gps_accuracy: >-
+          {{ state_attr('device_tracker.axel_larsson_s_iphone', 'gps_accuracy') }}
+        battery: >-
+          {{ state_attr('device_tracker.axel_larsson_s_iphone', 'battery_level')}}
+
 # adjust presence indicator based upon status of Person entities.
 - id: PresenceChanging
   alias: Presence_Changing
