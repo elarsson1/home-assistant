@@ -3,7 +3,7 @@
 		listener_wrappers {
 			proxy_protocol {
 				timeout 2s
-				allow 10.70.4.1/32
+				allow 10.70.4.1/32 10.70.14.7/32
 			}
 			tls
 		}
