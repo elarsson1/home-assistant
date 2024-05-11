@@ -25,15 +25,6 @@ stream:
 tts:
   - platform: google_translate
 
-# command line sensors now need to be moved to integration key
-command_line:
-  - sensor:
-      name: CPU Temperature
-      command: "cat /sys/class/thermal/thermal_zone0/temp"
-      # If errors occur, make sure configuration file is encoded as UTF-8
-      unit_of_measurement: "°C"
-      value_template: "{{ value | multiply(0.001) | round(1) }}"
-
 # includes
 automation: !include automations.yaml # automations maintained in HAAS UI
 automation external: !include automations_external.yaml # file for entities created outside of UI
