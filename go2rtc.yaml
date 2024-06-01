@@ -1,3 +1,12 @@
+api:
+  listen: "127.0.0.1:1984" # localhost
+
+rtsp:
+  listen: "127.0.0.1:8554" # localhost
+
 webrtc:
+  listen: ":8555" # external TCP/UDP port
   candidates:
-    - stun:8555  # if you have dynamic public IP-address
+    - home.axeltech.com:8555
+    - stun:8555
+    
