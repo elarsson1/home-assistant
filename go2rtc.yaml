@@ -7,6 +7,6 @@ rtsp:
 webrtc:
   listen: ":8555" # external TCP/UDP port
   candidates:
-    - home.axeltech.com:8555
+    - 108.53.78.88:8555
     - stun:8555
     
