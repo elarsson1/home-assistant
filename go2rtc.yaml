@@ -1,0 +1,3 @@
+webrtc:
+  candidates:
+    - stun:8555  # if you have dynamic public IP-address
