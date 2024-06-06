@@ -449,6 +449,8 @@ good_night:
             - service: alarm_control_panel.alarm_arm_home
               continue_on_error: true
               entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+              data:
+                code: "{{ states('input_text.alarm_control_panel_code') }}"
             # lock doors
             - service: lock.lock
               continue_on_error: true
@@ -502,6 +504,8 @@ good_night:
         - service: alarm_control_panel.alarm_arm_home
           continue_on_error: true
           entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+          data:
+            code: "{{ states('input_text.alarm_control_panel_code') }}"
         # lock doors
         - service: lock.lock
           continue_on_error: true
@@ -538,6 +542,8 @@ alarm_disarm:
         - service: alarm_control_panel.alarm_disarm
           continue_on_error: true
           entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+          data:
+            code: "{{ states('input_text.alarm_control_panel_code') }}"
 
 # conditionally arm alarms
 # needed to avoid spurious simplisafe notifications if alarm is aready armed
@@ -561,7 +567,11 @@ alarm_arm_away:
         - service: alarm_control_panel.alarm_arm_home
           continue_on_error: true
           entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+          data:
+            code: "{{ states('input_text.alarm_control_panel_code') }}"
       else:
         - service: alarm_control_panel.alarm_arm_away
           continue_on_error: true
           entity_id: alarm_control_panel.178_coles_st_alarm_control_panel_alarm_control_panel
+          data:
+            code: "{{ states('input_text.alarm_control_panel_code') }}"
