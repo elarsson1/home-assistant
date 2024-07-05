@@ -1,5 +1,2 @@
 device_tracker.sophie_tracker:
   source_type: gps
-
-zone.home:
-  radius: 30
