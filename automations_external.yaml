@@ -930,3 +930,15 @@
   action:
     # run the script
     - service: script.hvac_prepare_return_from_away
+
+# reload alexa media after HA startup
+- id: ReloadAlexaMediaOnStartup
+  alias: "Reload Alexa Media on Startup"
+  description: Reload the Alexa Media Player integration on startup to work around bug
+  mode: single
+  trigger:
+    - platform: homeassistant
+      event: start
+  action:
+    - delay: 60
+    - service: script.reload_alexa_media
