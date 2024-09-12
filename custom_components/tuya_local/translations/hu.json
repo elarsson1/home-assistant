@@ -255,6 +255,9 @@
                             "fresh": "Friss",
                             "smart": "Okos",
                             "strong": "Erős",
+                            "high": "Magas",
+                            "medium": "Közepes",
+                            "low": "Alacsony",
                             "displayoff": "Kijelző kikapcsolva",
                             "off": "Ki"
                         }
@@ -314,6 +317,31 @@
             }
         },
         "select": {
+            "recipe": {
+                "name": "Recept",
+                "state": {
+                    "pizza": "Pizza",
+                    "fries": "Sült krumpli",
+                    "chicken": "Csirke",
+                    "shrimp": "Rák",
+                    "fish": "Hal",
+                    "chicken_drumsticks": "Csirkecomb",
+                    "vegetables": "Zöldségek",
+                    "desserts": "Desszert",
+                    "none": "Nincs",
+                    "chicken_wings": "Csirkeszárnyak",
+                    "steak": "Steak",
+                    "onion_rings": "Hagymakarikák",
+                    "bacon": "Szalonna",
+                    "cake": "Sütemény",
+                    "toast": "Pirítós",
+                    "custom": "Egyéni",
+                    "cloud_recipe": "Felhő recept",
+                    "default": "Alapértelmezett",
+                    "keep_warm": "Melegen tartás",
+                    "preheat": "Előmelegítés"
+                }
+            },
             "timer": {
                 "name": "Időzítő",
                 "state": {

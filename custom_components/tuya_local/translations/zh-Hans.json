@@ -302,6 +302,9 @@
                             "sleep": "睡眠",
                             "smart": "智能",
                             "strong": "强劲",
+                            "high": "高",
+                            "medium": "中",
+                            "low": "低",
                             "displayoff": "关闭显示",
                             "off": "关闭"
                         }
@@ -361,6 +364,31 @@
             }
         },
         "select": {
+            "recipe": {
+                "name": "菜谱",
+                "state": {
+                    "pizza": "披萨",
+                    "fries": "薯条",
+                    "chicken": "鸡肉",
+                    "shrimp": "虾",
+                    "fish": "鱼",
+                    "chicken_drumsticks": "鸡腿",
+                    "vegetables": "蔬菜",
+                    "desserts": "甜点",
+                    "none": "无",
+                    "chicken_wings": "鸡翅",
+                    "steak": "牛排",
+                    "onion_rings": "洋葱圈",
+                    "bacon": "培根",
+                    "cake": "蛋糕",
+                    "toast": "吐司",
+                    "custom": "自定义",
+                    "cloud_recipe": "云菜谱",
+                    "default": "默认",
+                    "keep_warm": "保温",
+                    "preheat": "预热"
+                }
+            },
             "timer": {
                 "name": "计时器",
                 "state": {

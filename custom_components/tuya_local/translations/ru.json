@@ -255,6 +255,9 @@
                             "fresh": "Свежий",
                             "smart": "Умный",
                             "strong": "Мощный",
+                            "high": "Высокий",
+                            "medium": "Средний",
+                            "low": "Низкий",
                             "displayoff": "Дисплей выкл",
                             "off": "Выкл"
                         }
@@ -314,6 +317,31 @@
             }
         },
         "select": {
+            "recipe": {
+                "name": "Рецепт",
+                "state": {
+                    "pizza": "Пицца",
+                    "fries": "Картофель фри",
+                    "chicken": "Курица",
+                    "shrimp": "Креветки",
+                    "fish": "Рыба",
+                    "chicken_drumsticks": "Куриные ножки",
+                    "vegetables": "Овощи",
+                    "desserts": "Десерты",
+                    "none": "Нет",
+                    "chicken_wings": "Куриные крылья",
+                    "steak": "Стейк",
+                    "onion_rings": "Луковые кольца",
+                    "bacon": "Бекон",
+                    "cake": "Торт",
+                    "toast": "Тост",
+                    "custom": "Пользовательский",
+                    "cloud_recipe": "Облако",
+                    "default": "По умолчанию",
+                    "keep_warm": "Поддержание тепла",
+                    "preheat": "Предварительный нагрев"
+                }
+            },
             "timer": {
                 "name": "Таймер",
                 "state": {

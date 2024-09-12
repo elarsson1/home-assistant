@@ -255,6 +255,9 @@
                             "fresh": "Fresco",
                             "smart": "Inteligente",
                             "strong": "Forte",
+                            "high": "Alto",
+                            "medium": "Médio",
+                            "low": "Baixo",
                             "displayoff": "Exibição desligada",
                             "off": "Desligado"
                         }
@@ -314,6 +317,31 @@
             }
         },
         "select": {
+            "recipe": {
+                "name": "Receita",
+                "state": {
+                    "pizza": "Pizza",
+                    "fries": "Batatas fritas",
+                    "chicken": "Frango",
+                    "shrimp": "Camarão",
+                    "fish": "Peixe",
+                    "chicken_drumsticks": "Coxas de frango",
+                    "vegetables": "Legumes",
+                    "desserts": "Sobremesas",
+                    "none": "Nenhum",
+                    "chicken_wings": "Asas de frango",
+                    "steak": "Bife",
+                    "onion_rings": "Anéis de cebola",
+                    "bacon": "Bacon",
+                    "cake": "Bolo",
+                    "toast": "Torrada",
+                    "custom": "Personalizado",
+                    "cloud_recipe": "Receita da nuvem",
+                    "default": "Padrão",
+                    "keep_warm": "Manter quente",
+                    "preheat": "Pré-aquecer"
+                }
+            },
             "timer": {
                 "name": "Cronômetro",
                 "state": {

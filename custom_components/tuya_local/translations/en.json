@@ -302,6 +302,9 @@
                             "sleep": "Sleep",
                             "smart": "Smart",
                             "strong": "Strong",
+                            "high": "High",
+                            "medium": "Medium",
+                            "low": "Low",
                             "displayoff": "Display off",
                             "off": "Off"
                         }
@@ -361,6 +364,31 @@
             }
         },
         "select": {
+            "recipe": {
+                "name": "Recipe",
+                "state": {
+                    "pizza": "Pizza",
+                    "fries": "Fries",
+                    "chicken": "Chicken",
+                    "shrimp": "Shrimp",
+                    "fish": "Fish",
+                    "chicken_drumsticks": "Chicken Drumsticks",
+                    "vegetables": "Vegetables",
+                    "desserts": "Desserts",
+                    "none": "None",
+                    "chicken_wings": "Chicken Wings",
+                    "steak": "Steak",
+                    "onion_rings": "Onion Rings",
+                    "bacon": "Bacon",
+                    "cake": "Cake",
+                    "toast": "Toast",
+                    "custom": "Custom",
+                    "cloud_recipe": "Cloud Recipe",
+                    "default": "Default",
+                    "keep_warm": "Keep Warm",
+                    "preheat": "Preheat"
+                }
+            },
             "timer": {
                 "name": "Timer",
                 "state": {

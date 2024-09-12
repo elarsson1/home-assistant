@@ -255,6 +255,9 @@
                             "fresh": "新鮮",
                             "smart": "スマート",
                             "strong": "強い",
+                            "high": "高い",
+                            "medium": "中",
+                            "low": "低い",
                             "displayoff": "ディスプレイオフ",
                             "off": "オフ"
                         }
@@ -314,6 +317,31 @@
             }
         },
         "select": {
+            "recipe": {
+                "name": "レシピ",
+                "state": {
+                    "pizza": "ピザ",
+                    "fries": "フライ",
+                    "chicken": "チキン",
+                    "shrimp": "エビ",
+                    "fish": "魚",
+                    "chicken_drumsticks": "チキンのドラムスティック",
+                    "vegetables": "野菜",
+                    "desserts": "デザート",
+                    "none": "なし",
+                    "chicken_wings": "チキンウィング",
+                    "steak": "ステーキ",
+                    "onion_rings": "オニオンリング",
+                    "bacon": "ベーコン",
+                    "cake": "ケーキ",
+                    "toast": "トースト",
+                    "custom": "カスタム",
+                    "cloud_recipe": "クラウドレシピ",
+                    "default": "デフォルト",
+                    "keep_warm": "保温",
+                    "preheat": "予熱"
+                }
+            },
             "timer": {
                 "name": "タイマー",
                 "state": {

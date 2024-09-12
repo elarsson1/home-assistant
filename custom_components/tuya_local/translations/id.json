@@ -255,6 +255,9 @@
                             "fresh": "Segar",
                             "smart": "Pintar",
                             "strong": "Kencang",
+                            "high": "Tinggi",
+                            "medium": "Sedang",
+                            "low": "Rendah",
                             "displayoff": "Layar mati",
                             "off": "Mati"
                         }
@@ -314,6 +317,31 @@
             }
         },
         "select": {
+            "recipe": {
+                "name": "Resep",
+                "state": {
+                    "pizza": "Pizza",
+                    "fries": "Kentang goreng",
+                    "chicken": "Ayam",
+                    "shrimp": "Udang",
+                    "fish": "Ikan",
+                    "chicken_drumsticks": "Paha ayam",
+                    "vegetables": "Sayuran",
+                    "desserts": "Makanan penutup",
+                    "none": "Tidak ada",
+                    "chicken_wings": "Sayap ayam",
+                    "steak": "Steak",
+                    "onion_rings": "Cincang bawang",
+                    "bacon": "Bacon",
+                    "cake": "Kue",
+                    "toast": "Roti panggang",
+                    "custom": "Kustom",
+                    "cloud_recipe": "Resep awan",
+                    "default": "Default",
+                    "keep_warm": "Tetap hangat",
+                    "preheat": "Pemanasan awal"
+                }
+            },
             "timer": {
                 "name": "Pengatur waktu",
                 "state": {

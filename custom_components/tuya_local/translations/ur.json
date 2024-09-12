@@ -255,6 +255,9 @@
                             "fresh": "تازه",
                             "smart": "سمارٹ",
                             "strong": "مضبوط",
+                            "high": "زیادہ",
+                            "medium": "درمیانہ",
+                            "low": "کم",
                             "displayoff": "ڈسپلے آف",
                             "off": "آف"
                         }
@@ -314,6 +317,31 @@
             }
         },
         "select": {
+            "recipe": {
+                "name": "ریسیپی",
+                "state": {
+                    "pizza": "پزا",
+                    "fries": "فرائز",
+                    "chicken": "چکن",
+                    "shrimp": "جھینگا",
+                    "fish": "مچھلی",
+                    "chicken_drumsticks": "چکن ڈرم اسٹکس",
+                    "vegetables": "سبزیاں",
+                    "desserts": "میٹھا",
+                    "none": "کوئی نہیں",
+                    "chicken_wings": "چکن ونگز",
+                    "steak": "اسٹیک",
+                    "onion_rings": "پیاز کے چھلکے",
+                    "bacon": "بیکن",
+                    "cake": "کیک",
+                    "toast": "ٹوسٹ",
+                    "custom": "اپنی مرضی",
+                    "cloud_recipe": "کلاؤڈ ریسیپی",
+                    "default": "پہلے سے طے شدہ",
+                    "keep_warm": "گرم رکھیں",
+                    "preheat": "پری ہیٹ"
+                }
+            },
             "timer": {
                 "name": "ٹائمر",
                 "state": {

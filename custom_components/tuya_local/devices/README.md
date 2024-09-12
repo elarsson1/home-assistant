@@ -573,10 +573,11 @@ from the camera.
 - **hvac_mode** (optional, mapping of strings) a dp to control the mode of the device.
     Possible values are: `"off", cool, heat, heat_cool, auto, dry, fan_only`
 - **hvac_action** (optional, string) a dp that reports the current action of the device.
-    Possible values are: `"off", idle, cooling, heating, drying, fan`
+    Possible values are: `"off", idle, cooling, heating, drying, fan, defrosting`
 - **preset_mode** (optional, mapping of strings) a dp to control preset modes of the device.
    Any value is allowed, but HA has some standard presets:
     `none, eco, away, boost, comfort, home, sleep, activity`
+   There are also some presets defined by this integration for use with various `translation_key`s, see translations/en.json for details.
 - **swing_mode** (optional, mapping of strings) a dp to control swing modes of the device.
    Possible values are: `"off", vertical, horizontal`
 - **temperature** (optional, number) a dp to set the target temperature of the device.
@@ -602,6 +603,7 @@ Either **position** or **open** should be specified.
 - **action** (optional, string): a dp that reports the current state of the cover.
    Special values are `opening, closing`
 - **open** (optional, boolean): a dp that reports if the cover is open. Only used if **position** is not available.
+- **tilt_position** (optional, number): a dp to control the tilt opening of the cover (an example is venetian blinds that tilt as well as go up and down). The range will be auto-converted to the 0-100 expected by HA.
 
 ### `fan`
 - **switch** (optional, boolean): a dp to control the power state of the fan
