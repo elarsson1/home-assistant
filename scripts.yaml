@@ -269,8 +269,8 @@ going_out:
       continue_on_error: true
       target:
         entity_id:
-          - lock.basement_door_lock
-          - lock.front_door_lock
+          - lock.basement_door
+          - lock.front_door
     - service: remote.turn_off
       continue_on_error: true
       entity_id:
@@ -454,8 +454,8 @@ good_night:
               continue_on_error: true
               target:
                 entity_id:
-                  - lock.basement_door_lock
-                  - lock.front_door_lock
+                  - lock.basement_door
+                  - lock.front_door
             # turn off master bath heaters
             - service: climate.turn_off
               continue_on_error: true
@@ -507,8 +507,8 @@ good_night:
           continue_on_error: true
           target:
             entity_id:
-              - lock.basement_door_lock
-              - lock.front_door_lock
+              - lock.basement_door
+              - lock.front_door
         # turn off master bath heaters
         - service: climate.turn_off
           continue_on_error: true
