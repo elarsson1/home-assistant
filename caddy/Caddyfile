@@ -1,6 +1,7 @@
 {
 	email axel@axeltech.com
 	servers {
+		protocols h1 h2
 		listener_wrappers {
 			proxy_protocol {
 				timeout 2s
