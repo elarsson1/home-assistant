@@ -200,9 +200,12 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 # This is an indirectly addressable device. Need to know which hub it is connected to.
                 if user_input["hub_id"] != "None":
                     hub_choice = self.__cloud_devices[user_input["hub_id"]]
-                    # Populate uuid and local_key from the child device to pass on complete information to the local step.
+                    # Populate node_id or uuid and local_key from the child
+                    # device to pass on complete information to the local step.
                     hub_choice["ip"] = ""
-                    hub_choice[CONF_DEVICE_CID] = device_choice["uuid"]
+                    hub_choice[CONF_DEVICE_CID] = (
+                        device_choice["node_id"] or device_choice["uuid"]
+                    )
                     hub_choice[CONF_LOCAL_KEY] = device_choice[CONF_LOCAL_KEY]
                     self.__cloud_device = hub_choice
                     return await self.async_step_search()
@@ -470,10 +473,6 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             vol.Required(
                 CONF_POLL_ONLY, default=config.get(CONF_POLL_ONLY, False)
             ): bool,
-            vol.Optional(
-                CONF_DEVICE_CID,
-                default=config.get(CONF_DEVICE_CID, ""),
-            ): str,
         }
         cfg = await self.hass.async_add_executor_job(
             get_config,
