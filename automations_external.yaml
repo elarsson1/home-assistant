@@ -709,14 +709,10 @@
       variables:
         mode: "Cool"
     # set mode for off if we cross into the band of optimal outdoor temps
-    # where HVAC is not needed. Wait for at leat 8 hours to accomodate
-    # shoulder season where we are likely to rebound.
+    # where HVAC is not needed.
     #
-    # Because the band is small (4 degrees) and we are waiting for 4 hours, we
-    # are using two seperate numeric state triggers instead of one to allow for
-    # situations where the temp is dropping or rising quickly and we move past the band
-    # in the waiting period. This requires an additional condition check (below) to
-    # make sure that we have not now slipped into the auto-changeover range for heat/cool.
+    # now uses stats helpers to do lookback of 8 hours without an arbitrary delay
+    # survives HA restarts
     - platform: numeric_state
       entity_id: sensor.home_temperature_max
       below: input_number.hvac_changeover_off_high
