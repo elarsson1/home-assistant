@@ -701,13 +701,11 @@
     - platform: numeric_state
       entity_id: sensor.home_temperature
       below: input_number.hvac_changeover_heat
-      for: "00:10:00"
       variables:
         mode: "Heat"
     - platform: numeric_state
       entity_id: sensor.home_temperature
       above: input_number.hvac_changeover_cool
-      for: "00:10:00"
       variables:
         mode: "Cool"
     # set mode for off if we cross into the band of optimal outdoor temps
@@ -720,15 +718,13 @@
     # in the waiting period. This requires an additional condition check (below) to
     # make sure that we have not now slipped into the auto-changeover range for heat/cool.
     - platform: numeric_state
-      entity_id: sensor.home_temperature
+      entity_id: sensor.home_temperature_max
       below: input_number.hvac_changeover_off_high
-      for: "08:00:00"
       variables:
         mode: "Off"
     - platform: numeric_state
-      entity_id: sensor.home_temperature
+      entity_id: sensor.home_temperature_min
       above: input_number.hvac_changeover_off_low
-      for: "08:00:00"
       variables:
         mode: "Off"
   condition:
