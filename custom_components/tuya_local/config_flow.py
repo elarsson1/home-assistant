@@ -290,10 +290,11 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             except OSError:
                 local_device = {"ip": None, "version": ""}
 
-            if local_device["ip"] is not None:
+            if local_device.get("ip"):
                 _LOGGER.debug(f"Found: {local_device}")
-                self.__cloud_device["ip"] = local_device["ip"]
-                self.__cloud_device["version"] = local_device["version"]
+                self.__cloud_device["ip"] = local_device.get("ip")
+                self.__cloud_device["version"] = local_device.get("version")
+                self.__cloud_device["local_product_id"] = local_device.get("productKey")
             else:
                 _LOGGER.warning(f"Could not find device: {self.__cloud_device['id']}")
             return await self.async_step_local()
@@ -325,6 +326,16 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             self.device = await async_test_connection(user_input, self.hass)
             if self.device:
                 self.data = user_input
+                if self.__cloud_device:
+                    if self.__cloud_device.get("product_id"):
+                        self.device.set_detected_product_id(
+                            self.__cloud_device["product_id"]
+                        )
+                    if self.__cloud_device.get("local_product_id"):
+                        self.device.set_detected_product_id(
+                            self.__cloud_device["local_product_id"]
+                        )
+
                 return await self.async_step_select_type()
             else:
                 errors["base"] = "connection"
@@ -365,7 +376,10 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         async for type in self.device.async_possible_types():
             types.append(type.config_type)
-            q = type.match_quality(self.device._get_cached_state())
+            q = type.match_quality(
+                self.device._get_cached_state(),
+                self.device._product_ids,
+            )
             if q > best_match:
                 best_match = q
                 best_matching_type = type.config_type
@@ -378,6 +392,15 @@ class ConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 self.__cloud_device["product_name"],
                 self.__cloud_device["product_id"],
             )
+            if (
+                self.__cloud_device["local_product_id"]
+                and self.__cloud_device["local_product_id"]
+                != self.__cloud_device["product_id"]
+            ):
+                _LOGGER.warning(
+                    "Local product id differs from cloud: %s",
+                    self.__cloud_device["local_product_id"],
+                )
             # try:
             #     self.init_cloud()
             #     model = await self.cloud.async_get_datamodel(
