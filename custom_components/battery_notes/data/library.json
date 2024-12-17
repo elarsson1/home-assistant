@@ -2711,6 +2711,11 @@
             "battery_type": "CR123A"
         },
         {
+            "manufacturer": "Heiman",
+            "model": "SmokeSensor-EF-3.0",
+            "battery_type": "CR123A"
+        },
+        {
             "manufacturer": "HEIMAN",
             "model": "Water leakage sensor (HS1WL/HS3WL)",
             "battery_type": "AAA",
