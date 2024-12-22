@@ -2851,6 +2851,12 @@
         },
         {
             "manufacturer": "Hunter Douglas",
+            "model": "Designer Roller",
+            "battery_type": "AA",
+            "battery_quantity": 12
+        },
+        {
+            "manufacturer": "Hunter Douglas",
             "model": "Duette",
             "battery_type": "AA",
             "battery_quantity": 12
@@ -2859,6 +2865,12 @@
             "manufacturer": "Hunter Douglas",
             "model": "Duette by Hunter Douglas",
             "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Hunter Douglas",
+            "model": "Silhouette",
+            "battery_type": "AA",
+            "battery_quantity": 12
         },
         {
             "manufacturer": "Hunter Douglas",
@@ -6544,6 +6556,12 @@
             "model": "Siren",
             "battery_type": "CR123A",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Withings",
+            "model": "Smart Body Analyzer",
+            "battery_type": "AAA",
+            "battery_quantity": 4
         },
         {
             "manufacturer": "Woox",
