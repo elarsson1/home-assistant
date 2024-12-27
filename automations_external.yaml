@@ -832,6 +832,34 @@
                 zone: "{{ repeat.item }}"
                 mode: "{{ mode }}"
 
+# Supplemental heat -- temp reset
+# The Rio Arc heaters tend to spontaneously set their temp to a value not exposed via HomeKit.
+# I think this is a leftovers from schedules in the Rio Heating app whichhas been discontinued
+# and thus these schedules can't be cleared.
+#
+# This is a hack to simply read back the current setpoint and reset it to that value every 30 minutes.
+- id: UpdateRioArcSetpoint
+  alias: "HVAC Supplemental Heat Reset"
+  trigger:
+    - platform: time_pattern
+      minutes: /30
+  action:
+    - repeat:
+        for_each:
+          - "den_heater"
+          - "living_room_heater"
+          - "master_bedroom_heater"
+        sequence:
+          - variables:
+              unit: "climate.{{ repeat.item }}"
+          # only continue if unit is in heating mode
+          - condition: "{{ is_state( unit, 'heat' ) }}"
+          - service: climate.set_temperature
+            continue_on_error: true
+            data:
+              entity_id: "{{ unit }}"
+              temperature: "{{ state_attr( unit, 'temperature' ) }}"
+
 # HVAC Controller anticipation automations. Prepare for return home based
 # on certain triggers.
 
