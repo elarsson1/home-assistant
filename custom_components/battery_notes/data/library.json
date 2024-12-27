@@ -1546,6 +1546,12 @@
             "battery_type": "CR123A"
         },
         {
+            "manufacturer": "Dome",
+            "model": "Siren",
+            "battery_type": "CR123A",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "Doogee",
             "model": "S98 Pro",
             "battery_type": "Rechargeable"
@@ -2404,6 +2410,12 @@
         {
             "manufacturer": "First Alert",
             "model": "1044807",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "First Alert",
+            "model": "Smoke Alarm",
             "battery_type": "AA",
             "battery_quantity": 2
         },
@@ -5338,6 +5350,12 @@
             "model_match_method": "startswith"
         },
         {
+            "manufacturer": "switchbot",
+            "model": "Leak Detector",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "SwitchBot",
             "model": "Meter",
             "battery_type": "AAA",
@@ -6329,6 +6347,13 @@
             "manufacturer": "TuYa",
             "model": "Zigbee 3.0 temperature humidity sensor with display (TS0201_1)",
             "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "Zigbee 4 button remote - 12 scene (TS0044_1) by Tuya",
+            "model_id": "TS0044_1",
+            "battery_type": "AAA",
             "battery_quantity": 2
         },
         {
