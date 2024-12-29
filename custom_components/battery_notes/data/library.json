@@ -1335,6 +1335,11 @@
             "battery_quantity": 2
         },
         {
+            "manufacturer": "by Philio Technology Corp",
+            "model": "PSP05",
+            "battery_type": "CR123A"
+        },
+        {
             "manufacturer": "Centralite",
             "model": "3157100",
             "battery_type": "AA",
@@ -2881,8 +2886,7 @@
         {
             "manufacturer": "Hunter Douglas",
             "model": "Silhouette",
-            "battery_type": "AA",
-            "battery_quantity": 12
+            "battery_type": "MANUAL"
         },
         {
             "manufacturer": "Hunter Douglas",
