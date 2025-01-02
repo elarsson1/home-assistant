@@ -915,6 +915,11 @@
         },
         {
             "manufacturer": "Aqara",
+            "model": "Roller shade driver E1 (ZNJLBL01LM)",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Aqara",
             "model": "RTCGQ11LM",
             "battery_type": "CR2450"
         },
@@ -971,6 +976,11 @@
         {
             "manufacturer": "Aqara",
             "model": "Wireless mini switch (WXKG11LM)",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Aqara",
+            "model": "Wireless mini switch T1 (WXKG13LM)",
             "battery_type": "CR2032"
         },
         {
@@ -2554,6 +2564,12 @@
         },
         {
             "manufacturer": "Google",
+            "model": "Nest Protect",
+            "battery_type": "AA",
+            "battery_quantity": 6
+        },
+        {
+            "manufacturer": "Google",
             "model": "Pixel 2",
             "battery_type": "Rechargeable"
         },
@@ -2709,6 +2725,12 @@
             "model": "Z-Temp2",
             "battery_type": "AA",
             "battery_quantity": 3
+        },
+        {
+            "manufacturer": "Heatit",
+            "model": "Z-TEMP3",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "HEIMAN",
@@ -2986,6 +3008,13 @@
             "model": "SYMFONISK sound remote gen2 (E2123)",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "IKEA",
+            "model": "SYMFONISK sound remote, gen 1",
+            "model_id": "E1744",
+            "hw_version": "24.4.5",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "Ikea",
@@ -4540,6 +4569,30 @@
             "battery_type": "CR2477"
         },
         {
+            "manufacturer": "SAF Tehnika",
+            "model": "Aranet Radiation",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "SAF Tehnika",
+            "model": "Aranet Radon Plus",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "SAF Tehnika",
+            "model": "Aranet2 HOME",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "SAF Tehnika",
+            "model": "Aranet4 HOME",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "Samjin",
             "model": "button",
             "battery_type": "CR2"
@@ -5521,6 +5574,11 @@
             "battery_type": "AAA"
         },
         {
+            "manufacturer": "ThermoPro",
+            "model": "TP357S",
+            "battery_type": "AAA"
+        },
+        {
             "manufacturer": "Third Reality",
             "model": "3RSB015BZ",
             "battery_type": "AA",
@@ -5678,6 +5736,12 @@
             "manufacturer": "Trust",
             "model": "SmokeSensor-EM",
             "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "Trust",
+            "model": "Wireless contact sensor",
+            "model_id": "ZCTS-808",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "Trust",
@@ -6216,6 +6280,12 @@
             "manufacturer": "TuYa",
             "model": "TS0044_1",
             "battery_type": "CR2430"
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "TS0044_1",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "TuYa",
@@ -6841,6 +6911,11 @@
         },
         {
             "manufacturer": "Xiaomi",
+            "model": "CGDK2",
+            "battery_type": "CR2430"
+        },
+        {
+            "manufacturer": "Xiaomi",
             "model": "DJT11LM",
             "battery_type": "CR2032"
         },
@@ -6993,6 +7068,11 @@
             "manufacturer": "Xiaomi",
             "model": "RTCGQ01LM",
             "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Xiaomi",
+            "model": "SJWS01LM",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "Xiaomi",
