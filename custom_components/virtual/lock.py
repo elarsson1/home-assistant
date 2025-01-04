@@ -6,20 +6,25 @@ This component provides support for a virtual lock.
 import logging
 import random
 import voluptuous as vol
+from collections.abc import Callable
 from datetime import timedelta
 from typing import Any
 
 import homeassistant.helpers.config_validation as cv
-import homeassistant.util.dt as dt_util
-from homeassistant.components.lock import LockEntity, DOMAIN
-from homeassistant.helpers.config_validation import PLATFORM_SCHEMA
-from homeassistant.const import STATE_LOCKED
-from homeassistant.helpers.event import track_point_in_time
-
-from .const import (
-    COMPONENT_DOMAIN,
-    CONF_INITIAL_VALUE,
+from homeassistant.components.lock import (
+    DOMAIN as PLATFORM_DOMAIN,
+    LockEntity,
 )
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import STATE_LOCKED
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers.config_validation import PLATFORM_SCHEMA
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_call_later
+from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
+
+from . import get_entity_configs
+from .const import *
 from .entity import VirtualEntity, virtual_schema
 
 
@@ -30,31 +35,53 @@ DEPENDENCIES = [COMPONENT_DOMAIN]
 CONF_CHANGE_TIME = "locking_time"
 CONF_TEST_JAMMING = "jamming_test"
 
-DEFAULT_INITIAL_VALUE = "locked"
+DEFAULT_LOCK_VALUE = "locked"
 DEFAULT_CHANGE_TIME = timedelta(seconds=0)
 DEFAULT_TEST_JAMMING = 0
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(virtual_schema(DEFAULT_INITIAL_VALUE, {
-
+PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(virtual_schema(DEFAULT_LOCK_VALUE, {
+    vol.Optional(CONF_CHANGE_TIME, default=DEFAULT_CHANGE_TIME): vol.All(cv.time_period, cv.positive_timedelta),
+    vol.Optional(CONF_TEST_JAMMING, default=DEFAULT_TEST_JAMMING): cv.positive_int,
+}))
+LOCK_SCHEMA = vol.Schema(virtual_schema(DEFAULT_LOCK_VALUE, {
     vol.Optional(CONF_CHANGE_TIME, default=DEFAULT_CHANGE_TIME): vol.All(cv.time_period, cv.positive_timedelta),
     vol.Optional(CONF_TEST_JAMMING, default=DEFAULT_TEST_JAMMING): cv.positive_int,
 }))
 
 
-async def async_setup_platform(hass, config, async_add_entities, _discovery_info=None):
-    locks = [VirtualLock(hass, config)]
-    async_add_entities(locks, True)
+async def async_setup_platform(
+        hass: HomeAssistant,
+        config: ConfigType,
+        async_add_entities: AddEntitiesCallback,
+        _discovery_info: DiscoveryInfoType | None = None,
+) -> None:
+    if hass.data[COMPONENT_CONFIG].get(CONF_YAML_CONFIG, False):
+        _LOGGER.debug("setting up old config...")
+
+        locks = [VirtualLock(hass, config, True)]
+        async_add_entities(locks, True)
+
+
+async def async_setup_entry(
+        hass: HomeAssistant,
+        entry: ConfigEntry,
+        async_add_entities: Callable[[list], None],
+) -> None:
+    _LOGGER.debug("setting up the entries...")
+
+    entities = []
+    for entity in get_entity_configs(hass, entry.data[ATTR_GROUP_NAME], PLATFORM_DOMAIN):
+        entity = LOCK_SCHEMA(entity)
+        entities.append(VirtualLock(hass, entity, False))
+    async_add_entities(entities)
 
 
 class VirtualLock(VirtualEntity, LockEntity):
     """Representation of a Virtual lock."""
 
-    _change_time: timedelta = timedelta(seconds=0)
-    _test_jamming: int = 0
-    
-    def __init__(self, hass, config):
+    def __init__(self, hass, config, old_style: bool):
         """Initialize the Virtual lock device."""
-        super().__init__(config, DOMAIN)
+        super().__init__(config, PLATFORM_DOMAIN, old_style)
 
         self._hass = hass
         self._change_time = config.get(CONF_CHANGE_TIME)
@@ -108,6 +135,7 @@ class VirtualLock(VirtualEntity, LockEntity):
         self._attr_is_locked = False
         self._attr_is_jammed = True
 
+    @callback
     async def _finish_operation(self, _point_in_time) -> None:
         if self.is_locking:
             self._lock()
@@ -116,22 +144,22 @@ class VirtualLock(VirtualEntity, LockEntity):
         self.async_schedule_update_ha_state()
 
     def _start_operation(self):
-        track_point_in_time(self._hass, self._finish_operation, dt_util.utcnow() + self._change_time)
+        async_call_later(self.hass, self._change_time, self._finish_operation)
 
-    def lock(self, **kwargs: Any) -> None:
+    async def async_lock(self, **kwargs: Any) -> None:
         if self._change_time == DEFAULT_CHANGE_TIME:
             self._lock()
         else:
             self._locking()
             self._start_operation()
 
-    def unlock(self, **kwargs: Any) -> None:
+    async def async_unlock(self, **kwargs: Any) -> None:
         if self._change_time == DEFAULT_CHANGE_TIME:
             self._unlock()
         else:
             self._unlocking()
             self._start_operation()
 
-    def open(self, **kwargs: Any) -> None:
+    async def async_open(self, **kwargs: Any) -> None:
         _LOGGER.debug(f"opening {self.name}")
         self.unlock()

@@ -280,6 +280,12 @@
             "battery_type": "CR2430"
         },
         {
+            "manufacturer": "_TZ3000_ww9i3e0y",
+            "model": "TS0207",
+            "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
             "manufacturer": "_TZ3000_xr3htd96",
             "model": "TS0201",
             "battery_type": "AAA",
@@ -356,6 +362,12 @@
             "manufacturer": "_TZE200_b6wax7g0",
             "model": "TS0601",
             "battery_type": "AA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "_TZE200_bjawzodf",
+            "model": "TS0601",
+            "battery_type": "AAA",
             "battery_quantity": 2
         },
         {
@@ -1783,6 +1795,11 @@
         },
         {
             "manufacturer": "eQ-3",
+            "model": "HM-PB-2-WM55-2",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "eQ-3",
             "model": "HM-PB-6-WM55",
             "battery_type": "AAA",
             "battery_quantity": 2
@@ -1855,7 +1872,18 @@
         },
         {
             "manufacturer": "eQ-3",
+            "model": "HM-Sec-TiS",
+            "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "eQ-3",
             "model": "HM-Sen-MDIR-O-2",
+            "battery_type": "AA",
+            "battery_quantity": 3
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HM-Sen-MDIR-SM",
             "battery_type": "AA",
             "battery_quantity": 3
         },
@@ -1864,6 +1892,11 @@
             "model": "HM-Sen-MDIR-WM55",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
+            "model": "HM-SwI-3-FM",
+            "battery_type": "CR2032"
         },
         {
             "manufacturer": "eQ-3",
@@ -2580,6 +2613,11 @@
         },
         {
             "manufacturer": "Google",
+            "model": "Pixel 9 Pro XL",
+            "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Google",
             "model": "Topaz-2.33",
             "hw_version": "Battery",
             "battery_type": "AA",
@@ -2639,6 +2677,11 @@
             "model": "H5104",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Govee",
+            "model": "H5105",
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "Govee",
@@ -4883,6 +4926,11 @@
         },
         {
             "manufacturer": "Shenzhen Neo Electronics Co., Ltd.",
+            "model": "NAS-PD03Z",
+            "battery_type": "CR132A"
+        },
+        {
+            "manufacturer": "Shenzhen Neo Electronics Co., Ltd.",
             "model": "NAS-WS01Z",
             "battery_type": "CR2"
         },
@@ -5929,6 +5977,13 @@
         },
         {
             "manufacturer": "Tuya",
+            "model": "Luminance Motion sensor",
+            "model_id": "3towulqd",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Tuya",
             "model": "Luminance Motion sensor (3towulqd)",
             "battery_type": "CR2450"
         },
@@ -6011,6 +6066,12 @@
             "model": "PIR 24Ghz human presence sensor (ZG-204ZM)",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "PIR motion sensor",
+            "model_id": "IDkXwcvanigdiTj3",
+            "battery_type": "CR2450"
         },
         {
             "manufacturer": "TuYa",
@@ -6171,6 +6232,13 @@
             "model": "Temperature & humidity sensor (WSD500A)",
             "battery_type": "AAA",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "Temperature & humidity sensor with clock (JM-TRH-ZGB-V1)",
+            "model_id": "_TZE200_vvmbj46n",
+            "battery_type": "AAA",
+            "battery_quantity": 3
         },
         {
             "manufacturer": "TuYa",
@@ -6356,6 +6424,12 @@
         },
         {
             "manufacturer": "Tuya",
+            "model": "Vibration sensor",
+            "model_id": "lzdjjfss",
+            "battery_type": "CR2450"
+        },
+        {
+            "manufacturer": "Tuya",
             "model": "Vibration sensor (TS0210)",
             "battery_type": "AAA",
             "battery_quantity": 2
@@ -6364,6 +6438,13 @@
             "manufacturer": "TuYa",
             "model": "Water leak detector (TS0207_water_leak_detector)",
             "battery_type": "CR2032"
+        },
+        {
+            "manufacturer": "Tuya",
+            "model": "Water leak sensor",
+            "model_id": "upgcbody",
+            "battery_type": "AAA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "TuYa",
@@ -6655,6 +6736,12 @@
             "model": "Siren",
             "battery_type": "CR123A",
             "battery_quantity": 2
+        },
+        {
+            "manufacturer": "Withings",
+            "model": "Body+",
+            "battery_type": "AAA",
+            "battery_quantity": 4
         },
         {
             "manufacturer": "Withings",
