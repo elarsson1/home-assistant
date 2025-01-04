@@ -1,0 +1,50 @@
+version: 1
+devices:
+  +Wake Up Guest Room:
+  - platform: light
+    name: +Wake Up Guest Room
+    support_brightness: true
+    persistent: false
+    initial_value: 'False'
+    initial_white_value: 240
+    unique_id: NOTYET
+    initial_effect: none
+    initial_effect_list:
+    - rainbow
+    - none
+    support_color_temp: false
+    initial_brightness: 255
+    initial_color_temp: 240
+    device_id: NOTYET
+    support_white_value: false
+    entity_id: NOTYET
+    initial_availability: true
+    initial_color:
+    - 0
+    - 100
+    support_effect: false
+    support_color: false
+  +Wake Up Master Bedroom:
+  - platform: light
+    name: +Wake Up Master Bedroom
+    support_brightness: true
+    persistent: false
+    initial_value: 'False'
+    initial_white_value: 240
+    unique_id: NOTYET
+    initial_effect: none
+    initial_effect_list:
+    - rainbow
+    - none
+    support_color_temp: false
+    initial_brightness: 255
+    initial_color_temp: 240
+    device_id: NOTYET
+    support_white_value: false
+    entity_id: NOTYET
+    initial_availability: true
+    initial_color:
+    - 0
+    - 100
+    support_effect: false
+    support_color: false
