@@ -1,8 +1,8 @@
 name: Double curtain switch
 products:
-  - id: zqypumy8ot4clzyi
-    manufacturer: Loratap
-    model: QCSC420W
+  - id: uri85umga4f86p2j
+    manufacturer: Moes
+    model: WS-USR-2C
 entities:
   - entity: cover
     name: Curtain 1
@@ -62,7 +62,7 @@ entities:
         type: integer
         unit: s
         range:
-          max: 120
+          max: 240
           min: 2
   - entity: number
     category: config
@@ -76,7 +76,7 @@ entities:
         type: integer
         unit: s
         range:
-          max: 120
+          max: 240
           min: 2
   - entity: select
     name: Direction 1
@@ -104,44 +104,10 @@ entities:
             value: forward
           - dps_val: "back"
             value: back
-  - entity: select
-    name: Backlight
+  - entity: light
+    translation_key: backlight
     category: config
-    icon: "mdi:toggle-switch"
     dps:
-      - id: 14
-        name: option
-        type: string
-        mapping:
-          - dps_val: "relay"
-            value: Mode 1
-          - dps_val: "pos"
-            value: Mode 2
-          - dps_val: "none"
-            value: None
-  - entity: select
-    name: Calibration 1
-    category: config
-    icon: "mdi:toggle-switch"
-    dps:
-      - id: 3
-        name: option
-        type: string
-        mapping:
-          - dps_val: "start"
-            value: start
-          - dps_val: "end"
-            value: end
-  - entity: select
-    name: Calibration 2
-    category: config
-    icon: "mdi:toggle-switch"
-    dps:
-      - id: 6
-        name: option
-        type: string
-        mapping:
-          - dps_val: "start"
-            value: start
-          - dps_val: "end"
-            value: end
+      - id: 7
+        type: boolean
+        name: switch
