@@ -2646,6 +2646,12 @@
         },
         {
             "manufacturer": "eQ-3",
+            "model": "HmIP-WTH",
+            "battery_type": "AAA",
+            "battery_quantity": 2
+        },
+        {
+            "manufacturer": "eQ-3",
             "model": "HmIP-WTH-1",
             "battery_type": "AAA",
             "battery_quantity": 2
@@ -5430,6 +5436,11 @@
         },
         {
             "manufacturer": "Ring",
+            "model": "Flood & Freeze Sensor",
+            "battery_type": "CR123A"
+        },
+        {
+            "manufacturer": "Ring",
             "model": "Glass Break Sensor",
             "battery_type": "AA",
             "battery_quantity": 3
@@ -5454,6 +5465,11 @@
             "manufacturer": "Ring",
             "model": "Security Keypad",
             "battery_type": "Rechargeable"
+        },
+        {
+            "manufacturer": "Ring",
+            "model": "Smoke & CO Listener",
+            "battery_type": "CR123A"
         },
         {
             "manufacturer": "Ring",
@@ -5515,6 +5531,12 @@
             "model": "Fineoffset-WH24",
             "battery_type": "AA",
             "battery_quantity": 3
+        },
+        {
+            "manufacturer": "rtl_433",
+            "model": "Fineoffset-WH32",
+            "battery_type": "AA",
+            "battery_quantity": 2
         },
         {
             "manufacturer": "rtl_433",
