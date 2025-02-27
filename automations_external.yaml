@@ -147,13 +147,13 @@
   condition:
     # add condition check to prevent race conditions when disarming.
     # SS will sometimes revert back to Armed Aay if there is a delay when disarming.
-    # must have been home for at least 30 minutes.
+    # must have been home for at least 5 minutes.
     - condition: state
       entity_id: input_select.presence
       state:
         - "Home"
         - "With Guests"
-      for: "00:30:00"
+      for: "00:05:00"
   action:
     - service: script.going_out
 
