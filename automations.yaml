@@ -1,0 +1,53 @@
+- id: '1744589899326'
+  alias: Patio lighting by occupancy
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.patio_area_person_occupancy
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  conditions:
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
+  - condition: state
+    entity_id: light.under_stoop_lights
+    state: 'off'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: input_select.presence
+      state: Home
+    - condition: state
+      entity_id: input_select.presence
+      state: With Guests
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.under_stoop_lights
+  - wait_for_trigger:
+    - trigger: state
+      entity_id:
+      - binary_sensor.patio_area_person_occupancy
+      to: 'off'
+      for:
+        hours: 0
+        minutes: 5
+        seconds: 0
+    timeout:
+      hours: 0
+      minutes: 30
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.under_stoop_lights
+  mode: single
