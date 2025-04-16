@@ -1,10 +1,18 @@
 - id: '1744589899326'
-  alias: Patio lighting by occupancy
+  alias: Occupancy Lighting - Patio
   description: ''
   triggers:
   - trigger: state
     entity_id:
     - binary_sensor.patio_area_person_occupancy
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - trigger: state
+    entity_id:
+    - binary_sensor.under_stoop_person_occupancy
     to: 'on'
     for:
       hours: 0
@@ -50,4 +58,128 @@
     data: {}
     target:
       entity_id: light.under_stoop_lights
+  mode: single
+- id: '1744769562297'
+  alias: Occupancy Lighting - Vestibule
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_stairs_person_occupancy
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_porch_person_occupancy
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  conditions:
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
+  - condition: state
+    entity_id: light.vestibule_switch
+    state: 'off'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: input_select.presence
+      state: Home
+    - condition: state
+      entity_id: input_select.presence
+      state: With Guests
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      entity_id: light.vestibule_switch
+  - wait_for_trigger:
+    - trigger: state
+      entity_id:
+      - binary_sensor.front_stairs_person_occupancy
+      to: 'off'
+      for:
+        hours: 0
+        minutes: 5
+        seconds: 0
+    timeout:
+      hours: 0
+      minutes: 30
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.vestibule_switch
+  mode: single
+- id: '1744769942590'
+  alias: Occupancy Lighting - Porch
+  description: ''
+  triggers:
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_stairs_person_occupancy
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  - trigger: state
+    entity_id:
+    - binary_sensor.front_porch_person_occupancy
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 2
+  conditions:
+  - condition: state
+    entity_id: sun.sun
+    state: below_horizon
+  - condition: state
+    entity_id: light.porch_switch
+    state: 'off'
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: input_select.presence
+      state: Home
+    - condition: state
+      entity_id: input_select.presence
+      state: With Guests
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data:
+      brightness_pct: 100
+    target:
+      entity_id: light.porch_switch
+  - wait_for_trigger:
+    - trigger: state
+      entity_id:
+      - binary_sensor.front_stairs_person_occupancy
+      to: 'off'
+      for:
+        hours: 0
+        minutes: 5
+        seconds: 0
+    timeout:
+      hours: 0
+      minutes: 30
+      seconds: 0
+      milliseconds: 0
+  - action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: light.porch_switch
   mode: single
