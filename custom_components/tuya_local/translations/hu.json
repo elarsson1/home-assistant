@@ -163,6 +163,7 @@
         },
         "climate": {
             "aircon_extra": {
+                "name": "Légkondicionáló",
                 "state_attributes": {
                     "fan_mode": {
                         "state": {
@@ -677,7 +678,12 @@
                     "starting": "Indítás",
                     "emptying": "Ürítés",
                     "resetting": "Visszaállítás",
-                    "reverse": "Visszafelé"
+                    "reverse": "Visszafelé",
+                    "full": "Teljes",
+                    "empty": "Üres",
+                    "missing": "Hiányzik",
+                    "formatting": "Formázás",
+                    "unformatted": "Nem formázott"
                 }
             },
             "time_remaining": {
@@ -758,6 +764,25 @@
         "text": {
             "scene": {
                 "name": "Jelenet"
+            }
+        },
+        "water_heater": {
+            "water_air": {
+                "name": "Vízmelegítő",
+                "state_attributes": {
+                    "operation_mode": {
+                        "state": {
+                            "heat": "Fűtés",
+                            "cool": "Hűtés",
+                            "auto": "Auto",
+                            "off": "Ki",
+                            "hotwater": "Meleg víz",
+                            "hotwater_cool": "Meleg víz és hűtés",
+                            "hotwater_heat": "Meleg víz és fűtés",
+                            "hotwater_auto": "Meleg víz és automatikus"
+                        }
+                    }
+                }
             }
         }
     }
