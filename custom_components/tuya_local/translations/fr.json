@@ -218,6 +218,7 @@
                 }
             },
             "swing_as_powerlevel": {
+                "name": "Chauffage",
                 "state_attributes": {
                     "swing_mode": {
                         "name": "Niveau de chauffage",
@@ -425,6 +426,24 @@
                     "off": "Désactivé",
                     "on": "Activé",
                     "memory": "Mémoire"
+                }
+            },
+            "kettle_mode": {
+                "name": "Mode Bouilloire",
+                "state": {
+                    "off": "Éteint",
+                    "heat": "Chauffage",
+                    "boil": "Ébullition",
+                    "quick_heat": "Chauffage rapide",
+                    "quick_boil": "Ébullition rapide",
+                    "keep_warm": "Garder au chaud",
+                    "custom": "Personnalisé",
+                    "dechlorinate": "Déschlorination",
+                    "black_tea": "Thé noir",
+                    "green_tea": "Thé vert",
+                    "coffee": "Café",
+                    "honey_water": "Eau au miel",
+                    "infant_formula": "Lait infantile"
                 }
             },
             "language": {
@@ -784,19 +803,7 @@
                 }
             },
             "kettle": {
-                "name": "Bouilloire",
-                "state_attributes": {
-                    "operation_mode": {
-                        "state": {
-                            "off": "Éteint",
-                            "heat": "Chauffage",
-                            "boil": "Ébullition",
-                            "quick_heat": "Chauffage rapide",
-                            "quick_boil": "Ébullition rapide",
-                            "keep_warm": "Garder au chaud"
-                        }
-                    }
-                }
+                "name": "Bouilloire"
             }
         }
     }
