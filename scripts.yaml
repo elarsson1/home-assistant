@@ -373,7 +373,7 @@ good_night:
     - choose:
         # if we were called from the the ground floor, shut off a subset of devices
         - conditions: >
-            {{ is_state_attr('media_player.guest_room_echo_show', 'last_called', true) 
+            {{ is_state_attr('media_player.guest_room_spot', 'last_called', true) 
                or is_state_attr('media_player.den_echo_show', 'last_called', true) 
                or is_state_attr('media_player.office_echo_show', 'last_called', true) }}
           sequence:
