@@ -699,12 +699,12 @@
     # trigger when weather is above or below configured thresholds
     # set mode variable for heat or cool depending on temp is above or below
     - platform: numeric_state
-      entity_id: sensor.home_temperature
+      entity_id: sensor.o_1pst_temperature
       below: input_number.hvac_changeover_heat
       variables:
         mode: "Heat"
     - platform: numeric_state
-      entity_id: sensor.home_temperature
+      entity_id: sensor.o_1pst_temperature
       above: input_number.hvac_changeover_cool
       variables:
         mode: "Cool"
@@ -714,12 +714,12 @@
     # now uses stats helpers to do lookback of 8 hours without an arbitrary delay
     # survives HA restarts
     - platform: numeric_state
-      entity_id: sensor.home_temperature_max
+      entity_id: sensor.outdoor_temperature_max
       below: input_number.hvac_changeover_off_high
       variables:
         mode: "Off"
     - platform: numeric_state
-      entity_id: sensor.home_temperature_min
+      entity_id: sensor.outdoor_temperature_min
       above: input_number.hvac_changeover_off_low
       variables:
         mode: "Off"
@@ -734,7 +734,7 @@
           - and:
               - "{{ mode in ('Off') }}"
               - condition: numeric_state
-                entity_id: sensor.home_temperature
+                entity_id: sensor.o_1pst_temperature
                 above: input_number.hvac_changeover_heat
                 below: input_number.hvac_changeover_cool
   action:
@@ -801,13 +801,13 @@
     # trigger when weather is above or below configured thresholds
     # set mode variable for heat or off depending on temp is above or below
     - platform: numeric_state
-      entity_id: sensor.home_temperature
+      entity_id: sensor.o_1pst_temperature
       below: input_number.hvac_changeover_supplemental_heat_on
       for: "00:10:00"
       variables:
         mode: "heat"
     - platform: numeric_state
-      entity_id: sensor.home_temperature
+      entity_id: sensor.o_1pst_temperature
       above: input_number.hvac_changeover_supplemental_heat_off
       for: "00:10:00"
       variables:
