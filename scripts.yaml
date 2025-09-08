@@ -329,8 +329,7 @@ wake_up_bath_heater:
   sequence:
     # only run if its cold outside
     - condition: numeric_state
-      entity_id: weather.home
-      attribute: temperature
+      entity_id: sensor.o_1pst_temperature
       below: input_number.bathroom_heater_warm_up_low_threshold
     # run heater for two hours
     - service: climate.set_hvac_mode
