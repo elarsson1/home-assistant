@@ -388,7 +388,23 @@
   mode: single
 
 # smart wake up trigers.
-# master bedroom Alexa alarm trigger.
+# fallback trigger based upon Alexa Media Player reading alarm time
+- id: SmartWakeUpMasterBedroomAltTrigger
+  alias: Smart Wake Up Master Bedroom Alternate trigger
+  trigger:
+    - minutes: /5
+      platform: time_pattern
+  condition:
+    - condition: template
+      value_template: "{{ states('sensor.bedroom_echo_show_next_alarm') != 'unknown' and as_timestamp(states('sensor.bedroom_echo_show_next_alarm')) - as_timestamp(now()) <= 3540 and as_timestamp(states('sensor.bedroom_echo_show_next_alarm')) - as_timestamp(now()) > 0 }}"
+    - condition: state
+      entity_id: light.virtual_wake_up_master_bedroom
+      state: "off"
+  action:
+    - service: light.turn_on
+      entity_id: light.virtual_wake_up_master_bedroom
+
+# master bedroom Alexa alarm trigger via smart wake-up lighting
 - id: SmartWakeUpMasterBedroom
   alias: Smart Wake Up Master Bedroom
   trigger:
@@ -415,7 +431,23 @@
     - service: light.turn_off
       entity_id: light.virtual_wake_up_master_bedroom
 
-# guest room alexa alarm trigger
+# fallback trigger based upon Alexa Media Player reading alarm time
+- id: SmartWakeUpGuestRoomAltTrigger
+  alias: Smart Wake Up Guest Room Alternate trigger
+  trigger:
+    - minutes: /5
+      platform: time_pattern
+  condition:
+    - condition: template
+      value_template: "{{ states('sensor.guest_room_spot_next_alarm') != 'unknown' and as_timestamp(states('sensor.guest_room_spot_next_alarm')) - as_timestamp(now()) <= 3540 and as_timestamp(states('sensor.guest_room_spot_next_alarm')) - as_timestamp(now()) > 0 }}"
+    - condition: state
+      entity_id: light.virtual_wake_up_guest_room
+      state: "off"
+  action:
+    - service: light.turn_on
+      entity_id: light.virtual_wake_up_guest_room
+
+# guest room alexa alarm trigger via smart wake-up lighting
 - id: SmartWakeUpGuestRoom
   alias: Smart Wake Up Guest Room
   trigger:
