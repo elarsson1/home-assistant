@@ -182,7 +182,24 @@
                             "top": "Alto",
                             "middle": "Meio",
                             "down": "Abaixo",
-                            "downmost": "Mais abaixo"
+                            "downmost": "Mais abaixo",
+                            "upper_half": "Metade superior",
+                            "lower_half": "Metade inferior",
+                            "surround": "Ao redor"
+                        }
+                    },
+                    "swing_horizontal_mode": {
+                        "state": {
+                            "leftmost": "Mais à esquerda",
+                            "left": "Esquerda",
+                            "center": "Centro",
+                            "right": "Direita",
+                            "rightmost": "Mais à direita",
+                            "left_swing": "Oscilação esquerda",
+                            "right_swing": "Oscilação direita",
+                            "center_swing": "Oscilação central",
+                            "surround": "Ao redor",
+                            "direct": "Direto"
                         }
                     }
                 }
@@ -411,6 +428,9 @@
             },
             "timer_x": {
                 "name": "Cronômetro {x}"
+            },
+            "sensor_threshold": {
+                "name": "{sensor} limite"
             }
         },
         "select": {
@@ -616,6 +636,14 @@
                     "fahrenheit": "Fahrenheit"
                 }
             },
+            "breaker_trigger_action": {
+                "name": "{trigger} ação",
+                "state": {
+                    "ignore": "Ignorar",
+                    "alarm": "Alarme",
+                    "trip_breaker": "Disjuntor"
+                }
+            },
             "oven_built_in_recipe": {
                 "name": "Receita embutida no forno",
                 "state": {
@@ -796,6 +824,13 @@
         "switch": {
             "anti_frost": {
                 "name": "Antigelo"
+            },
+            "breaker": {
+                "name": "Disjuntor",
+                "state": {
+                    "off": "Aberto",
+                    "on": "Fechado"
+                }
             },
             "evaporator_cleaning": {
                 "name": "Limpeza de evaporador"
