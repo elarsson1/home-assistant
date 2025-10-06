@@ -21,3 +21,5 @@ image
 *.db-wal
 *.pyc
 rclone.conf
+
+.ha_run.lock
