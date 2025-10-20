@@ -44,24 +44,57 @@ hvac_enable_mode:
     # wait for unavaialble unit to become available up to 5 minutes
     - wait_template: "{{ states(unit) not in ('unavailable', 'unknown') }}"
       timeout: "00:05:00"
-    # only continue if unit became available and continue if current unit state is different then target
-    - condition: "{{ wait.completed and ( not is_state(unit, mode) ) }}"
-    # drive unit to desired state for up to 16 minutes
-    - repeat:
-        while: "{{ ( not is_state(unit, mode) ) and repeat.index <= 5 }}"
-        sequence:
-          - service: climate.set_hvac_mode
-            continue_on_error: true
-            data:
-              entity_id: "{{ unit }}"
-              hvac_mode: "{{ mode }}"
-          - delay: 200
-    # only continue if mode is heat or cool
-    - condition: "{{ mode in ('heat', 'cool') }}"
-    # set current preset for this zone
-    - service: script.hvac_enable_current
-      data:
-        zone: "{{ zone }}"
+    # something broke with Mysa controllers where we cannot set climate_mode to anything other
+    # then off, so instead we will use target temp < 50 to indicate off for the Den Baseboard.
+    - if:
+        - "{{ zone|slugify() in ('den_baseboard') }}"
+      then:
+        # set target temp based upon mode for den_baseboard.
+        - if:
+            - "{{ mode in ('heat') }}"
+          then:
+            - variables:
+                temp: 50
+          else:
+            - variables:
+                temp: 45
+        # we can only continue if the unit is already in heat mode.
+        - condition: "{{ states(unit) in ('heat') }}"
+        # drive unit to desired temp setting
+        - repeat:
+            while: "{{ not is_state_attr(unit, 'temperature', temp) and repeat.index <= 5 }}"
+            sequence:
+              - service: climate.set_temperature
+                continue_on_error: true
+                data:
+                  entity_id: "{{ unit }}"
+                  temperature: "{{ temp }}"
+              - delay: 5
+        # only continue if temp is >= 50 (on)
+        - condition: "{{ state_attr(unit, 'temperature') >= 50 }}"
+        # set current preset for this zone
+        - service: script.hvac_enable_current
+          data:
+            zone: "{{ zone }}"
+      else:
+        # only continue if unit became available and continue if current unit state is different then target
+        - condition: "{{ wait.completed and ( not is_state(unit, mode) ) }}"
+        # drive unit to desired state for up to 16 minutes
+        - repeat:
+            while: "{{ ( not is_state(unit, mode) ) and repeat.index <= 5 }}"
+            sequence:
+              - service: climate.set_hvac_mode
+                continue_on_error: true
+                data:
+                  entity_id: "{{ unit }}"
+                  hvac_mode: "{{ mode }}"
+              - delay: 200
+        # only continue if mode is heat or cool
+        - condition: "{{ mode in ('heat', 'cool') }}"
+        # set current preset for this zone
+        - service: script.hvac_enable_current
+          data:
+            zone: "{{ zone }}"
 
 # Set current preset for unit based upon house and area mode selectors
 hvac_enable_current:
@@ -159,6 +192,9 @@ hvac_enable_preset:
         state: "{{ states(unit) }}"
     # only continue if we are heating or cooling
     - condition: "{{ state in ('heat', 'cool') }}"
+    # something broke with Mysa controllers where we cannot set climate_mode to anything other
+    # then off, so instead we will use target temp < 50 to indicate off for the Den Baseboard.
+    - condition: "{{ zone|slugify() != 'den_baseboard' or state_attr(unit, 'temperature') >= 50 }}"
     # get target temp value
     - variables:
         temp: "{{ states('input_number.hvac_' + zone + '_' + preset + '_' + state) }}"
