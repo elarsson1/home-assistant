@@ -47,11 +47,11 @@ hvac_enable_mode:
     # something broke with Mysa controllers where we cannot set climate_mode to anything other
     # then off, so instead we will use target temp < 50 to indicate off for the Den Baseboard.
     - if:
-        - "{{ zone|slugify() in ('den_baseboard') }}"
+        - "{{ zone|slugify() == 'den_baseboard' }}"
       then:
         # set target temp based upon mode for den_baseboard.
         - if:
-            - "{{ mode in ('heat') }}"
+            - "{{ mode == 'heat' }}"
           then:
             - variables:
                 temp: 50
@@ -59,7 +59,7 @@ hvac_enable_mode:
             - variables:
                 temp: 45
         # we can only continue if the unit is already in heat mode.
-        - condition: "{{ states(unit) in ('heat') }}"
+        - condition: "{{ is_state(unit, 'heat') }}"
         # drive unit to desired temp setting
         - repeat:
             while: "{{ not is_state_attr(unit, 'temperature', temp) and repeat.index <= 5 }}"
