@@ -1,0 +1,58 @@
+- sensor:
+    # Certificate Expiration for home.axeltech.com
+    - unit_of_measurement: days
+      default_entity_id: sensor.s_cert_exiry_d
+      name: Cert Expiry
+      state:
+        "{{ ((as_timestamp(states('sensor.cert_expiry_timestamp_home_axeltech_com'))
+        - as_timestamp(now()) ) / 86400) | int }}"
+    # AQI sensors for AirGradient
+    - unit_of_measurement: AQI
+      default_entity_id: sensor.indoor_pm25_aqi
+      state:
+        "{% set pm02 = states('sensor.i_9psl_pm2_5') | float %} {% if pm02 <= 12.0
+        %}\n  {{ ((50 - 0) / (12.0 - 0) * (pm02 - 0) + 0) | int }}\n{% elif pm02 <=
+        35.4 %}\n  {{ ((100 - 50) / (35.4 - 12.0) * (pm02 - 12.0) + 50) | int }}\n{%
+        elif pm02 <= 55.4 %}\n  {{ ((150 - 100) / (55.4 - 35.4) * (pm02 - 35.4) + 100)
+        | int }}\n{% elif pm02 <= 150.4 %}\n  {{ ((200 - 150) / (150.4 - 55.4) * (pm02
+        - 55.4) + 150) | int }}\n{% elif pm02 <= 250.4 %}\n  {{ ((300 - 200) / (250.4
+        - 150.4) * (pm02 - 150.4) + 200) | int }}\n{% elif pm02 <= 350.4 %}\n  {{ ((400
+        - 300) / (350.4 - 250.4) * (pm02 - 250.4) + 300) | int }}\n{% elif pm02 <= 500.4
+        %}\n  {{ ((500 - 400) / (500.4 - 350.4) * (pm02 - 350.4) + 400) | int }}\n{%
+        else %}\n  500\n{% endif %}"
+      name: indoor_pm25_aqi
+    - unit_of_measurement: AQI
+      default_entity_id: sensor.outdoor_pm25_aqi
+      state:
+        "{% set pm02 = states('sensor.o_1pst_pm2_5') | float %} {% if pm02 <= 12.0
+        %}\n  {{ ((50 - 0) / (12.0 - 0) * (pm02 - 0) + 0) | int }}\n{% elif pm02 <=
+        35.4 %}\n  {{ ((100 - 50) / (35.4 - 12.0) * (pm02 - 12.0) + 50) | int }}\n{%
+        elif pm02 <= 55.4 %}\n  {{ ((150 - 100) / (55.4 - 35.4) * (pm02 - 35.4) + 100)
+        | int }}\n{% elif pm02 <= 150.4 %}\n  {{ ((200 - 150) / (150.4 - 55.4) * (pm02
+        - 55.4) + 150) | int }}\n{% elif pm02 <= 250.4 %}\n  {{ ((300 - 200) / (250.4
+        - 150.4) * (pm02 - 150.4) + 200) | int }}\n{% elif pm02 <= 350.4 %}\n  {{ ((400
+        - 300) / (350.4 - 250.4) * (pm02 - 250.4) + 300) | int }}\n{% elif pm02 <= 500.4
+        %}\n  {{ ((500 - 400) / (500.4 - 350.4) * (pm02 - 350.4) + 400) | int }}\n{%
+        else %}\n  500\n{% endif %}"
+      name: outdoor_pm25_aqi
+
+- binary_sensor:
+    # Are guests connected to Wifi?
+    - default_entity_id: binary_sensor.wifi_guests
+      name: Wifi Guest
+      state: "{{ states('sensor.axeltech_guest')|int > 0 }}"
+    # is HVAC defrost running?
+    - device_class: running
+      default_entity_id: binary_sensor.hvac_defrost
+      name: HVAC Defrosting
+      state:
+        "{{ is_state_attr('climate.den', 'defrost', true) or  is_state_attr('climate.living_room',
+        'defrost', true) or is_state_attr('climate.master_bedroom', 'defrost',
+        true) or is_state_attr('climate.guest_room', 'defrost', true) }}"
+    # are any mini-splits in Heat mode?
+    - default_entity_id: binary_sensor.hvac_heat
+      name: HVAC Heating
+      state:
+        "{{ is_state('climate.den', 'heat') or  is_state('climate.living_room',
+        'heat') or is_state('climate.master_bedroom', 'heat') or is_state('climate.guest_room',
+        'heat') }}"
