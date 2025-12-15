@@ -266,7 +266,20 @@
                 }
             },
             "heater": {
-                "name": "Θέρμανση"
+                "name": "Θέρμανση",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "low": "Χαμηλή",
+                            "medium": "Μεσαία",
+                            "high": "Υψηλή",
+                            "program_1": "Πρόγραμμα 1",
+                            "program_2": "Πρόγραμμα 2",
+                            "program_3": "Πρόγραμμα 3",
+                            "standby": "Αναμονή"
+                        }
+                    }
+                }
             },
             "thermo_switch": {
                 "state_attributes": {
@@ -515,8 +528,10 @@
                     "portuguese": "Português",
                     "russian": "Русский",
                     "spanish": "Español",
-                    "turkish": "Türkçe"
-                }
+                    "turkish": "Türkçe",
+                     "polish": "Polski",
+                    "vietnamese": "Tiếng Việt"
+               }
             },
             "light_mode": {
                 "name": "Λειτουργία φωτισμού",
@@ -742,7 +757,10 @@
                 "state": {
                     "sweep": "Σκούπισμα",
                     "mop": "Σφουγγάρισμα",
-                    "sweep_and_mop": "Σκούπισμα και σφουγγάρισμα"
+                    "sweep_and_mop": "Σκούπισμα και σφουγγάρισμα",
+                    "intensive": "Εντατικό",
+                    "quiet": "Ήσυχο",
+                    "sweep_before_mopping": "Σκούπισμα πριν το σφουγγάρισμα"
                 }
             },
             "washing_mode": {

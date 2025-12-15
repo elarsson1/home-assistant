@@ -266,7 +266,20 @@
                 }
             },
             "heater": {
-                "name": "Обогреватель"
+                "name": "Обогреватель",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "low": "Низкий",
+                            "medium": "Средний",
+                            "high": "Высокий",
+                            "program_1": "Программа 1",
+                            "program_2": "Программа 2",
+                            "program_3": "Программа 3",
+                            "standby": "Режим ожидания"
+                        }
+                    }
+                }
             },
             "thermo_switch": {
                 "state_attributes": {
@@ -515,7 +528,9 @@
                     "portuguese": "Português",
                     "russian": "Русский",
                     "spanish": "Español",
-                    "turkish": "Türkçe"
+                    "turkish": "Türkçe",
+                    "polish": "Polski",
+                    "vietnamese": "Tiếng Việt"
                 }
             },
             "light_mode": {
@@ -742,7 +757,10 @@
                 "state": {
                     "sweep": "Подметание",
                     "mop": "Мытье пола",
-                    "sweep_and_mop": "Подметание и мытье пола"
+                    "sweep_and_mop": "Подметание и мытье пола",
+                    "intensive": "Интенсивная",
+                    "quiet": "Тихая",
+                    "sweep_before_mopping": "Подметание перед мытьем пола"
                 }
             },
             "washing_mode": {

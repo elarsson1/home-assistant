@@ -267,7 +267,20 @@
                 }
             },
             "heater": {
-                "name": "Varmeapparat"
+                "name": "Varmeapparat",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "low": "Lav",
+                            "medium": "Medium",
+                            "high": "Høy",
+                            "program_1": "Program 1",
+                            "program_2": "Program 2",
+                            "program_3": "Program 3",
+                            "standby": "Standby"
+                        }
+                    }
+                }
             },
             "thermo_switch": {
                 "state_attributes": {
@@ -516,7 +529,9 @@
                     "portuguese": "Português",
                     "russian": "Русский",
                     "spanish": "Español",
-                    "turkish": "Türkçe"
+                    "turkish": "Türkçe",
+                    "polish": "Polski",
+                    "vietnamese": "Tiếng Việt"
                 }
             },
             "light_mode": {
@@ -743,7 +758,10 @@
                 "state": {
                     "sweep": "Feiing",
                     "mop": "Mopping",
-                    "sweep_and_mop": "Feiing og mopping"
+                    "sweep_and_mop": "Feiing og mopping",
+                    "intensive": "Intensiv",
+                    "quiet": "Stille",
+                    "sweep_before_mopping": "Fei før mopping"
                 }
             },
             "washing_mode": {

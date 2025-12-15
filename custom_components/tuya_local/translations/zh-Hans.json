@@ -266,7 +266,20 @@
                 }
             },
             "heater": {
-                "name": "加热器"
+                "name": "加热器",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "low": "低",
+                            "medium": "中",
+                            "high": "高",
+                            "program_1": "程序1",
+                            "program_2": "程序2",
+                            "program_3": "程序3",
+                            "standby": "待机"
+                        }
+                    }
+                }
             },
             "thermo_switch": {
                 "state_attributes": {
@@ -515,7 +528,9 @@
                     "portuguese": "Português",
                     "russian": "Русский",
                     "spanish": "Español",
-                    "turkish": "Türkçe"
+                    "turkish": "Türkçe",
+                    "polish": "Polski",
+                    "vietnamese": "Tiếng Việt"
                 }
             },
             "light_mode": {
@@ -742,7 +757,10 @@
                 "state": {
                     "sweep": "扫地",
                     "mop": "拖地",
-                    "sweep_and_mop": "扫拖一体"
+                    "sweep_and_mop": "扫拖一体",
+                    "intensive": "强力清洁",
+                    "quiet": "安静清洁",
+                    "sweep_before_mopping": "先扫后拖"
                 }
             },
             "washing_mode": {

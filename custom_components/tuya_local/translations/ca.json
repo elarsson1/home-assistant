@@ -266,7 +266,20 @@
                 }
             },
             "heater": {
-                "name": "Escalfador"
+                "name": "Escalfador",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "low": "Baix",
+                            "medium": "Mitjà",
+                            "high": "Alt",
+                            "program_1": "Programa 1",
+                            "program_2": "Programa 2",
+                            "program_3": "Programa 3",
+                            "standby": "En espera"
+                        }
+                    }
+                }
             },
             "thermo_switch": {
                 "state_attributes": {
@@ -661,7 +674,9 @@
                     "chinese": "中文",
                     "japanese": "日本語",
                     "korean": "한국어",
-                    "russian": "Русский"
+                    "russian": "Русский",
+                    "polish": "Polski",
+                    "vietnamese": "Tiếng Việt"
                 }
             },
             "light_mode": {
@@ -888,7 +903,10 @@
                 "state": {
                     "sweep": "Escombrat",
                     "mop": "Fregat",
-                    "sweep_and_mop": "Escombrat i fregat"
+                    "sweep_and_mop": "Escombrat i fregat",
+                    "intensive": "Intensiu",
+                    "quiet": "Silenciós",
+                    "sweep_before_mopping": "Escombrat abans de fregar"
                 }
             },
             "washing_mode": {

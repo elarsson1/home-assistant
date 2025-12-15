@@ -266,7 +266,20 @@
                 }
             },
             "heater": {
-                "name": "ヒーター"
+                "name": "ヒーター",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "low": "低い",
+                            "medium": "中",
+                            "high": "高い",
+                            "program_1": "プログラム 1",
+                            "program_2": "プログラム 2",
+                            "program_3": "プログラム 3",
+                            "standby": "スタンバイ"
+                        }
+                    }
+                }
             },
             "thermo_switch": {
                 "state_attributes": {
@@ -515,7 +528,9 @@
                     "portuguese": "Português",
                     "russian": "Русский",
                     "spanish": "Español",
-                    "turkish": "Türkçe"
+                    "turkish": "Türkçe",
+                    "polish": "Polski",
+                    "vietnamese": "Tiếng Việt"
                 }
             },
             "light_mode": {
@@ -742,7 +757,10 @@
                 "state": {
                     "sweep": "掃く",
                     "mop": "モップ",
-                    "sweep_and_mop": "掃きとモップ"
+                    "sweep_and_mop": "掃きとモップ",
+                    "intensive": "集中的",
+                    "quiet": "静粛",
+                    "sweep_before_mopping": "モッピング前に掃く"
                 }
             },
             "washing_mode": {

@@ -266,7 +266,20 @@
                 }
             },
             "heater": {
-                "name": "Chauffage"
+                "name": "Chauffage",
+                "state_attributes": {
+                    "preset_mode": {
+                        "state": {
+                            "low": "Bas",
+                            "medium": "Moyen",
+                            "high": "Haut",
+                            "program_1": "Programme 1",
+                            "program_2": "Programme 2",
+                            "program_3": "Programme 3",
+                            "standby": "Veille"
+                        }
+                    }
+                }
             },
             "thermo_switch": {
                 "state_attributes": {
@@ -515,7 +528,9 @@
                     "portuguese": "Português",
                     "russian": "Русский",
                     "spanish": "Español",
-                    "turkish": "Türkçe"
+                    "turkish": "Türkçe",
+                    "polish": "Polski",
+                    "vietnamese": "Tiếng Việt"
                 }
             },
             "light_mode": {
@@ -742,7 +757,10 @@
                 "state": {
                     "sweep": "Balayer",
                     "mop": "Serpillière",
-                    "sweep_and_mop": "Balayer et serpillière"
+                    "sweep_and_mop": "Balayer et serpillière",
+                    "intensive": "Intensif",
+                    "quiet": "Silence",
+                    "sweep_before_mopping": "Balayer avant de passer la serpillière"
                 }
             },
             "washing_mode": {
