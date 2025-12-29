@@ -1,11 +1,10 @@
 """Support for VeSync humidifiers."""
+
 from __future__ import annotations
 
-from collections.abc import Mapping
 import logging
+from collections.abc import Mapping
 from typing import Any
-
-from pyvesync.vesyncfan import VeSyncHumid200300S
 
 from homeassistant.components.humidifier import HumidifierEntity
 from homeassistant.components.humidifier.const import (
@@ -18,6 +17,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from pyvesync.vesyncfan import VeSyncHumid200300S
 
 from .common import VeSyncDevice
 from .const import (

@@ -1,4 +1,5 @@
 """Support for VeSync switches."""
+
 import logging
 
 from homeassistant.components.switch import SwitchEntity
@@ -122,6 +123,16 @@ class VeSyncSwitchEntity(VeSyncBaseEntity, SwitchEntity):
         """Return the configuration entity category."""
         return EntityCategory.CONFIG
 
+    def is_on_safe(self, keys):
+        """Return True if the given property is on."""
+        for key in keys:
+            if key in self.device.details.keys():
+                return self.device.details[key]
+        _LOGGER.error(
+            f'Keys "{keys}" keys are not present in details "{self.device.details}" for "{super().name}"!'
+        )
+        return "unavailable"
+
 
 class VeSyncFanChildLockHA(VeSyncSwitchEntity):
     """Representation of the child lock switch."""
@@ -143,7 +154,7 @@ class VeSyncFanChildLockHA(VeSyncSwitchEntity):
     @property
     def is_on(self):
         """Return True if it is locked."""
-        return self.device.details["child_lock"]
+        return super().is_on_safe(["child_lock"])
 
     def turn_on(self, **kwargs):
         """Turn the lock on."""
@@ -155,10 +166,10 @@ class VeSyncFanChildLockHA(VeSyncSwitchEntity):
 
 
 class VeSyncHumidifierDisplayHA(VeSyncSwitchEntity):
-    """Representation of the child lock switch."""
+    """Representation of the display switch."""
 
     def __init__(self, lock, coordinator) -> None:
-        """Initialize the VeSync outlet device."""
+        """Initialize the VeSync device."""
         super().__init__(lock, coordinator)
 
     @property
@@ -173,15 +184,15 @@ class VeSyncHumidifierDisplayHA(VeSyncSwitchEntity):
 
     @property
     def is_on(self):
-        """Return True if it is locked."""
-        return self.device.details["display"]
+        """Return True if the display is on."""
+        return super().is_on_safe(["display", "screen_status"])
 
     def turn_on(self, **kwargs):
-        """Turn the lock on."""
+        """Turn the display on."""
         self.device.turn_on_display()
 
     def turn_off(self, **kwargs):
-        """Turn the lock off."""
+        """Turn the display off."""
         self.device.turn_off_display()
 
 
@@ -236,7 +247,7 @@ class VeSyncHumidifierAutoOnHA(VeSyncSwitchEntity):
     @property
     def is_on(self):
         """Return True if in auto mode."""
-        return self.device.details["mode"] == "auto"
+        return super().is_on_safe(["mode"]) == "auto"
 
     def turn_on(self, **kwargs):
         """Turn auto mode on."""

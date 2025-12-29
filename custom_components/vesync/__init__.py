@@ -1,9 +1,7 @@
 """VeSync integration."""
 
-from datetime import timedelta
 import logging
-
-from pyvesync.vesync import VeSync
+from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
@@ -11,6 +9,7 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from pyvesync.vesync import VeSync
 
 from .common import async_process_devices
 from .const import (
@@ -85,13 +84,15 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     hass.data[DOMAIN][config_entry.entry_id]["coordinator"] = coordinator
 
     device_dict = await async_process_devices(hass, manager)
+    platforms_list: list = []
 
-    for _, vs_p in PLATFORMS.items():
+    for p, vs_p in PLATFORMS.items():
         hass.data[DOMAIN][config_entry.entry_id][vs_p] = []
         if device_dict[vs_p]:
             hass.data[DOMAIN][config_entry.entry_id][vs_p].extend(device_dict[vs_p])
+            platforms_list.append(p)
 
-    await hass.config_entries.async_forward_entry_setups(config_entry, list(PLATFORMS.keys()))
+    await hass.config_entries.async_forward_entry_setups(config_entry, platforms_list)
 
     async def async_new_device_discovery(service: ServiceCall) -> None:
         """Discover if new devices should be added."""
@@ -117,7 +118,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             _add_new_devices(k)
 
         if platforms_to_setup:
-            await hass.config_entries.async_forward_entry_setups(config_entry, platforms_to_setup)
+            await hass.config_entries.async_forward_entry_setups(
+                config_entry, platforms_to_setup
+            )
 
     hass.services.async_register(
         DOMAIN, SERVICE_UPDATE_DEVS, async_new_device_discovery

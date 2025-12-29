@@ -1,4 +1,5 @@
 """Provides diagnostics for VeSync."""
+
 from __future__ import annotations
 
 from typing import Any
