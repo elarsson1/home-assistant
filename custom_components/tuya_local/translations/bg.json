@@ -34,7 +34,7 @@
             },
             "local": {
                 "title": "Конфигуриране на вашето Tuya Local устройство",
-                "description": "[Следвайте тези инструкции, за да откриете идентификатора на вашето устройство и локалния ключ] (https://github.com/make-all/tuya-local#finding-your-device-id-and-local-key)",
+                "description": "[Следвайте тези инструкции, за да откриете идентификатора на вашето устройство и локалния ключ](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
                 "data": {
                     "host": "IP адрес или име на хост",
                     "device_id": "Device ID (или Device ID шлюза, за устройства свързани чрез шлюз)",
@@ -83,7 +83,7 @@
         "step": {
             "user": {
                 "title": "Конфигуриране на вашето Tuya Local устройство",
-                "description": "[Следвайте тези инструкции, за да откриете своя локален ключ.](https://github.com/make-all/tuya-local#finding-your-device-id-and-local-key)",
+                "description": "[Следвайте тези инструкции, за да откриете своя локален ключ.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
                 "data": {
                     "host": "IP адрес или име на хост",
                     "local_key": "Локален ключ",
@@ -279,7 +279,8 @@
                             "program_1": "Програма 1",
                             "program_2": "Програма 2",
                             "program_3": "Програма 3",
-                            "standby": "Готовност"
+                            "standby": "Готовност",
+                            "fan_only": "Само вентилатор"
                         }
                     }
                 }
@@ -379,6 +380,9 @@
                             "custom": "Потребителски",
                             "high": "Високо",
                             "medium": "Средно",
+                            "auto": "Автоматичен",
+                            "manual": "Ръководство",
+                            "program": "Програма",
                             "low": "Ниско",
                             "displayoff": "Дисплеят е изключен",
                             "off": "Изключете дисплея"
@@ -395,6 +399,7 @@
                             "circulate": "Циркулирайте",
                             "sleep": "Сън",
                             "auto": "Автоматичен",
+                            "manual": "Ръководство",
                             "eco": "Еко",
                             "anti-condensation": "Антиконденз",
                             "extractor": "Екстрактор",
@@ -561,6 +566,15 @@
                     "very_high": "Много високо"
                 }
             },
+            "motion_sensitivity": {
+                "name": "Чувствителност на движението",
+                "state": {
+                    "off": "Изключено",
+                    "low": "Ниско",
+                    "medium": "Средно",
+                    "high": "Високо"
+                }
+            },
             "recipe": {
                 "name": "Рецепта",
                 "state": {
@@ -612,7 +626,10 @@
                 "state": {
                     "cancel": "Отказ",
                     "continuous": "Непрекъснато",
+                    "15s": "15 секунди",
+                    "20s": "20 секунди",
                     "30s": "30 секунди",
+                    "45s": "45 секунди",
                     "1m": "1 минута",
                     "2m": "2 минути",
                     "5m": "5 минути",
@@ -716,7 +733,8 @@
                     "normal": "Нормално",
                     "smart": "Умен",
                     "night": "Нощ",
-                    "motion": "Движение"
+                    "motion": "Движение",
+                    "off": "Изключено"
                 }
             },
             "bidet_mode": {
@@ -997,6 +1015,9 @@
             },
             "power_x": {
                 "name": "Мощност {x}"
+            },
+            "filter_life": {
+                "name": "Живот на филтъра"
             }
         },
         "switch": {
@@ -1071,6 +1092,9 @@
             },
             "kettle": {
                 "name": "Кана"
+            },
+            "hot_water": {
+                "name": "Гореща вода"
             }
         }
     }

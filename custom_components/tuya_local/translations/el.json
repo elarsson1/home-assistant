@@ -34,7 +34,7 @@
             },
             "local": {
                 "title": "Ρυθμίστε τη συσκευή σας Tuya Local",
-                "description": "[Ακολουθήστε αυτές τις οδηγίες για να βρείτε το device id και το local key.](https://github.com/make-all/tuya-local#finding-your-device-id-and-local-key)",
+                "description": "[Ακολουθήστε αυτές τις οδηγίες για να βρείτε το device id και το local key.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
                 "data": {
                     "host": "Διεύθυνση IP ή όνομα",
                     "device_id": "Device ID (ή device_id της gateway για συσκευές συνδεδεμένες μέσω gateway)",
@@ -83,7 +83,7 @@
         "step": {
             "user": {
                 "title": "Ρυθμίστε τη συσκευή σας Tuya Local",
-                "description": "[Ακολουθήστε αυτές τις οδηγίες για να βρείτε το local key.](https://github.com/make-all/tuya-local#finding-your-device-id-and-local-key)",
+                "description": "[Ακολουθήστε αυτές τις οδηγίες για να βρείτε το local key.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
                 "data": {
                     "host": "Διεύθυνση IP ή όνομα",
                     "local_key": "Local key",
@@ -279,7 +279,8 @@
                             "program_1": "Πρόγραμμα 1",
                             "program_2": "Πρόγραμμα 2",
                             "program_3": "Πρόγραμμα 3",
-                            "standby": "Αναμονή"
+                            "standby": "Αναμονή",
+                            "fan_only": "Μόνο ανεμιστήρας"
                         }
                     }
                 }
@@ -377,6 +378,9 @@
                             "smart": "Έξυπνο",
                             "strong": "Δυνατό",
                             "custom": "Προσαρμοσμένο",
+                            "auto": "Αυτόματο",
+                            "manual": "Χειροκίνητα",
+                            "program": "Προγραμματισμός",
                             "high": "Υψηλό",
                             "medium": "Μεσαίο",
                             "low": "Χαμηλό",
@@ -395,6 +399,7 @@
                             "circulate": "Κυκλοφορία αέρα",
                             "sleep": "Αναμονή",
                             "auto": "Αυτόματο",
+                            "manual": "Χειροκίνητα",
                             "eco": "Οικονομικό",
                             "anti-condensation": "Αποφυγή υγρασίας",
                             "extractor": "Εξαγωγή",
@@ -561,6 +566,15 @@
                     "very_high": "Πολύ υψηλή"
                 }
             },
+            "motion_sensitivity": {
+                "name": "Ευαισθησία κίνησης",
+                "state": {
+                    "off": "Απενεργοποίηση",
+                    "low": "Χαμηλή",
+                    "medium": "Μεσαία",
+                    "high": "Υψηλή"
+                }
+            },
             "recipe": {
                 "name": "Συνταγή",
                 "state": {
@@ -612,7 +626,10 @@
                 "state": {
                     "cancel": "Ακύρωση",
                     "continuous": "Συνεχής",
+                    "15s": "15 δευτερόλεπτα",
+                    "20s": "20 δευτερόλεπτα",
                     "30s": "30 δευτερόλεπτα",
+                    "45s": "45 δευτερόλεπτα",
                     "1m": "1 λεπτό",
                     "2m": "2 λεπτά",
                     "5m": "5 λεπτά",
@@ -715,7 +732,8 @@
                     "normal": "Κανονικό",
                     "smart": "Έξυπνο",
                     "night": "Νυχτερινό",
-                    "motion": "Κίνηση"
+                    "motion": "Κίνηση",
+                    "off": "Απενεργοποίηση"
                 }
             },
             "bidet_mode": {
@@ -996,6 +1014,9 @@
             },
             "power_x": {
                 "name": "Ισχύς {x}"
+            },
+            "filter_ilfe": {
+                "name": "Διάρκεια φίλτρου"
             }
         },
         "switch": {
@@ -1070,6 +1091,9 @@
             },
             "kettle": {
                 "name": "Βραστήρας"
+            },
+            "hot_water": {
+                "name": "Ζεστό νερό"
             }
         }
     }

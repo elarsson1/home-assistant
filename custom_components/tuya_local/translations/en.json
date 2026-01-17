@@ -34,7 +34,7 @@
             },
             "local": {
                 "title": "Configure your Tuya Local device",
-                "description": "[Follow these instructions to find your device id and local key.](https://github.com/make-all/tuya-local#finding-your-device-id-and-local-key)",
+                "description": "[Follow these instructions to find your device id and local key.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
                 "data": {
                     "host": "IP address or hostname",
                     "device_id": "Device ID (or the hub's Device ID for devices connected via gateway)",
@@ -83,7 +83,7 @@
         "step": {
             "user": {
                 "title": "Configure your Tuya Local device",
-                "description": "[Follow these instructions to find your local key.](https://github.com/make-all/tuya-local#finding-your-device-id-and-local-key)",
+                "description": "[Follow these instructions to find your local key.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
                 "data": {
                     "host": "IP address or hostname",
                     "local_key": "Local key",
@@ -279,7 +279,8 @@
                             "program_1": "Program 1",
                             "program_2": "Program 2",
                             "program_3": "Program 3",
-                            "standby": "Standby"
+                            "standby": "Standby",
+                            "fan_only": "Fan only"
                         }
                     }
                 }
@@ -377,6 +378,9 @@
                             "smart": "Smart",
                             "strong": "Strong",
                             "custom": "Custom",
+                            "auto": "Auto",
+                            "manual": "Manual",
+                            "program": "Program",
                             "high": "High",
                             "medium": "Medium",
                             "low": "Low",
@@ -395,6 +399,7 @@
                             "circulate": "Circulate",
                             "sleep": "Sleep",
                             "auto": "Auto",
+                            "manual": "Manual",
                             "eco": "Eco",
                             "anti-condensation": "Anti-condensation",
                             "extractor": "Extractor",
@@ -561,6 +566,15 @@
                     "very_high": "Very High"
                 }
             },
+            "motion_sensitivity": {
+                "name": "Motion sensitivity",
+                "state": {
+                    "off": "Off",
+                    "low": "Low",
+                    "medium": "Medium",
+                    "high": "High"
+                }
+            },
             "recipe": {
                 "name": "Recipe",
                 "state": {
@@ -612,7 +626,10 @@
                 "state": {
                     "cancel": "Cancel",
                     "continuous": "Continuous",
+                    "15s": "15 seconds",
+                    "20s": "20 seconds",
                     "30s": "30 seconds",
+                    "45s": "45 seconds",
                     "1m": "1 minute",
                     "2m": "2 minutes",
                     "5m": "5 minutes",
@@ -715,7 +732,8 @@
                     "normal": "Normal",
                     "smart": "Smart",
                     "night": "Night",
-                    "motion": "Motion"
+                    "motion": "Motion",
+                    "off": "Off"
                 }
             },
             "bidet_mode": {
@@ -996,6 +1014,9 @@
             },
             "power_x": {
                 "name": "Power {x}"
+            },
+            "filter_life": {
+                "name": "Filter life"
             }
         },
         "switch": {
@@ -1070,6 +1091,9 @@
             },
             "kettle": {
                 "name": "Kettle"
+            },
+            "hot_water": {
+                "name": "Hot water dispenser"
             }
         }
     }

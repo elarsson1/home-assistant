@@ -34,7 +34,7 @@
             },
             "local": {
                 "title": "Configure seu dispositivo Tuya Local",
-                "description": "[Siga estas instruções para encontrar o ID do seu dispositivo e a chave local.](https://github.com/make-all/tuya-local#finding-your-device-id-and-local-key)",
+                "description": "[Siga estas instruções para encontrar o ID do seu dispositivo e a chave local.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
                 "data": {
                     "host": "Endereço IP ou nome do host",
                     "device_id": "Device ID (ou device_id do gateway para dispositivos conectados via gateway)",
@@ -83,7 +83,7 @@
         "step": {
             "user": {
                 "title": "Configure seu dispositivo Tuya Local",
-                "description": "[Siga estas instruções para encontrar o ID do seu dispositivo e a chave local.](https://github.com/make-all/tuya-local#finding-your-device-id-and-local-key)",
+                "description": "[Siga estas instruções para encontrar o ID do seu dispositivo e a chave local.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
                 "data": {
                     "host": "Endereço IP ou nome do host",
                     "local_key": "Chave Local",
@@ -279,7 +279,8 @@
                             "program_1": "Programa 1",
                             "program_2": "Programa 2",
                             "program_3": "Programa 3",
-                            "standby": "Em espera"
+                            "standby": "Em espera",
+                            "fan_only": "Apenas ventilador"
                         }
                     }
                 }
@@ -377,6 +378,9 @@
                             "smart": "Inteligente",
                             "strong": "Forte",
                             "custom": "Personalizado",
+                            "auto": "Auto",
+                            "manual": "Manual",
+                            "program": "Programa",
                             "high": "Alto",
                             "medium": "Médio",
                             "low": "Baixo",
@@ -395,6 +399,7 @@
                             "circulate": "Circular",
                             "sleep": "Dormir",
                             "auto": "Auto",
+                            "manual": "Manual",
                             "eco": "Ecológico",
                             "anti-condensation": "Anti-condensação",
                             "extractor": "Extrator",
@@ -561,6 +566,15 @@
                     "very_high": "Muito alto"
                 }
             },
+            "motion_sensitivity": {
+                "name": "Sensibilidade ao movimento",
+                "state": {
+                    "off": "Desligado",
+                    "low": "Baixo",
+                    "medium": "Médio",
+                    "high": "Alto"
+                }
+            },
             "recipe": {
                 "name": "Receita",
                 "state": {
@@ -612,7 +626,10 @@
                 "state": {
                     "cancel": "Cancelar",
                     "continuous": "Contínuo",
+                    "15s": "15 segundos",
+                    "20s": "20 segundos",
                     "30s": "30 segundos",
+                    "45s": "45 segundos",
                     "1m": "1 minuto",
                     "2m": "2 minutos",
                     "5m": "5 minutos",
@@ -715,7 +732,8 @@
                     "normal": "Normal",
                     "smart": "Inteligente",
                     "night": "Noturno",
-                    "motion": "Movimento"
+                    "motion": "Movimento",
+                    "off": "Desligado"
                 }
             },
             "bidet_mode": {
@@ -996,6 +1014,9 @@
             },
             "power_x": {
                 "name": "Potência {x}"
+            },
+            "filter_life": {
+                "name": "Vida útil do filtro"
             }
         },
         "switch": {
@@ -1070,6 +1091,9 @@
             },
             "kettle": {
                 "name": "Chaleira"
+            },
+            "hot_water": {
+                "name": "Água quente"
             }
         }
     }
