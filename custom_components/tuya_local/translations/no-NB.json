@@ -34,7 +34,7 @@
             },
             "local": {
                 "title": "Konfigurer din lokale Tuya enhet",
-                "description": "[Følg instruksjonene her for å finne enhets-id og den lokale nøkkelen.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
+                "description": "[Følg instruksjonene her for å finne enhets-id og den lokale nøkkelen.]({device_details_url})",
                 "data": {
                     "host": "IP addresse eller vertsnavn",
                     "or device_id of gateway for devices connected via gateway": "",
@@ -84,7 +84,7 @@
         "step": {
             "user": {
                 "title": "Konfigurer din lokale Tuya enhet",
-                "description": "[Følg instruksjonene her for å finne enhets-id og den lokale nøkkelen.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
+                "description": "[Følg instruksjonene her for å finne enhets-id og den lokale nøkkelen.]({device_details_url})",
                 "data": {
                     "host": "IP addresse eller vertsnavn",
                     "local_key": "Lokal nøkkel",
@@ -328,12 +328,13 @@
             }
         },
         "humidifier": {
-            "dehumidifier": {
+            "extended": {
                 "state_attributes": {
                     "mode": {
                         "state": {
                             "laundry": "Tørk klær",
-                            "purify": "Rens"
+                            "purify": "Rens",
+                            "continuous": "Kontinuerlig"
                         }
                     }
                 }
@@ -531,6 +532,7 @@
                     "chinese": "中文",
                     "chinese_traditional": "中文(繁體)",
                     "english": "English",
+                    "english_child": "English (Child)",
                     "french": "Français",
                     "german": "Deutsch",
                     "italian": "Italiano",
@@ -953,6 +955,9 @@
                     "missing": "Manglende",
                     "formatting": "Formatering",
                     "unformatted": "Uformaterte",
+                    "failed": "Mislyktes",
+                    "replying": "Svarer",
+                    "playback": "Avspilling",
                     "maintenance_required": "Vedlikehold kreves",
                     "dry": "Tørr",
                     "comfortable": "Komfortabel",

@@ -34,7 +34,7 @@
             },
             "local": {
                 "title": "Configura il tuo dispositivo Tuya Local",
-                "description": "[Segui queste istruzioni per trovare 'device id' e 'local key'.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
+                "description": "[Segui queste istruzioni per trovare 'device id' e 'local key'.]({device_details_url})",
                 "data": {
                     "host": "Indirizzo IP o hostname",
                     "or device_id of gateway": "oppure ID dispositivo del gateway",
@@ -84,7 +84,7 @@
         "step": {
             "user": {
                 "title": "Configura il tuo dispositivo Tuya Local",
-                "description": "[Segui queste istruzioni per trovare 'device id' e 'local key'.](https://github.com/make-all/tuya-local/blob/main/DEVICE_DETAILS.md#finding-your-device-id-and-local-key)",
+                "description": "[Segui queste istruzioni per trovare 'device id' e 'local key'.]({device_details_url})",
                 "data": {
                     "host": "Indirizzo IP o hostname",
                     "local_key": "Local key",
@@ -328,12 +328,13 @@
             }
         },
         "humidifier": {
-            "dehumidifier": {
+            "extended": {
                 "state_attributes": {
                     "mode": {
                         "state": {
                             "laundry": "Asciuga biancheria",
-                            "purify": "Purifica"
+                            "purify": "Purifica",
+                            "continuous": "Continuo"
                         }
                     }
                 }
@@ -531,6 +532,7 @@
                     "chinese": "中文",
                     "chinese_traditional": "中文(繁體)",
                     "english": "English",
+                    "english_child": "English (Child)",
                     "french": "Français",
                     "german": "Deutsch",
                     "italian": "Italiano",
@@ -953,6 +955,9 @@
                     "missing": "Mancante",
                     "formatting": "Formattazione",
                     "unformatted": "Non formattato",
+                    "failed": "Fallito",
+                    "replying": "Risposta",
+                    "playback": "Riproduzione",
                     "maintenance_required": "Manutenzione richiesta",
                     "dry": "Asciutto",
                     "comfortable": "Confortevole",
