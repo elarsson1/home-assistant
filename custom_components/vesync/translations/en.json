@@ -6,7 +6,8 @@
     },
     "config": {
         "abort": {
-            "single_instance_allowed": "Already configured. Only a single configuration possible."
+            "already_configured": "VeSync account is already configured",
+            "reauth_successful": "Reauthentication was successful"
         },
         "error": {
             "invalid_auth": "Invalid authentication"
@@ -15,10 +16,28 @@
             "user": {
                 "data": {
                     "password": "Password",
-                    "username": "Email"
+                    "username": "Email",
+                    "polling_interval": "Polling interval (seconds)"
                 },
                 "title": "Enter Username and Password"
+            },
+            "reauth_confirm": {
+                "data": {
+                    "email": "Email",
+                    "password": "Password",
+                    "polling_interval": "Polling interval (seconds)"
+                },
+                "title": "Reauthenticate with your VeSync credentials"
             }
         }
+    },
+    "options": {
+      "step": {
+        "vesync_options": {
+          "data": {
+            "polling_interval": "Polling interval (seconds)"
+          }
+        }
+      }
     }
 }

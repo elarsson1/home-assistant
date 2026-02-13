@@ -1,12 +1,13 @@
 {
-"device_automation": {
+    "device_automation": {
         "action_type": {
             "set_mode": "Change mode on {entity_name}."
         }
     },
     "config": {
         "abort": {
-            "single_instance_allowed": "Scho konfigur\u00e9iert. N\u00ebmmen eng eenzeg Konfiguratioun m\u00e9iglech."
+            "already_configured": "VeSync account is already configured (Needs Translation)",
+            "reauth_successful": "Reauthentication was successful (Needs Translation)"
         },
         "error": {
             "invalid_auth": "Ong\u00eblteg Authentifikatioun"
@@ -15,9 +16,27 @@
             "user": {
                 "data": {
                     "password": "Passwuert",
-                    "username": "E-Mail"
+                    "username": "E-Mail",
+                    "polling_interval": "Polling interval (seconds) (Needs Translation)"
                 },
                 "title": "Benotzernumm a Passwuert aginn"
+            },
+            "reauth_confirm": {
+                "data": {
+                    "email": "Email (Needs Translation)",
+                    "password": "Password (Needs Translation)",
+                    "polling_interval": "Polling interval (seconds) (Needs Translation)"
+                },
+                "title": "Reauthenticate with your VeSync credentials (Needs Translation)"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "vesync_options": {
+                "data": {
+                    "polling_interval": "Polling interval (seconds) (Needs Translation)"
+                }
             }
         }
     }

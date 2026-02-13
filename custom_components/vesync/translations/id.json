@@ -1,12 +1,13 @@
 {
-"device_automation": {
+    "device_automation": {
         "action_type": {
             "set_mode": "Change mode on {entity_name}."
         }
     },
     "config": {
         "abort": {
-            "single_instance_allowed": "Sudah dikonfigurasi. Hanya satu konfigurasi yang diizinkan."
+            "already_configured": "VeSync account is already configured (Needs Translation)",
+            "reauth_successful": "Reauthentication was successful (Needs Translation)"
         },
         "error": {
             "invalid_auth": "Autentikasi tidak valid"
@@ -15,9 +16,27 @@
             "user": {
                 "data": {
                     "password": "Kata Sandi",
-                    "username": "Email"
+                    "username": "Email",
+                    "polling_interval": "Polling interval (seconds) (Needs Translation)"
                 },
                 "title": "Masukkan Nama Pengguna dan Kata Sandi"
+            },
+            "reauth_confirm": {
+                "data": {
+                    "email": "Email (Needs Translation)",
+                    "password": "Password (Needs Translation)",
+                    "polling_interval": "Polling interval (seconds) (Needs Translation)"
+                },
+                "title": "Reauthenticate with your VeSync credentials (Needs Translation)"
+            }
+        }
+    },
+    "options": {
+        "step": {
+            "vesync_options": {
+                "data": {
+                    "polling_interval": "Polling interval (seconds) (Needs Translation)"
+                }
             }
         }
     }

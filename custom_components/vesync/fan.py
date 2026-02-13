@@ -21,6 +21,7 @@ from .const import (
     VS_LEVELS,
     VS_MODE_AUTO,
     VS_MODE_MANUAL,
+    VS_MODE_PET,
     VS_MODE_SLEEP,
     VS_MODE_TURBO,
     VS_MODES,
@@ -81,6 +82,9 @@ class VeSyncFanHA(VeSyncDevice, FanEntity):
                     if mode in self.smartfan._config_dict[VS_MODES]
                 ],
             ]
+        if hasattr(self.smartfan, "pet_mode"):
+            self._attr_preset_modes.append(VS_MODE_PET)
+
         if self.smartfan.device_type == "LV-PUR131S":
             self._speed_range = (1, 3)
 
@@ -169,6 +173,9 @@ class VeSyncFanHA(VeSyncDevice, FanEntity):
             self.smartfan.manual_mode()
         elif preset_mode == VS_MODE_TURBO:
             self.smartfan.turbo_mode()
+        elif preset_mode == VS_MODE_PET:
+            if hasattr(self.smartfan, "pet_mode"):
+                self.smartfan.pet_mode()
 
         self.schedule_update_ha_state()
 

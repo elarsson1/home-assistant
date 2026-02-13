@@ -1,5 +1,5 @@
 {
-"device_automation": {
+    "device_automation": {
         "action_type": {
             "set_mode": "Change mode on {entity_name}."
         }
@@ -9,9 +9,34 @@
             "user": {
                 "data": {
                     "password": "L\u00f6senord",
-                    "username": "E-postadress"
+                    "username": "E-postadress",
+                    "polling_interval": "Polling interval (seconds) (Needs Translation)"
                 },
                 "title": "Ange anv\u00e4ndarnamn och l\u00f6senord"
+            },
+            "reauth_confirm": {
+                "data": {
+                    "email": "Email (Needs Translation)",
+                    "password": "Password (Needs Translation)",
+                    "polling_interval": "Polling interval (seconds) (Needs Translation)"
+                },
+                "title": "Reauthenticate with your VeSync credentials (Needs Translation)"
+            }
+        },
+        "abort": {
+            "already_configured": "VeSync account is already configured (Needs Translation)",
+            "reauth_successful": "Reauthentication was successful (Needs Translation)"
+        },
+        "error": {
+            "invalid_auth": "Invalid authentication (Needs Translation)"
+        }
+    },
+    "options": {
+        "step": {
+            "vesync_options": {
+                "data": {
+                    "polling_interval": "Polling interval (seconds) (Needs Translation)"
+                }
             }
         }
     }

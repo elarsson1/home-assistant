@@ -6,6 +6,7 @@ from datetime import timedelta
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -14,7 +15,9 @@ from pyvesync.vesync import VeSync
 from .common import async_process_devices
 from .const import (
     DOMAIN,
+    POLLING_INTERVAL,
     SERVICE_UPDATE_DEVS,
+    UPDATE_LISTENER,
     VS_BINARY_SENSORS,
     VS_BUTTON,
     VS_DISCOVERY,
@@ -56,7 +59,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
     if not login:
         _LOGGER.error("Unable to login to the VeSync server")
-        return False
+        raise ConfigEntryAuthFailed("Error logging in with username and password")
 
     hass.data[DOMAIN] = {config_entry.entry_id: {}}
     hass.data[DOMAIN][config_entry.entry_id][VS_MANAGER] = manager
@@ -74,11 +77,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         _LOGGER,
         name="vesync",
         update_method=async_update_data,
-        update_interval=timedelta(seconds=30),
+        update_interval=timedelta(seconds=config_entry.options[POLLING_INTERVAL]),
     )
 
     # Fetch initial data so we have data when entities subscribe
-    await coordinator.async_refresh()
+    await coordinator.async_config_entry_first_refresh()
 
     # Store the coordinator instance in hass.data
     hass.data[DOMAIN][config_entry.entry_id]["coordinator"] = coordinator
@@ -92,7 +95,14 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
             hass.data[DOMAIN][config_entry.entry_id][vs_p].extend(device_dict[vs_p])
             platforms_list.append(p)
 
+    # Store loaded platforms
+    hass.data[DOMAIN][config_entry.entry_id]["loaded_platforms"] = platforms_list
+
     await hass.config_entries.async_forward_entry_setups(config_entry, platforms_list)
+
+    # Add update listener and store it
+    update_listener = config_entry.add_update_listener(async_update_options)
+    hass.data[DOMAIN][config_entry.entry_id][UPDATE_LISTENER] = update_listener
 
     async def async_new_device_discovery(service: ServiceCall) -> None:
         """Discover if new devices should be added."""
@@ -131,10 +141,42 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(
-        entry, list(PLATFORMS.keys())
-    )
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
 
+    loaded_platforms = hass.data[DOMAIN][entry.entry_id]["loaded_platforms"]
+    if unload_ok := await hass.config_entries.async_unload_platforms(
+        entry, loaded_platforms
+    ):
+        del hass.data[DOMAIN][entry.entry_id]
+        if not hass.data[DOMAIN]:
+            del hass.data[DOMAIN]
     return unload_ok
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """Migrate old entry."""
+
+    if entry.version == 1:
+        username = entry.data[CONF_USERNAME]
+        password = entry.data[CONF_PASSWORD]
+
+        _LOGGER.debug("Migrating VeSync config entry")
+
+        hass.config_entries.async_update_entry(
+            entry,
+            version=2,
+            data={
+                CONF_USERNAME: username,
+                CONF_PASSWORD: password,
+            },
+            options={
+                POLLING_INTERVAL: 60,
+            },
+        )
+
+    return True
+
+
+async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Update options."""
+
+    await hass.config_entries.async_reload(entry.entry_id)
