@@ -3,7 +3,8 @@
 from datetime import timedelta
 from typing import Final
 
-from homeassistant.const import Platform
+from homeassistant.components.climate import DOMAIN as CLIMATE_DOMAIN
+from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 
 DEFAULT_NAME = "Kumo"
 DOMAIN = "kumo"
@@ -15,8 +16,10 @@ CONF_CONNECT_TIMEOUT = "connect_timeout"
 CONF_RESPONSE_TIMEOUT = "response_timeout"
 MAX_AVAILABILITY_TRIES = 3 # How many times we will attempt to update from a kumo before marking it unavailable
 
-DHCP_DISCOVERED_KEY = f"{DOMAIN}_dhcp_discovered"
+PLATFORMS: Final = [CLIMATE_DOMAIN, SENSOR_DOMAIN]
 
-PLATFORMS: Final = [Platform.CLIMATE, Platform.SENSOR]
+# This is the new way of important platforms, but isn't public yet
+# from homeassistant.const import Platform
+# PLATFORMS: Final = [Platform.CLIMATE, Platform.SENSOR]
 
 SCAN_INTERVAL = timedelta(seconds=60)
