@@ -12,6 +12,7 @@ secrets.yaml
 known_devices.yaml
 zones.yaml
 kumo_cache.json
+kumo_cache.json.bak
 
 home-assistant.log
 home-assistant.log.1
