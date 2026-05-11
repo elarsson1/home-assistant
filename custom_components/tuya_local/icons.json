@@ -50,7 +50,7 @@
                 "default": "mdi:cog-refresh"
             },
             "filter_reset": {
-                "default": "mdi:air-filter"
+                "default": "mdi:history"
             }
         },
         "climate": {
@@ -903,5 +903,8 @@
                 }
             }
         }
+    },
+    "services": {
+        "send_learned_ir_command": "mdi:remote"
     }
 }
