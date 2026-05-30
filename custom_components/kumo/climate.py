@@ -1,4 +1,6 @@
 """HomeAssistant climate component for KumoCloud connected HVAC units."""
+
+import asyncio
 import logging
 import pprint
 
@@ -6,9 +8,10 @@ import voluptuous as vol
 from homeassistant.components.climate import PLATFORM_SCHEMA
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import DOMAIN
+from .const import DOMAIN, KUMO_DATA, KUMO_DATA_COORDINATORS
 from .coordinator import KumoDataUpdateCoordinator
 from .entity import CoordinatedKumoEntity
+from .last_hvac_mode import get_last_hvac_mode, set_last_hvac_mode_value
 from .temperature import c_to_f, f_to_c
 
 try:
@@ -28,8 +31,6 @@ from homeassistant.components.climate.const import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_BATTERY_LEVEL, ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
-
-from .const import KUMO_DATA, KUMO_DATA_COORDINATORS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -129,8 +130,6 @@ class KumoThermostat(CoordinatedKumoEntity, ClimateEntity):
         "runstate",
     ]
 
-    _enable_turn_on_off_backwards_compatibility = False # can be removed once 2024.12 is no longer supported
-
     def __init__(self, coordinator: KumoDataUpdateCoordinator):
         """Initialize the thermostat."""
 
@@ -152,13 +151,15 @@ class KumoThermostat(CoordinatedKumoEntity, ClimateEntity):
         self._rssi = None
         self._sensor_rssi = None
         self._runstate = None
+        self._pending_refresh_task: asyncio.Task | None = None
         self._fan_modes = self._pykumo.get_fan_speeds()
         self._swing_modes = self._pykumo.get_vane_directions()
         self._hvac_modes = [HVACMode.OFF, HVACMode.COOL]
         self._supported_features = (
-            ClimateEntityFeature.TARGET_TEMPERATURE |
-            ClimateEntityFeature.FAN_MODE |
-            ClimateEntityFeature.TURN_OFF
+            ClimateEntityFeature.TARGET_TEMPERATURE
+            | ClimateEntityFeature.FAN_MODE
+            | ClimateEntityFeature.TURN_OFF
+            | ClimateEntityFeature.TURN_ON
         )
         if self._pykumo.has_dry_mode():
             self._hvac_modes.append(HVACMode.DRY)
@@ -253,6 +254,30 @@ class KumoThermostat(CoordinatedKumoEntity, ClimateEntity):
         except KeyError:
             result = None
         self._hvac_mode = result
+        if result is not None:
+            self._store_last_hvac_mode(result, caller="_update_hvac_mode")
+
+    def _get_cached_last_hvac_mode(self):
+        """Return the cached last active hvac mode, if any."""
+        if not self.hass or self._identifier is None:
+            return None
+        return get_last_hvac_mode(self.hass, self._identifier, self._hvac_modes)
+
+    def _store_last_hvac_mode(self, hvac_mode, caller):
+        """Persist last active hvac mode for turn_on."""
+        if (
+            hvac_mode in (None, HVACMode.OFF)
+            or not self.hass
+            or self._identifier is None
+        ):
+            return
+        set_last_hvac_mode_value(self.hass, self._identifier, hvac_mode.value)
+        _LOGGER.debug(
+            "Kumo %s saved last hvac mode %s (via `%s`)",
+            self._name,
+            hvac_mode,
+            caller,
+        )
 
     @property
     def hvac_action(self):
@@ -458,7 +483,35 @@ class KumoThermostat(CoordinatedKumoEntity, ClimateEntity):
             "manufacturer": "Mitsubishi",
         }
 
-    def set_temperature(self, **kwargs):
+    async def _delayed_refresh(self) -> None:
+        """Wait briefly for the unit to apply a command, then refresh coordinator state."""
+        try:
+            delay = self.coordinator.post_command_refresh_delay
+            await asyncio.sleep(delay)
+            await self.coordinator.async_request_refresh()
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # noqa: BLE001
+            _LOGGER.debug(
+                "Kumo %s post-command refresh failed", self._name, exc_info=True
+            )
+
+    def _schedule_refresh(self) -> None:
+        """Schedule a debounced post-command refresh, canceling any pending one."""
+        if self._pending_refresh_task is not None:
+            self._pending_refresh_task.cancel()
+        self._pending_refresh_task = self.hass.async_create_task(
+            self._delayed_refresh()
+        )
+
+    async def async_will_remove_from_hass(self) -> None:
+        """Cancel any pending refresh task when entity is removed."""
+        if self._pending_refresh_task is not None:
+            self._pending_refresh_task.cancel()
+            self._pending_refresh_task = None
+        await super().async_will_remove_from_hass()
+
+    async def async_set_temperature(self, **kwargs):
         """Set new target temperature."""
         _LOGGER.debug(
             "Kumo %s set temp: %s, current mode %s",
@@ -508,7 +561,7 @@ class KumoThermostat(CoordinatedKumoEntity, ClimateEntity):
             return
 
         if current_mode != target_mode:
-            self.set_hvac_mode(target_mode)
+            await self.async_set_hvac_mode(target_mode, refresh=False)
 
         if self._use_fahrenheit:
             if "cool" in target and target["cool"] is not None:
@@ -517,17 +570,25 @@ class KumoThermostat(CoordinatedKumoEntity, ClimateEntity):
                 target["heat"] = f_to_c(target["heat"])
 
         if "cool" in target:
-            response = self._pykumo.set_cool_setpoint(target["cool"])
+            response = await self.hass.async_add_executor_job(
+                self._pykumo.set_cool_setpoint, target["cool"]
+            )
             _LOGGER.debug(
                 "Kumo %s set %s temp response: %s", self._name, "cool", str(response)
             )
         if "heat" in target:
-            response = self._pykumo.set_heat_setpoint(target["heat"])
+            response = await self.hass.async_add_executor_job(
+                self._pykumo.set_heat_setpoint, target["heat"]
+            )
             _LOGGER.debug(
                 "Kumo %s set %s temp response: %s", self._name, "heat", str(response)
             )
 
-    def set_hvac_mode(self, hvac_mode, caller="set_hvac_mode"):
+        self._schedule_refresh()
+
+    async def async_set_hvac_mode(
+        self, hvac_mode, caller="async_set_hvac_mode", refresh=True
+    ):
         """Set new target operation mode."""
         try:
             mode = HA_STATE_TO_KUMO[hvac_mode]
@@ -538,29 +599,55 @@ class KumoThermostat(CoordinatedKumoEntity, ClimateEntity):
             _LOGGER.warning("Kumo %s is not available", self._name)
             return
 
-        response = self._pykumo.set_mode(mode)
+        response = await self.hass.async_add_executor_job(self._pykumo.set_mode, mode)
         _LOGGER.debug(
-            "Kumo %s set mode %s (via `%s`) response: %s", self._name, hvac_mode, caller, response
+            "Kumo %s set mode %s (via `%s`) response: %s",
+            self._name,
+            hvac_mode,
+            caller,
+            response,
         )
+        self._store_last_hvac_mode(hvac_mode, caller=caller)
+        if refresh:
+            self._schedule_refresh()
 
-    def set_swing_mode(self, swing_mode):
+    async def async_set_swing_mode(self, swing_mode):
         """Set new vane swing mode."""
         if not self.available:
             _LOGGER.warning("Kumo %s is not available", self._name)
             return
 
-        response = self._pykumo.set_vane_direction(swing_mode)
+        response = await self.hass.async_add_executor_job(
+            self._pykumo.set_vane_direction, swing_mode
+        )
         _LOGGER.debug("Kumo %s set swing mode response: %s", self._name, response)
+        self._schedule_refresh()
 
-    def set_fan_mode(self, fan_mode):
+    async def async_set_fan_mode(self, fan_mode):
         """Set new fan speed mode."""
         if not self.available:
             _LOGGER.warning("Kumo %s is not available", self._name)
             return
 
-        response = self._pykumo.set_fan_speed(fan_mode)
+        response = await self.hass.async_add_executor_job(
+            self._pykumo.set_fan_speed, fan_mode
+        )
         _LOGGER.debug("Kumo %s set fan speed response: %s", self._name, response)
+        self._schedule_refresh()
 
-    def turn_off(self):
+    async def async_turn_off(self):
         """Turn the climate off. This implements https://www.home-assistant.io/integrations/climate/#action-climateturn_off."""
-        self.set_hvac_mode(HVACMode.OFF, caller="turn_off")
+        await self.async_set_hvac_mode(HVACMode.OFF, caller="async_turn_off")
+
+    async def async_turn_on(self):
+        """Turn the climate on. This implements https://www.home-assistant.io/integrations/climate/#action-climateturn_on."""
+        target_mode = self._get_cached_last_hvac_mode()
+        if target_mode is None:
+            for mode in self._hvac_modes:
+                if mode != HVACMode.OFF:
+                    target_mode = mode
+                    break
+        if target_mode is None:
+            _LOGGER.warning("Kumo %s has no valid hvac mode to turn on", self._name)
+            return
+        await self.async_set_hvac_mode(target_mode, caller="async_turn_on")

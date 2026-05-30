@@ -1,4 +1,5 @@
 """HomeAssistant sensor component for Kumo Station Device."""
+
 import logging
 
 import voluptuous as vol
@@ -16,11 +17,24 @@ except ImportError:
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import SIGNAL_STRENGTH_DECIBELS, UnitOfTemperature, PERCENTAGE, PRECISION_TENTHS
+from homeassistant.const import (
+    SIGNAL_STRENGTH_DECIBELS,
+    UnitOfTemperature,
+    PERCENTAGE,
+    PRECISION_TENTHS,
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from . import KUMO_DATA
+from .last_hvac_mode import (
+    get_last_hvac_mode_value,
+    register_last_hvac_mode_listener,
+    set_last_hvac_mode_value,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,7 +50,10 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities):
+
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities
+):
     """Set up the Kumo thermostats."""
     account = hass.data[DOMAIN][entry.entry_id][KUMO_DATA].get_account()
     coordinators = hass.data[DOMAIN][entry.entry_id][KUMO_DATA_COORDINATORS]
@@ -47,24 +64,45 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         coordinator = coordinators[serial]
 
         entities.append(KumoCurrentHumidity(coordinator))
-        _LOGGER.debug("Adding entity: current_humidity for %s", coordinator.get_device().get_name())
+        _LOGGER.debug(
+            "Adding entity: current_humidity for %s",
+            coordinator.get_device().get_name(),
+        )
         entities.append(KumoCurrentTemperature(coordinator))
-        _LOGGER.debug("Adding entity: current_temperature for %s", coordinator.get_device().get_name())
+        _LOGGER.debug(
+            "Adding entity: current_temperature for %s",
+            coordinator.get_device().get_name(),
+        )
+        entities.append(KumoLastHvacModeSensor(coordinator))
+        _LOGGER.debug(
+            "Adding entity: last_hvac_mode for %s", coordinator.get_device().get_name()
+        )
         entities.append(KumoSensorBattery(coordinator))
-        _LOGGER.debug("Adding entity: sensor_battery for %s", coordinator.get_device().get_name())
+        _LOGGER.debug(
+            "Adding entity: sensor_battery for %s", coordinator.get_device().get_name()
+        )
         entities.append(KumoSensorSignalStrength(coordinator))
-        _LOGGER.debug("Adding entity: sensor_signal_strength for %s", coordinator.get_device().get_name())
+        _LOGGER.debug(
+            "Adding entity: sensor_signal_strength for %s",
+            coordinator.get_device().get_name(),
+        )
         entities.append(KumoWifiSignal(coordinator))
-        _LOGGER.debug("Adding entity: wifi_signal for %s", coordinator.get_device().get_name())
+        _LOGGER.debug(
+            "Adding entity: wifi_signal for %s", coordinator.get_device().get_name()
+        )
 
     kumo_station_serials = await hass.async_add_executor_job(account.get_kumo_stations)
     for serial in kumo_station_serials:
         coordinator = coordinators[serial]
         entities.append(KumoStationOutdoorTemperature(coordinator))
-        _LOGGER.debug("Adding entity: outdoor_temperature for %s", coordinator.get_device().get_name())
+        _LOGGER.debug(
+            "Adding entity: outdoor_temperature for %s",
+            coordinator.get_device().get_name(),
+        )
 
     if entities:
         async_add_entities(entities, True)
+
 
 class KumoCurrentHumidity(CoordinatedKumoEntity, SensorEntity):
     """Representation of a Kumo's Unit's Current Humidity"""
@@ -102,6 +140,7 @@ class KumoCurrentHumidity(CoordinatedKumoEntity, SensorEntity):
     def entity_registry_enabled_default(self) -> bool:
         """Disable entity by default."""
         return False
+
 
 class KumoCurrentTemperature(CoordinatedKumoEntity, SensorEntity):
     """Representation of a Kumo's Unit's Current Temperature"""
@@ -150,6 +189,58 @@ class KumoCurrentTemperature(CoordinatedKumoEntity, SensorEntity):
         """Enable entity by default."""
         return True
 
+
+class KumoLastHvacModeSensor(CoordinatedKumoEntity, SensorEntity, RestoreEntity):
+    """Representation of a Kumo's last active HVAC mode."""
+
+    def __init__(self, coordinator: KumoDataUpdateCoordinator):
+        """Initialize the kumo station."""
+        super().__init__(coordinator)
+        self._name = self._pykumo.get_name() + " Last HVAC Mode"
+        self._last_mode = None
+        self._unsub_last_hvac_mode = None
+
+    @property
+    def unique_id(self):
+        """Return unique id"""
+        return f"{self._identifier}-last-hvac-mode"
+
+    @property
+    def native_value(self):
+        """Return the last active HVAC mode."""
+        self._last_mode = self._last_mode or get_last_hvac_mode_value(
+            self.hass, self._identifier
+        )
+        return self._last_mode
+
+    async def async_added_to_hass(self):
+        """Restore last state and listen for updates."""
+        await super().async_added_to_hass()
+        self._unsub_last_hvac_mode = register_last_hvac_mode_listener(
+            self.hass, self._identifier, self._handle_last_hvac_mode_update
+        )
+        last_state = await self.async_get_last_state()
+        if last_state and last_state.state not in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            set_last_hvac_mode_value(self.hass, self._identifier, last_state.state)
+            self._last_mode = last_state.state
+
+    async def async_will_remove_from_hass(self):
+        """Unregister listeners."""
+        await super().async_will_remove_from_hass()
+        if self._unsub_last_hvac_mode:
+            self._unsub_last_hvac_mode()
+            self._unsub_last_hvac_mode = None
+
+    def _handle_last_hvac_mode_update(self, value):
+        self._last_mode = value
+        self.async_write_ha_state()
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Enable entity by default."""
+        return True
+
+
 class KumoSensorBattery(CoordinatedKumoEntity, SensorEntity):
     """Representation of a Kumo Sensor's Battery Level."""
 
@@ -181,6 +272,7 @@ class KumoSensorBattery(CoordinatedKumoEntity, SensorEntity):
     def entity_registry_enabled_default(self) -> bool:
         """Disable entity by default."""
         return False
+
 
 class KumoSensorSignalStrength(CoordinatedKumoEntity, SensorEntity):
     """Representation of a Kumo Sensor's Signal Strength."""
