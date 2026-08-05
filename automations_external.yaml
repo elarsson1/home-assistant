@@ -1,65 +1,7 @@
-# automations to adjust Guest device tracker, used by Guest person
-# when binary sensor is changed.
-- id: "1616560803743"
-  alias: Guest_DT_Home
-  description: Switch Guest Device Tracker to home when guests are on Wifi
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.wifi_guests
-      to: "on"
-      from: "off"
-  condition: []
-  action:
-    - service: device_tracker.see
-      data:
-        dev_id: guest
-        location_name: home
-  mode: single
-- id: "1616560899377"
-  alias: Guest_DT_Not_Home
-  description: Set Guest device tracker to Not Home when Guest not detected on Wifi
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.wifi_guests
-      from: "on"
-      for: 00:05:00
-      to: "off"
-  condition: []
-  action:
-    - service: device_tracker.see
-      data:
-        dev_id: guest
-        location_name: not_home
-  mode: single
-
-# create a device tracker based upon my iPhone device tracker (using Home Assistant
-# companion app) which filters updates to exclude GPS updates that are below a certain
-# accuracy.
-- id: MirrorPhoneDeviceTracker
-  alias: Mirror Phone Device Tracker
-  description: Mirror phone device tracker, filtering out updates below accuracy threshold
-  trigger:
-    - platform: state
-      entity_id: device_tracker.axel_larsson_s_iphone
-  condition:
-    # filter out updates where GPS accuracy is greater then 100 meters
-    - condition: numeric_state
-      entity_id: device_tracker.axel_larsson_s_iphone
-      attribute: gps_accuracy
-      below: 100
-  action:
-    # mirror state to virtual device tracker
-    - service: device_tracker.see
-      data:
-        dev_id: "axel_phone_filtered"
-        location_name: "{{ states('device_tracker.axel_larsson_s_iphone') }}"
-        gps: >-
-          [{{ state_attr('device_tracker.axel_larsson_s_iphone', 'latitude') }},
-          {{ state_attr('device_tracker.axel_larsson_s_iphone', 'longitude') }}]
-        gps_accuracy: >-
-          {{ state_attr('device_tracker.axel_larsson_s_iphone', 'gps_accuracy') }}
-        battery: >-
-          {{ state_attr('device_tracker.axel_larsson_s_iphone', 'battery_level')}}
+# NOTE: The Guest and iPhone-mirror device trackers were migrated off the
+# deprecated device_tracker.see action (removed in Core 2027.5). They now live
+# as trigger-based template device trackers in template.yaml
+# (device_tracker.guest and device_tracker.axel_phone_filtered).
 
 # adjust presence indicator based upon status of Person entities.
 - id: PresenceChanging

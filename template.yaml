@@ -56,3 +56,36 @@
         "{{ is_state('climate.den', 'heat') or  is_state('climate.living_room',
         'heat') or is_state('climate.master_bedroom', 'heat') or is_state('climate.guest_room',
         'heat') }}"
+
+# Guest presence tracker used by person.guest.
+# Home when guests are connected to Wifi, otherwise not_home.
+# Replaces the deprecated device_tracker.see automations (Guest_DT_Home / Guest_DT_Not_Home).
+- triggers:
+    - trigger: state
+      entity_id: binary_sensor.wifi_guests
+    # re-evaluate on startup so the tracker isn't left "unknown" after a restart
+    - trigger: homeassistant
+      event: start
+  device_tracker:
+    - default_entity_id: device_tracker.guest
+      name: guest
+      in_zones: "{{ ['zone.home'] if is_state('binary_sensor.wifi_guests', 'on') else [] }}"
+
+# Filtered mirror of the iPhone companion-app tracker, used by person.axel_larsson.
+# Only accepts updates with GPS accuracy under 100 m so low-accuracy pings don't
+# flip presence. Replaces the deprecated device_tracker.see "Mirror Phone Device
+# Tracker" automation. HA derives home/not_home from the mirrored coordinates.
+- triggers:
+    - trigger: state
+      entity_id: device_tracker.axel_larsson_s_iphone
+  conditions:
+    - condition: numeric_state
+      entity_id: device_tracker.axel_larsson_s_iphone
+      attribute: gps_accuracy
+      below: 100
+  device_tracker:
+    - default_entity_id: device_tracker.axel_phone_filtered
+      name: axel_phone_filtered
+      latitude: "{{ state_attr('device_tracker.axel_larsson_s_iphone', 'latitude') }}"
+      longitude: "{{ state_attr('device_tracker.axel_larsson_s_iphone', 'longitude') }}"
+      location_accuracy: "{{ state_attr('device_tracker.axel_larsson_s_iphone', 'gps_accuracy') }}"
