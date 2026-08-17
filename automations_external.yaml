@@ -492,7 +492,6 @@
             for_each:
               - living_room
               - den
-              - den_baseboard
               - den_heater
               - living_room_heater
             sequence:
@@ -792,7 +791,6 @@
     # repeat for each zone
     - repeat:
         for_each:
-          - "den_baseboard"
           - "den_heater"
           - "living_room_heater"
           - "master_bedroom_heater"
