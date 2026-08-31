@@ -310,7 +310,9 @@
                             "fan_only": "Solo ventola",
                             "heat": "Aria riscaldata",
                             "floor_cool": "Pavimento fresco",
-                            "floor_heat": "Pavimento riscaldato"
+                            "floor_heat": "Pavimento riscaldato",
+                            "air_floor_cool": "Aria e pavimento freschi",
+                            "air_floor_heat": "Aria e pavimento riscaldati"
                         }
                     }
                 }
@@ -411,6 +413,9 @@
         "event": {
             "alarm": {
                 "name": "Allarme"
+            },
+            "notification": {
+                "name": "Notifica"
             }
         },
         "humidifier": {
@@ -790,6 +795,7 @@
                 "state": {
                     "cancel": "Annulla",
                     "continuous": "Continuo",
+                    "custom": "Personalizzato",
                     "5s": "5 secondi",
                     "10s": "10 secondi",
                     "15s": "15 secondi",
@@ -1171,6 +1177,17 @@
                     "danger": "Pericolosa"
                 }
             },
+            "sd_status": {
+                "name": "Stato SD",
+                "state": {
+                    "fault": "Guasto",
+                    "formatting": "Formattazione",
+                    "full": "Pieno",
+                    "missing": "Mancante",
+                    "normal": "Normale",
+                    "unformatted": "Non formattato"
+                }
+            },
             "status": {
                 "name": "Stato",
                 "state": {
@@ -1249,8 +1266,6 @@
                     "full": "Pieno",
                     "empty": "Vuoto",
                     "missing": "Mancante",
-                    "formatting": "Formattazione",
-                    "unformatted": "Non formattato",
                     "failed": "Fallito",
                     "replying": "Risposta",
                     "playback": "Riproduzione",
@@ -1371,6 +1386,9 @@
                     "off": "Aperto",
                     "on": "Chiuso"
                 }
+            },
+            "camera_record": {
+                "name": "Registrazione fotocamera"
             },
             "do_not_disturb": {
                 "name": "Non disturbare"

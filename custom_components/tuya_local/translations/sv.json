@@ -310,7 +310,9 @@
                             "fan_only": "Fläkt",
                             "heat": "Värmeluft",
                             "floor_cool": "Kylgolv",
-                            "floor_heat": "Värmegolv"
+                            "floor_heat": "Värmegolv",
+                            "air_floor_cool": "Kylning luft + golv",
+                            "air_floor_heat": "Värme luft + golv"
                         }
                     }
                 }
@@ -411,6 +413,9 @@
         "event": {
             "alarm": {
                 "name": "Larm"
+            },
+            "notification": {
+                "name": "Meddelande"
             }
         },
         "humidifier": {
@@ -790,6 +795,7 @@
                 "state": {
                     "cancel": "Avbryt",
                     "continuous": "Kontinuerlig",
+                    "custom": "Anpassad",
                     "5s": "5 sekunder",
                     "10s": "10 sekunder",
                     "15s": "15 sekunder",
@@ -1171,6 +1177,17 @@
                     "danger": "Fara"
                 }
             },
+            "sd_status": {
+                "name": "SD-kortstatus",
+                "state": {
+                    "fault": "Fel",
+                    "formatting": "Formaterar",
+                    "full": "Full",
+                    "missing": "Saknas",
+                    "normal": "Normal",
+                    "unformatted": "Oformaterad"
+                }
+            },
             "status": {
                 "name": "Status",
                 "state": {
@@ -1249,8 +1266,6 @@
                     "full": "Full",
                     "empty": "Tom",
                     "missing": "Saknas",
-                    "formatting": "Formaterar",
-                    "unformatted": "Oformaterad",
                     "failed": "Misslyckades",
                     "replying": "Svarar",
                     "playback": "Uppspelning",
@@ -1371,6 +1386,9 @@
                     "off": "Öppen",
                     "on": "Stängd"
                 }
+            },
+            "camera_record": {
+                "name": "Kamera inspelning"
             },
             "do_not_disturb": {
                 "name": "Stör ej"

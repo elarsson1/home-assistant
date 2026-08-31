@@ -310,7 +310,9 @@
                             "fan_only": "Wiatrak",
                             "heat": "Gorące powietrze",
                             "floor_cool": "Chłodzenie podłogi",
-                            "floor_heat": "Ogrzewanie podłogi"
+                            "floor_heat": "Ogrzewanie podłogi",
+                            "air_floor_cool": "Chłodzenie powietrza i podłogi",
+                            "air_floor_heat": "Ogrzewanie powietrza i podłogi"
                         }
                     }
                 }
@@ -411,6 +413,9 @@
         "event": {
             "alarm": {
                 "name": "Alarm"
+            },
+            "notification": {
+                "name": "Powiadomienie"
             }
         },
         "humidifier": {
@@ -790,6 +795,7 @@
                 "state": {
                     "cancel": "Anuluj",
                     "continuous": "Ciągły",
+                    "custom": "Niestandardowy",
                     "5s": "5 sekund",
                     "10s": "10 sekund",
                     "15s": "15 sekund",
@@ -1171,6 +1177,17 @@
                     "danger": "Niebezpieczna"
                 }
             },
+            "sd_status": {
+                "name": "Status karty SD",
+                "state": {
+                    "fault": "Usterka",
+                    "formatting": "Formatowanie",
+                    "full": "Pełna",
+                    "missing": "Brakująca",
+                    "normal": "Normalny",
+                    "unformatted": "Niesformatowana"
+                }
+            },
             "status": {
                 "name": "Status",
                 "state": {
@@ -1249,8 +1266,6 @@
                     "full": "Pełne",
                     "empty": "Puste",
                     "missing": "Brakujące",
-                    "formatting": "Formatowanie",
-                    "unformatted": "Niesformatowane",
                     "failed": "Nieudane",
                     "replying": "Odpowiadanie",
                     "playback": "Odtwarzanie",
@@ -1371,6 +1386,9 @@
                     "off": "Otwarty",
                     "on": "Zamknięty"
                 }
+            },
+            "camera_record": {
+                "name": "Nagrywanie kamery"
             },
             "do_not_disturb": {
                 "name": "Nie przeszkadzać"

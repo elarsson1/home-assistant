@@ -310,7 +310,9 @@
                             "fan_only": "Vifte",
                             "heat": "Varm luft",
                             "floor_cool": "Kjøl gulv",
-                            "floor_heat": "Varm gulv"
+                            "floor_heat": "Varm gulv",
+                            "air_floor_cool": "Kjølig luft + gulv",
+                            "air_floor_heat": "Varm luft + gulv"
                         }
                     }
                 }
@@ -411,6 +413,9 @@
         "event": {
             "alarm": {
                 "name": "Alarm"
+            },
+            "notification": {
+                "name": "Varsel"
             }
         },
         "humidifier": {
@@ -790,6 +795,7 @@
                 "state": {
                     "cancel": "Avbryt",
                     "continuous": "Kontinuerlig",
+                    "custom": "Egendefinert",
                     "5s": "5 sekunder",
                     "10s": "10 sekunder",
                     "15s": "15 sekunder",
@@ -1171,6 +1177,17 @@
                     "danger": "Farlig"
                 }
             },
+            "sd_status": {
+                "name": "SD-kortstatus",
+                "state": {
+                    "fault": "Feil",
+                    "formatting": "Formaterer",
+                    "full": "Full",
+                    "missing": "Manglende",
+                    "normal": "Normal",
+                    "unformatted": "Uformaterte"
+                }
+            },
             "status": {
                 "name": "Status",
                 "state": {
@@ -1249,8 +1266,6 @@
                     "full": "Full",
                     "empty": "Tom",
                     "missing": "Manglende",
-                    "formatting": "Formatering",
-                    "unformatted": "Uformaterte",
                     "failed": "Mislyktes",
                     "replying": "Svarer",
                     "playback": "Avspilling",
@@ -1371,6 +1386,9 @@
                     "off": "Åpen",
                     "on": "Lukket"
                 }
+            },
+            "camera_record": {
+                "name": "Kameraopptak"
             },
             "do_not_disturb": {
                 "name": "Ikke forstyrr"

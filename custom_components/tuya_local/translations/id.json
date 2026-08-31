@@ -310,7 +310,9 @@
                             "fan_only": "Hanya kipas",
                             "heat": "Pemanas udara",
                             "floor_cool": "Pendingin lantai",
-                            "floor_heat": "Pemanas lantai"
+                            "floor_heat": "Pemanas lantai",
+                            "air_floor_cool": "Pendingin udara dan lantai",
+                            "air_floor_heat": "Pemanas udara dan lantai"
                         }
                     }
                 }
@@ -411,6 +413,9 @@
         "event": {
             "alarm": {
                 "name": "Alarm"
+            },
+            "notification": {
+                "name": "Pemberitahuan"
             }
         },
         "humidifier": {
@@ -790,6 +795,7 @@
                 "state": {
                     "cancel": "Batal",
                     "continuous": "Terus menerus",
+                    "custom": "Kustom",
                     "5s": "5 detik",
                     "10s": "10 detik",
                     "15s": "15 detik",
@@ -1171,6 +1177,17 @@
                     "danger": "Bahaya"
                 }
             },
+            "sd_status": {
+                "name": "Status SD",
+                "state": {
+                    "fault": "Kesalahan",
+                    "formatting": "Memformat",
+                    "full": "Penuh",
+                    "missing": "Hilang",
+                    "normal": "Normal",
+                    "unformatted": "Belum diformat"
+                }
+            },
             "status": {
                 "name": "Status",
                 "state": {
@@ -1249,8 +1266,6 @@
                     "full": "Penuh",
                     "empty": "Kosong",
                     "missing": "Hilang",
-                    "formatting": "Memformat",
-                    "unformatted": "Belum diformat",
                     "failed": "Gagal",
                     "replying": "Membalas",
                     "playback": "Pemutaran",
@@ -1371,6 +1386,9 @@
                     "on": "Tutup",
                     "off": "Buka"
                 }
+            },
+            "camera_record": {
+                "name": "Rekam kamera"
             },
             "do_not_disturb": {
                 "name": "Jangan ganggu"

@@ -310,7 +310,9 @@
                             "fan_only": "Ventilátor",
                             "heat": "Ohřejte vzduch",
                             "floor_cool": "Chladná podlaha",
-                            "floor_heat": "Tepelná podlaha"
+                            "floor_heat": "Tepelná podlaha",
+                            "air_floor_cool": "Chladný vzduch a podlaha",
+                            "air_floor_heat": "Ohřejte vzduch a podlahu"
                         }
                     }
                 }
@@ -411,6 +413,9 @@
         "event": {
             "alarm": {
                 "name": "Alarm"
+            },
+            "notification": {
+                "name": "Oznámení"
             }
         },
         "humidifier": {
@@ -418,7 +423,7 @@
                 "state_attributes": {
                     "mode": {
                         "state": {
-                            "laundry": "Suché prádlo",
+                            "laundry": "Sušení prádla",
                             "purify": "Očistit",
                             "continuous": "Nepřetržitý"
                         }
@@ -790,6 +795,7 @@
                 "state": {
                     "cancel": "Zrušit",
                     "continuous": "Nepřetržitý",
+                    "custom": "Vlastní",
                     "5s": "5 sekund",
                     "10s": "10 sekund",
                     "15s": "15 sekund",
@@ -1171,6 +1177,17 @@
                     "danger": "Nebezpečná"
                 }
             },
+            "sd_status": {
+                "name": "Stav SD karty",
+                "state": {
+                    "fault": "Chyba",
+                    "formatting": "Formátování",
+                    "full": "Plná",
+                    "missing": "Chybí",
+                    "normal": "Normální",
+                    "unformatted": "Neformátováno"
+                }
+            },
             "status": {
                 "name": "Stav",
                 "state": {
@@ -1249,8 +1266,6 @@
                     "full": "Plný",
                     "empty": "Prázdný",
                     "missing": "Chybí",
-                    "formatting": "Formátování",
-                    "unformatted": "Neformátováno",
                     "failed": "Selhalo",
                     "replying": "Odpovídání",
                     "playback": "Přehrávání",
@@ -1371,6 +1386,9 @@
                     "off": "Otevřeno",
                     "on": "Zavřeno"
                 }
+            },
+            "camera_record": {
+                "name": "Nahrávání kamery"
             },
             "do_not_disturb": {
                 "name": "Nerušit"

@@ -310,7 +310,9 @@
                             "fan_only": "Fan",
                             "heat": "Heat air",
                             "floor_cool": "Cool floor",
-                            "floor_heat": "Heat floor"
+                            "floor_heat": "Heat floor",
+                            "air_floor_cool": "Cool air & floor",
+                            "air_floor_heat": "Heat air & floor"
                         }
                     }
                 }
@@ -411,6 +413,9 @@
         "event": {
             "alarm": {
                 "name": "Alarm"
+            },
+            "notification": {
+                "name": "Notification"
             }
         },
         "humidifier": {
@@ -790,6 +795,7 @@
                 "state": {
                     "cancel": "Cancel",
                     "continuous": "Continuous",
+                    "custom": "Custom",
                     "5s": "5 seconds",
                     "10s": "10 seconds",
                     "15s": "15 seconds",
@@ -1171,6 +1177,17 @@
                     "danger": "Danger"
                 }
             },
+            "sd_status": {
+                "name": "SD card status",
+                "state": {
+                    "fault": "Fault",
+                    "formatting": "Formatting",
+                    "full": "Full",
+                    "missing": "Missing",
+                    "normal": "Normal",
+                    "unformatted": "Unformatted"
+                }
+            },
             "status": {
                 "name": "Status",
                 "state": {
@@ -1249,8 +1266,6 @@
                     "full": "Full",
                     "empty": "Empty",
                     "missing": "Missing",
-                    "formatting": "Formatting",
-                    "unformatted": "Unformatted",
                     "failed": "Failed",
                     "replying": "Replying",
                     "playback": "Playback",
@@ -1371,6 +1386,9 @@
                     "off": "Open",
                     "on": "Closed"
                 }
+            },
+            "camera_record": {
+                "name": "Camera record"
             },
             "do_not_disturb": {
                 "name": "Do not disturb"
