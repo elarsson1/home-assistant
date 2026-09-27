@@ -21,10 +21,11 @@ hvac_enable_mode:
         select:
           options:
             - Living_Room
+            - Living_Room_Radiant
             - Den
+            - Den_Radiant
             - Master_Bedroom
             - Guest_Room
-            - Den_Heater
             - Living_Room_Heater
             - Master_Bedroom_Heater
     mode:
@@ -75,10 +76,11 @@ hvac_enable_current:
         select:
           options:
             - Living_Room
+            - Living_Room_Radiant
             - Den
+            - Den_Radiant
             - Master_Bedroom
             - Guest_Room
-            - Den_Heater
             - Living_Room_Heater
             - Master_Bedroom_Heater
   sequence:
@@ -127,10 +129,11 @@ hvac_enable_preset:
         select:
           options:
             - Living_Room
+            - Living_Room_Radiant
             - Den
+            - Den_Radiant
             - Master_Bedroom
             - Guest_Room
-            - Den_Heater
             - Living_Room_Heater
             - Master_Bedroom_Heater
     preset:

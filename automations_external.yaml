@@ -424,6 +424,12 @@
         - "on"
         - "off"
       for: "00:05:00"
+  condition:
+    - condition: state
+      entity_id: input_select.hvac_climate_mode
+      state:
+        - "Cool"
+        - "Off"
   mode: parallel
   action:
     - variables:
@@ -491,8 +497,9 @@
         - repeat:
             for_each:
               - living_room
+              - living_room_radiant
               - den
-              - den_heater
+              - den_radiant
               - living_room_heater
             sequence:
               - service: script.turn_on
@@ -745,17 +752,74 @@
           # only if windows for that zone are closed
           - condition: >
               {{ not is_state('binary_sensor.hvac_windows_' + repeat.item, 'on') }}
-          # set mode and target temp based on preset
-          - service: script.turn_on
-            target:
-              entity_id: script.hvac_enable_mode
-            data:
-              variables:
-                zone: "{{ repeat.item }}"
-                mode: "{{ mode }}"
+          - choose:
+              # den / living room in heat and cold outside: heat pump and radiant both heat
+              - conditions:
+                  - "{{ repeat.item in ('den', 'living_room') and mode == 'heat' }}"
+                  - condition: numeric_state
+                    entity_id: sensor.o_1pst_temperature
+                    below: input_number.hvac_changeover_supplemental_heat_on
+                sequence:
+                  - service: script.turn_on
+                    target:
+                      entity_id: script.hvac_enable_mode
+                    data:
+                      variables:
+                        zone: "{{ repeat.item }}"
+                        mode: "heat"
+                  - service: script.turn_on
+                    target:
+                      entity_id: script.hvac_enable_mode
+                    data:
+                      variables:
+                        zone: "{{ repeat.item }}_radiant"
+                        mode: "heat"
+              # den / living room in heat: heat pump off, radiant on
+              - conditions: "{{ repeat.item in ('den', 'living_room') and mode == 'heat' }}"
+                sequence:
+                  - service: script.turn_on
+                    target:
+                      entity_id: script.hvac_enable_mode
+                    data:
+                      variables:
+                        zone: "{{ repeat.item }}"
+                        mode: "off"
+                  - service: script.turn_on
+                    target:
+                      entity_id: script.hvac_enable_mode
+                    data:
+                      variables:
+                        zone: "{{ repeat.item }}_radiant"
+                        mode: "heat"
+              # den / living room in off or cool: heat pump as normal, radiant off
+              - conditions: "{{ repeat.item in ('den', 'living_room') }}"
+                sequence:
+                  - service: script.turn_on
+                    target:
+                      entity_id: script.hvac_enable_mode
+                    data:
+                      variables:
+                        zone: "{{ repeat.item }}"
+                        mode: "{{ mode }}"
+                  - service: script.turn_on
+                    target:
+                      entity_id: script.hvac_enable_mode
+                    data:
+                      variables:
+                        zone: "{{ repeat.item }}_radiant"
+                        mode: "off"
+            # all other zones: heat pump as normal
+            default:
+              - service: script.turn_on
+                target:
+                  entity_id: script.hvac_enable_mode
+                data:
+                  variables:
+                    zone: "{{ repeat.item }}"
+                    mode: "{{ mode }}"
     # guest room - only do if guest room is currently on and changing to heat or cool
     - condition: "{{ mode in ('heat', 'cool') }}"
-    # wait for unavaialble unit to become available up to 5 minutes
+    # wait for unavailable unit to become available up to 5 minutes
     - wait_template: "{{ states('climate.guest_room') not in ('unavailable', 'unknown') }}"
       timeout: "00:05:00"
     # only continue if unit became available and continue if current unit state is not off
@@ -791,9 +855,10 @@
     # repeat for each zone
     - repeat:
         for_each:
-          - "den_heater"
           - "living_room_heater"
           - "master_bedroom_heater"
+          - "living_room"
+          - "den"
         sequence:
           # set mode and target temp based on preset
           - service: script.turn_on
@@ -819,7 +884,6 @@
   action:
     - repeat:
         for_each:
-          - "den_heater"
           - "living_room_heater"
           - "master_bedroom_heater"
         sequence:
