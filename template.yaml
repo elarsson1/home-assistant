@@ -6,6 +6,7 @@
       state:
         "{{ ((as_timestamp(states('sensor.cert_expiry_timestamp_home_axeltech_com'))
         - as_timestamp(now()) ) / 86400) | int }}"
+      availability: "{{ has_value('sensor.cert_expiry_timestamp_home_axeltech_com') }}"
     # AQI sensors for AirGradient
     - unit_of_measurement: AQI
       default_entity_id: sensor.indoor_pm25_aqi
