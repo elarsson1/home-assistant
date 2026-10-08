@@ -10,6 +10,13 @@ homeassistant:
 
 stream:
 
+# plexapi logs an ERROR per URL each time HA retries Plexamp clients that
+# plex.tv reports present but are unreachable on the CORP VLAN.
+logger:
+  default: warning
+  logs:
+    plexapi: critical
+
 # Text to speech
 tts:
   - platform: google_translate
