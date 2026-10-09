@@ -134,6 +134,22 @@ class VirtualLight(VirtualEntity, LightEntity):
             self._attr_supported_features |= LightEntityFeature.EFFECT
             self._attr_effect_list = self._config.get(CONF_INITIAL_EFFECT_LIST)
 
+    @property
+    def brightness(self) -> int | None:
+        return self._attr_brightness if self._attr_is_on else None
+
+    @property
+    def color_mode(self) -> ColorMode | None:
+        return self._attr_color_mode if self._attr_is_on else None
+
+    @property
+    def hs_color(self) -> tuple[float, float] | None:
+        return self._attr_hs_color if self._attr_is_on else None
+
+    @property
+    def color_temp_kelvin(self) -> int | None:
+        return self._attr_color_temp_kelvin if self._attr_is_on else None
+
     def _create_state(self, config):
         super()._create_state(config)
 
@@ -175,12 +191,12 @@ class VirtualLight(VirtualEntity, LightEntity):
         super()._update_attributes()
         self._attr_extra_state_attributes.update({
             name: value for name, value in (
-                (ATTR_BRIGHTNESS, self._attr_brightness),
-                (ATTR_COLOR_MODE, self._attr_color_mode),
-                (ATTR_COLOR_TEMP_KELVIN, self._attr_color_temp_kelvin),
+                (ATTR_BRIGHTNESS, self.brightness),
+                (ATTR_COLOR_MODE, self.color_mode),
+                (ATTR_COLOR_TEMP_KELVIN, self.color_temp_kelvin),
                 (ATTR_EFFECT, self._attr_effect),
                 (ATTR_EFFECT_LIST, self._attr_effect_list),
-                (ATTR_HS_COLOR, self._attr_hs_color),
+                (ATTR_HS_COLOR, self.hs_color),
             ) if value is not None
         })
 
