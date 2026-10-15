@@ -760,9 +760,9 @@
           - "living_room"
           - "master_bedroom"
         sequence:
-          # only if windows for that zone are closed
+          # only if windows for that zone are closed if switching to AC. 
           - condition: >
-              {{ not is_state('binary_sensor.hvac_windows_' + repeat.item, 'on') }}
+              {{ not ( is_state('binary_sensor.hvac_windows_' + repeat.item, 'on') and mode == "cool" ) }}
           - choose:
               # den / living room in heat and cold outside: heat pump and radiant both heat
               - conditions:
