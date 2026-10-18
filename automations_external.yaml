@@ -642,7 +642,7 @@
         entity_id: input_select.hvac_controller_house_mode
         option: Away
 
-# Set HVAC ExtAway 6 hours after leaving
+# Set HVAC ExtAway 12 hours after leaving
 - id: HVACExtAway
   alias: HVAC Controller Set ExtAway
   description: Set HVAC Controller to ExtAway mode
@@ -651,7 +651,7 @@
       entity_id: input_select.presence
       to:
         - Away
-      for: 06:00:00
+      for: 12:00:00
   condition:
     - condition: state
       entity_id: input_select.hvac_controller_house_mode
