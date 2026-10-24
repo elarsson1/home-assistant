@@ -14,7 +14,10 @@ from homeassistant.components.lovelace.system_health import system_health_info
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import Platform, __version__ as HAVERSION
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.aiohttp_client import (
+    async_create_clientsession,
+    async_get_clientsession,
+)
 from homeassistant.helpers.entity_registry import async_get as async_get_entity_registry
 from homeassistant.helpers.event import async_call_later
 from homeassistant.helpers.start import async_at_start
@@ -60,7 +63,11 @@ async def _async_initialize_integration(
 
     hacs.log.info(STARTUP, integration.version)
 
-    clientsession = async_get_clientsession(hass)
+    clientsession = async_create_clientsession(
+        hass,
+        max_line_size=16384,
+        max_field_size=65536,
+    )
 
     hacs.integration = integration
     hacs.version = integration.version
