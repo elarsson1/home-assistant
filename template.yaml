@@ -45,6 +45,8 @@
       name: Wifi Guest
       state: "{{ states('sensor.axeltech_guest_clients')|int > 0 }}"
       availability: "{{ has_value('sensor.axeltech_guest_clients') }}"
+      # keep guests "home" through brief Wi-Fi drops (person.guest drives presence)
+      delay_off: "00:05:00"
     # is HVAC defrost running?
     - device_class: running
       default_entity_id: binary_sensor.hvac_defrost
