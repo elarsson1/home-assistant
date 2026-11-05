@@ -21,6 +21,7 @@
         - 300) / (350.4 - 250.4) * (pm02 - 250.4) + 300) | int }}\n{% elif pm02 <= 500.4
         %}\n  {{ ((500 - 400) / (500.4 - 350.4) * (pm02 - 350.4) + 400) | int }}\n{%
         else %}\n  500\n{% endif %}"
+      availability: "{{ has_value('sensor.i_9psl_pm2_5') }}"
       name: indoor_pm25_aqi
     - unit_of_measurement: AQI
       default_entity_id: sensor.outdoor_pm25_aqi
@@ -35,13 +36,15 @@
         - 300) / (350.4 - 250.4) * (pm02 - 250.4) + 300) | int }}\n{% elif pm02 <= 500.4
         %}\n  {{ ((500 - 400) / (500.4 - 350.4) * (pm02 - 350.4) + 400) | int }}\n{%
         else %}\n  500\n{% endif %}"
+      availability: "{{ has_value('sensor.o_1pst_pm2_5') }}"
       name: outdoor_pm25_aqi
 
 - binary_sensor:
     # Are guests connected to Wifi?
     - default_entity_id: binary_sensor.wifi_guests
       name: Wifi Guest
-      state: "{{ states('sensor.axeltech_guest')|int > 0 }}"
+      state: "{{ states('sensor.axeltech_guest_clients')|int > 0 }}"
+      availability: "{{ has_value('sensor.axeltech_guest_clients') }}"
     # is HVAC defrost running?
     - device_class: running
       default_entity_id: binary_sensor.hvac_defrost

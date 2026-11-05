@@ -4,8 +4,8 @@ reload_alexa_media:
   mode: single
   sequence:
     - service: homeassistant.reload_config_entry
-      target:
-        device_id: 0942ca36495e2d4c0e185549e4c42773
+      data:
+        entry_id: 856ca8c7bcfb893e40769785ce5a4229
 
 # HVAC Controller Scripts
 # Set unit mode and current preset temp
