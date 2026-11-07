@@ -2,22 +2,25 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
+
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EntityCategory, PERCENTAGE, UnitOfEnergy
+from homeassistant.const import EntityCategory, PERCENTAGE, UnitOfTime
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN
 from .coordinator import WattsDataUpdateCoordinator
 from .helpers import device_model_name, device_temperature_unit
-from .models import WattsDevice
+from .models import WattsDevice, WattsEnergyChannel
 
 
 async def async_setup_entry(
@@ -75,25 +78,15 @@ async def async_setup_entry(
                     known_entity_ids.add(uid)
                     new.append(WattsFloorMaxSensor(coordinator, device_id))
 
-            # Energy heat today (API field: Energy.Cool — labels are swapped)
-            if (
-                device.data
-                and device.data.energy
-                and device.data.energy.cool
-                and device.data.energy.cool.daily
-            ):
+            energy = device.data.energy if device.data else None
+
+            if energy and energy.heat and energy.heat.daily:
                 uid = f"{device_id}_energy_heat_today"
                 if uid not in known_entity_ids:
                     known_entity_ids.add(uid)
                     new.append(WattsEnergyHeatSensor(coordinator, device_id))
 
-            # Energy cool today (API field: Energy.Heat — labels are swapped)
-            if (
-                device.data
-                and device.data.energy
-                and device.data.energy.heat
-                and device.data.energy.heat.daily
-            ):
+            if energy and energy.cool and energy.cool.daily:
                 uid = f"{device_id}_energy_cool_today"
                 if uid not in known_entity_ids:
                     known_entity_ids.add(uid)
@@ -113,6 +106,24 @@ def _device_info(device: WattsDevice) -> DeviceInfo:
         model=device_model_name(device),
         manufacturer="Watts Home",
     )
+
+
+def _usage_today(
+    device: WattsDevice, channel: WattsEnergyChannel | None
+) -> float | None:
+    """Return today's run time from a channel's Daily list.
+
+    Daily holds one slot per weekday (Monday first), not a rolling history,
+    so today is picked by the thermostat's local weekday.
+    """
+    if not channel or len(channel.daily) != 7:
+        return None
+    data = device.data
+    if data and data.date_time:
+        local = data.date_time + timedelta(seconds=data.tz_offset)
+    else:
+        local = dt_util.now()
+    return channel.daily[local.weekday()]
 
 
 class _WattsSensor(CoordinatorEntity[WattsDataUpdateCoordinator], SensorEntity):
@@ -309,11 +320,11 @@ class WattsFloorMaxSensor(_WattsSensor):
 
 
 class WattsEnergyHeatSensor(_WattsSensor):
-    """Daily heating energy. Note: the API field is Energy.Cool (swapped)."""
+    """Daily heating run time in hours (Energy.Heat), per the tekmar manual."""
 
-    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_device_class = SensorDeviceClass.DURATION
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
-    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+    _attr_native_unit_of_measurement = UnitOfTime.HOURS
     _attr_translation_key = "energy_heat_today"
 
     def __init__(self, coordinator: WattsDataUpdateCoordinator, device_id: str) -> None:
@@ -323,17 +334,15 @@ class WattsEnergyHeatSensor(_WattsSensor):
     @property
     def native_value(self) -> float | None:
         d = self._device()
-        if d.data and d.data.energy and d.data.energy.cool and d.data.energy.cool.daily:
-            return d.data.energy.cool.daily[-1]
-        return None
+        return _usage_today(d, d.data.energy.heat if d.data and d.data.energy else None)
 
 
 class WattsEnergyCoolSensor(_WattsSensor):
-    """Daily cooling energy. Note: the API field is Energy.Heat (swapped)."""
+    """Daily cooling run time in hours (Energy.Cool), per the tekmar manual."""
 
-    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_device_class = SensorDeviceClass.DURATION
     _attr_state_class = SensorStateClass.TOTAL_INCREASING
-    _attr_native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR
+    _attr_native_unit_of_measurement = UnitOfTime.HOURS
     _attr_translation_key = "energy_cool_today"
 
     def __init__(self, coordinator: WattsDataUpdateCoordinator, device_id: str) -> None:
@@ -343,6 +352,4 @@ class WattsEnergyCoolSensor(_WattsSensor):
     @property
     def native_value(self) -> float | None:
         d = self._device()
-        if d.data and d.data.energy and d.data.energy.heat and d.data.energy.heat.daily:
-            return d.data.energy.heat.daily[-1]
-        return None
+        return _usage_today(d, d.data.energy.cool if d.data and d.data.energy else None)
