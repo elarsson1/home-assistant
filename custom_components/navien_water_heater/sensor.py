@@ -157,9 +157,11 @@ SPACE_HEATING_CHANNEL_SENSORS = ["heatSettingTemp", "outdoorTemperature"]
 HEAT_CONTROL_OUTDOOR_RESET = 3
 
 # unitStatusList[].operationMode values observed on an NFC combi. Other values are reported raw.
+# The boiler prioritizes DHW, so space heating (16) and DHW (32) are never reported together.
 OPERATION_MODE_DESCRIPTIONS = {
     0: "Idle",
     16: "Space heating demand",
+    32: "Domestic hot water demand",
 }
 
 def supports_space_heating(channel):
