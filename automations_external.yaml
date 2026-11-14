@@ -958,14 +958,14 @@
         floor: climate.living_room_radiant_floor
         outdoor: sensor.outside_gw3000b_outdoor_temp_24h_average
         k: 0.97
-        c: -7.8
+        c: -8.5
       - name: Den
         heat_pump: climate.den
         radiant: climate.den_radiant
         floor: climate.den_radiant_floor
         outdoor: sensor.outside_gw3000b_outdoor_temp_6h_average
         k: 0.21
-        c: -3.5
+        c: -4.0
   actions:
     - repeat:
         for_each: "{{ zones }}"
