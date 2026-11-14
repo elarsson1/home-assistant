@@ -764,12 +764,33 @@
           - condition: >
               {{ not ( is_state('binary_sensor.hvac_windows_' + repeat.item, 'on') and mode == "cool" ) }}
           - choose:
-              # den / living room in heat and cold outside: heat pump and radiant both heat
+              # living room in heat and cold outside: heat pump and radiant both heat
               - conditions:
-                  - "{{ repeat.item in ('den', 'living_room') and mode == 'heat' }}"
+                  - "{{ repeat.item in ('living_room') and mode == 'heat' }}"
                   - condition: numeric_state
                     entity_id: sensor.gw3000b_outdoor_temperature
                     below: input_number.hvac_changeover_supplemental_heat_on
+                sequence:
+                  - service: script.turn_on
+                    target:
+                      entity_id: script.hvac_enable_mode
+                    data:
+                      variables:
+                        zone: "{{ repeat.item }}"
+                        mode: "heat"
+                  - service: script.turn_on
+                    target:
+                      entity_id: script.hvac_enable_mode
+                    data:
+                      variables:
+                        zone: "{{ repeat.item }}_radiant"
+                        mode: "heat"
+              # den in heat and very cold outside: heat pump and radiant both heat
+              - conditions:
+                  - "{{ repeat.item in ('den') and mode == 'heat' }}"
+                  - condition: numeric_state
+                    entity_id: sensor.gw3000b_outdoor_temperature
+                    below: input_number.hvac_changeover_supplemental_heat_stage_2_on
                 sequence:
                   - service: script.turn_on
                     target:
@@ -866,9 +887,43 @@
     # repeat for each zone
     - repeat:
         for_each:
+          - "living_room"
+        sequence:
+          # set mode and target temp based on preset
+          - service: script.turn_on
+            target:
+              entity_id: script.hvac_enable_mode
+            data:
+              variables:
+                zone: "{{ repeat.item }}"
+                mode: "{{ mode }}"
+
+- id: HVACSupplementalHeatStage2
+  alias: "HVAC Supplemental Heat Stage 2"
+  description: "HVAC Supplemental Heat Stage 2"
+  trigger:
+    # trigger when weather is above or below configured thresholds
+    # set mode variable for heat or off depending on temp is above or below
+    - platform: numeric_state
+      entity_id: sensor.gw3000b_outdoor_temperature
+      below: input_number.hvac_changeover_supplemental_heat_stage_2_on
+      for: "00:10:00"
+      variables:
+        mode: "heat"
+    - platform: numeric_state
+      entity_id: sensor.gw3000b_outdoor_temperature
+      above: input_number.hvac_changeover_supplemental_heat_stage_2_off
+      for: "00:10:00"
+      variables:
+        mode: "off"
+  # don't do this if we are going from an unavailable state
+  condition: "{{ trigger.from_state and trigger.from_state.state != 'unavailable'  }}"
+  action:
+    # repeat for each zone
+    - repeat:
+        for_each:
           - "living_room_heater"
           - "master_bedroom_heater"
-          - "living_room"
           - "den"
         sequence:
           # set mode and target temp based on preset
@@ -880,40 +935,75 @@
                 zone: "{{ repeat.item }}"
                 mode: "{{ mode }}"
 
-# Supplemental heat -- temp reset
-# The Rio Arc heaters tend to spontaneously set their temp to a value not exposed via HomeKit.
-# I think this is a leftovers from schedules in the Rio Heating app whichhas been discontinued
-# and thus these schedules can't be cleared. They can also turn on by themselves.
-#
-# This is a hack to simply read back the current setpoint and reset it to that value every 30 minutes
-# or turn off again if it should currently be off.
-- id: UpdateRioArcSetpoint
-  alias: "HVAC Supplemental Heat Reset"
-  trigger:
-    - platform: time_pattern
-      minutes: /30
-  action:
+# Radiant Floor Minimum temp. 
+# Maximizes floor output when used in conjunction with heat pump.
+- id: radiant_floor_minimum_outdoor_reset
+  alias: Radiant floor minimum from outdoor temperature
+  description: >-
+    Every 5 minutes, sets each radiant zone's floor minimum to
+    setpoint + k * (setpoint - averaged outdoor temp) + c, rounded down,
+    capped at the floor thermostat's max_temp, when both the heat pump
+    and the radiant thermostat are on. Sets 0 (floor minimum disabled)
+    if either is off. Skips a zone this cycle if any entity it needs is
+    unknown/unavailable.
+  mode: single
+  triggers:
+    - trigger: time_pattern
+      minutes: "/5"
+  variables:
+    zones:
+      - name: Living Room
+        heat_pump: climate.living_room
+        radiant: climate.living_room_radiant
+        floor: climate.living_room_radiant_floor
+        outdoor: sensor.outside_gw3000b_outdoor_temp_24h_average
+        k: 0.97
+        c: -7.8
+      - name: Den
+        heat_pump: climate.den
+        radiant: climate.den_radiant
+        floor: climate.den_radiant_floor
+        outdoor: sensor.outside_gw3000b_outdoor_temp_6h_average
+        k: 0.21
+        c: -3.5
+  actions:
     - repeat:
-        for_each:
-          - "living_room_heater"
-          - "master_bedroom_heater"
+        for_each: "{{ zones }}"
         sequence:
           - variables:
-              unit: "climate.{{ repeat.item }}"
-          # reset temp if in heating mode, else turn off
+              z: "{{ repeat.item }}"
+              bad: ["unknown", "unavailable"]
+              hp_state: "{{ states(z.heat_pump) }}"
+              rad_state: "{{ states(z.radiant) }}"
+              floor_state: "{{ states(z.floor) }}"
+              setpoint: "{{ state_attr(z.radiant, 'temperature') }}"
+              outdoor: "{{ states(z.outdoor) }}"
+              floor_cap: "{{ state_attr(z.floor, 'max_temp') }}"
+              current_min: "{{ state_attr(z.floor, 'temperature') | float(-1) }}"
+              both_on: "{{ hp_state != 'off' and rad_state != 'off' }}"
+              ready: >-
+                {{ hp_state not in bad and rad_state not in bad
+                   and floor_state not in bad
+                   and (not both_on
+                        or (is_number(setpoint) and is_number(outdoor)
+                            and is_number(floor_cap))) }}
+              target: >-
+                {% if both_on and is_number(setpoint) and is_number(outdoor)
+                      and is_number(floor_cap) %}
+                  {% set sp = setpoint | float %}
+                  {% set raw = sp + z.k * (sp - outdoor | float) + z.c %}
+                  {{ [[ raw | round(0, 'floor') | int,
+                        floor_cap | round(0, 'floor') | int ] | min, 0 ] | max }}
+                {% else %}0{% endif %}
           - if:
-              - "{{ is_state( unit, 'heat' ) }}"
+              - condition: template
+                value_template: "{{ ready and (target | float) != current_min }}"
             then:
-              - service: climate.set_temperature
-                continue_on_error: true
+              - action: climate.set_temperature
+                target:
+                  entity_id: "{{ z.floor }}"
                 data:
-                  entity_id: "{{ unit }}"
-                  temperature: "{{ state_attr( unit, 'temperature' ) }}"
-            else:
-              - service: climate.turn_off
-                continue_on_error: true
-                data:
-                  entity_id: "{{ unit }}"
+                  temperature: "{{ target | int }}"
 
 # HVAC Controller anticipation automations. Prepare for return home based
 # on certain triggers.
