@@ -1,6 +1,22 @@
 # Heat stage controller: design
 
-Status: 2026-11-26. Active.
+Status: active as of 2026-11-26. The helpers, scripts and automation are installed, and the design is being tested in live operation for performance and tuning. Thresholds and timings in this document are starting values and are expected to change.
+
+## Summary
+
+This is a supervisory staging controller: a small state machine that sits above the two thermostats and decides which heat source should be working, using accumulated error to move between stages.
+
+The tekmar and the heat pump each keep running their own control loops. A supervisor in Home Assistant watches room temperature against the tekmar's setpoint and tracks how far and how long the room has been off target, in degree-minutes. A persistent shortfall first pushes the radiant floor harder by raising its floor minimum. If that is not enough, it brings in the heat pump at setpoint. A large gap skips straight to the heat pump for a fast recovery. When the room runs above setpoint, the stages unwind in reverse.
+
+It combines three standard control ideas:
+
+- **Lead/lag staging.** The radiant is the lead source and the heat pump is the lag source, brought on only when the lead cannot hold the load. This is the pattern a two-stage thermostat or a multi-boiler plant uses.
+- **Integral (degree-minute) staging.** Stage changes are driven by accumulated error, not instantaneous error, so a small persistent shortfall eventually escalates and a brief dip does not.
+- **Supervisory (cascade) control.** The supervisor does not switch equipment directly. It adjusts the setpoints of the local controllers (floor minimum, heat pump setpoint) and lets them do the fast work. This is why a failure leaves both devices at sane settings.
+
+The tekmar is a proportional-only controller, which is why it droops below setpoint under load. The boost stage supplies the missing integral action from outside, by trimming the floor minimum.
+
+It is not a PID loop in the usual sense, and it is not model-predictive. It has no thermal model and makes no forecasts. It reacts only to measured room temperature, which was the goal after the regression approach.
 
 ## 1. Purpose
 
@@ -11,12 +27,12 @@ Coordinate the radiant floor and the heat pump in the Living Room and Den so tha
 - The room does not overshoot setpoint.
 - A loss of Home Assistant or of either thermostat leaves both devices at ordinary settings.
 
-It replaces two existing pieces:
+It replaces two earlier automations, both now removed:
 
 - `automation.radiant_floor_minimum_from_outdoor_temperature`, which sets the floor minimum from a fitted heat-loss regression.
 - The automation that turns the heat pump on and off from outdoor temperature alone.
 
-## 2. Why the old approach falls short
+## 2. Why the current approach falls short
 
 | Problem | Cause |
 |---|---|
@@ -61,6 +77,10 @@ Source: tekmar WiFi Thermostat 561 Installation, Operation and Maintenance manua
 The room temperature entity is a per-zone parameter. Both zones use the tekmar's own air reading, which is also what the tekmar controls on.
 
 An earlier draft used the Living Room AirGradient as a rate-of-change input. That was dropped: a replay of one week of data showed the same boost timing with or without it, apart from one extra boost entry after a return from away. The controller now has a single room input per zone.
+
+### Which entities show a real heat call
+
+Only `hvac_action` on the main radiant climate entity (`climate.<zone>_radiant`) reflects the tekmar's actual heat call. `binary_sensor.<zone>_radiant_radiant_heating` and the status of the `_floor` climate entity do not: over 12 hours on Nov 25-26 the binary sensor changed state once while `hvac_action` cycled every 12-14 minutes. The controller uses neither; it reads only setpoints and temperatures.
 
 ## 5. Stages
 
@@ -143,7 +163,7 @@ When the heat pump is not needed (`radiant_only` or `boost`):
 - 24-hour outdoor average below `freeze_protect_outdoor_temp`, or outdoor reading missing: rest in heat mode at setpoint - 2 F.
 - Otherwise: off.
 
-The threshold is the outdoor temperature below which the radiant alone could not hold about 60 F in an unoccupied house. For the Living Room the earlier regression puts that near 26 F; the draft uses 30 F for margin. The Den is set to -20 F, which effectively disables it. There is 2 F of hysteresis.
+The threshold is the outdoor temperature below which the radiant alone could not hold about 60 F in an unoccupied house. For the Living Room the earlier regression puts that near 26 F; the controller uses 30 F for margin. The Den is set to -20 F, which effectively disables it. There is 2 F of hysteresis.
 
 ## 9. Failure behavior
 
@@ -193,33 +213,38 @@ Set per zone at the top of the automation.
 | `floor_lead_at_setpoint` | 1 | Lead in assist with the room at setpoint |
 | `floor_step_down` | 2 | Floor minimum reduction per run when the room is above setpoint |
 
-## 12. What has and has not been tested
+## 12. Test status
 
-Tested:
+The controller was installed on 2026-11-26 and is under live test. Checked before installation:
 
 - Both YAML files parse.
 - Individual expressions were evaluated against live entities in the Home Assistant template engine.
 - An earlier single-template version of the stage rules passed 14 synthetic scenarios.
 - Entry rules were replayed over one week of Living Room history (Nov 18-25). With the leaky integrator, no saturation test and no trend test, all three overnight shortfalls would have triggered within about 1 to 1.5 hours, and the Nov 22 return from away would have entered recovery immediately.
 
-Not tested:
+Still to be established in live operation:
 
-- The automation and scripts have not run end to end. That requires installing them.
-- The boost stage and the signed integrator are new since the scenario test.
-- Without a trend test, boost can start while the room is still climbing on its own (for example about 30 minutes after recovery hands off), and assist can start during a slow climb once boost has run 90 minutes. `boost_max_minutes` is the tunable for this.
-- The backtest was a replay on hourly data. It shows when rules would fire, not how the room would respond.
-- No data yet from weather cold enough for the floor to approach its cap with the heat pump off.
+- End-to-end behavior of the automation and scripts, including the boost stage and the signed integrator, which were added after the scenario test.
+- How the room actually responds. The backtest was a replay on hourly data; it shows when rules would fire, not what happens next.
+- Behavior in weather cold enough for the floor to approach its cap with the heat pump off.
+- Boost starting while the room is still climbing on its own (for example about 30 minutes after recovery hands off), and assist starting during a slow climb once boost has run 90 minutes. `boost_max_minutes` is the tunable for this.
 
 Open observation: on the Nov 22 return the room was 2-3 F low but recorded call duty was 80%, where the tekmar manual implies 100%. This may be the 0.1-hour resolution of the heat-hours counter.
 
 ## 13. Rollout
 
-1. Create the helpers in section 10. Leave both `enabled` toggles off.
-2. Add the scripts to `scripts.yaml` and the automation to `automations.yaml`. Reload both.
-3. Disable `automation.radiant_floor_minimum_from_outdoor_temperature` and the outdoor-temperature heat pump on/off automation.
-4. Set both floor minimums to 0 and both stages to `radiant_only`.
-5. Enable the Living Room first. Watch the stage, integrator and floor minimum for a few days before enabling the Den.
-6. Heat pump heat presets for these two zones will be overwritten within 5 minutes while a zone is enabled. Radiant presets work as they do today.
+Done on 2026-11-26:
+
+1. The ten helpers in section 10 were created, with both `enabled` toggles off.
+2. The scripts and the automation were added and loaded.
+3. The regression floor-minimum automation and the outdoor-temperature heat pump automation were removed.
+4. A "Heat stage controller" section was added to the Heating Plant dashboard view, between Radiant floors and the Navien boiler.
+
+Remaining:
+
+1. Enable the Living Room first. In `radiant_only` the controller sets the floor minimum to 0 and turns the heat pump off (unless the freeze threshold applies) on its next run, within 5 minutes.
+2. Watch the stage, integrator and floor minimum for a few days before enabling the Den.
+3. Heat pump heat presets for these two zones are overwritten within 5 minutes while a zone is enabled. Radiant presets work as before.
 
 Things to watch and tune first:
 
@@ -233,7 +258,7 @@ Things to watch and tune first:
 ```yaml
 # =============================================================================
 # Heat stage controller - SCRIPTS (go in scripts.yaml)
-# DRAFT FOR REVIEW - not installed
+# Design: docs/heat_stage_controller_design.md
 #
 # Small helpers used by the "Heat stage controller" automation. Each one only
 # writes to a device or helper when the value actually needs to change.
@@ -337,7 +362,7 @@ hsc_set_floor_minimum:
 ```yaml
 # =============================================================================
 # Heat stage controller - AUTOMATION (goes in automations.yaml)
-# DRAFT FOR REVIEW - not installed
+# Design: docs/heat_stage_controller_design.md
 #
 # Coordinates each zone's radiant floor (tekmar) and heat pump (Mitsubishi).
 #
