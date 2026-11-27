@@ -987,10 +987,11 @@
 #                 runs to 1 F short of setpoint; the radiant finishes the rest.
 #
 # Two accumulators per zone are fed by the same error x minutes:
-#   floor level         the learned floor temperature that holds setpoint
-#                       (the "I" term of the floor loop)
-#   staging integrator  degree-minutes of shortfall the floor loop is not
-#                       absorbing; drives the stage changes
+#   floor level         the learned floor temperature that holds the room at
+#                       setpoint (the "I" term of the floor loop). It is a
+#                       real memory: it is NOT tied to the current floor
+#                       reading, and it only learns on valid evidence.
+#   staging integrator  degree-minutes of shortfall; drives the stage changes
 #
 # Uses three small scripts from scripts.yaml:
 #   script.hsc_set_stage, script.hsc_set_heat_pump, script.hsc_set_floor_minimum
@@ -1043,13 +1044,17 @@
         min_minutes_recovery: 15          # minimum time in recovery
         min_minutes_heat_pump_off: 15     # minimum off time before the heat pump may start
         boost_start_degree_minutes: 30    # shortfall that starts boost
-        assist_start_degree_minutes: 60   # unabsorbed shortfall, in boost, that arms the heat pump
+        assist_start_degree_minutes: 60   # weighted shortfall, in boost, that arms the heat pump
         assist_carry_degree_minutes: 30   # integrator value on leaving assist (see step 7); keep below assist_start
         integral_decay_at_setpoint: 0.25  # degree-minutes lost per minute at setpoint
+        staging_integrator_minimum: -30   # most excess the staging integrator will remember
         assist_hold_minutes: 20           # assist ends this long after the room last read short
         assist_call_delta: 1              # heat pump setpoint offset from its own reading in assist
         assist_blanking_minutes: 45       # floor level stays frozen this long after the heat pump stops
         integral_minutes_per_degree: 90   # floor level moves 1 F per this many degree-minutes of error
+        floor_behind_margin: 1            # floor this far under the level = radiant is behind
+        learning_shortfall_weight: 0.5    # weight of shortfall toward assist while the floor is at the level
+        floor_stop_holding_error: 2       # room this far over setpoint: stop holding the floor
         floor_proportional_step: 1        # floor minimum nudge (F) while the room reads short or over
         floor_max_lead: 1                 # floor minimum is never more than this above the measured floor
         floor_max_lag: 2                  # ...or more than this below it
@@ -1074,10 +1079,14 @@
         assist_start_degree_minutes: 60
         assist_carry_degree_minutes: 30
         integral_decay_at_setpoint: 0.25
+        staging_integrator_minimum: -30
         assist_hold_minutes: 20
         assist_call_delta: 1
         assist_blanking_minutes: 45
         integral_minutes_per_degree: 90
+        floor_behind_margin: 1
+        learning_shortfall_weight: 0.5
+        floor_stop_holding_error: 2
         floor_proportional_step: 1
         floor_max_lead: 1
         floor_max_lag: 2
@@ -1222,11 +1231,23 @@
                   floor_upper_limit: "{{ [floor_temp + zone.floor_max_lead, floor_cap] | min }}"
                   floor_lower_limit: "{{ floor_temp - zone.floor_max_lag }}"
 
-                  # The floor level is only learned in boost. It is frozen
-                  # while the heat pump is armed and for a while after it
-                  # stops, so heat pump overshoot does not unwind it.
-                  floor_level_learning: >-
+              - variables:
+                  # The radiant is "behind" when the floor is well under the
+                  # learned level (it is still climbing toward what we know
+                  # it needs), or when the floor is at its cap.
+                  radiant_behind: >-
+                    {{ floor_temp <= floor_level - zone.floor_behind_margin
+                       or floor_temp >= floor_cap - 1 }}
+
+                  # The level learns only on valid evidence:
+                  #   - in boost, and not while or soon after the heat pump
+                  #     ran (its heat is not the radiant's doing)
+                  #   - the room is off by 1 F, not more. Bigger gaps are
+                  #     disturbances (the fireplace, a setback, an open
+                  #     door) and say nothing about the level.
+                  floor_level_may_learn: >-
                     {{ stage == 'boost'
+                       and error | abs >= 1 and error | abs < 2
                        and not (heat_pump_mode == 'off'
                                 and (now() - states[zone.heat_pump].last_changed).total_seconds() / 60
                                     < zone.assist_blanking_minutes) }}
@@ -1264,35 +1285,73 @@
               # -------------------------------------------------------------
               # 6. Integrate the error: one increment, two accumulators
               #
-              #    Floor level (F): the slow "I" term of the floor loop. It
-              #    moves 1 F per integral_minutes_per_degree of error, is
-              #    kept within the floor limits, and never leaks.
+              #    Floor level (F): the floor temperature that holds the room
+              #    at setpoint. It moves 1 F per integral_minutes_per_degree
+              #    of error. It stays between the room setpoint and the floor
+              #    cap, never leaks, and is not tied to the current floor
+              #    reading, so it survives an evening with the fireplace on or
+              #    a cooking spell.
               #
-              #    Staging integrator (degree-minutes, signed): shortfall
-              #    the floor loop is NOT absorbing. While the level is
-              #    learning, that is only the part of the increment the
-              #    level could not take because it is at a limit. Otherwise
-              #    it is the whole increment. While the room reads at
-              #    setpoint it leaks slowly toward zero.
+              #    Staging integrator (degree-minutes, signed):
+              #    shortfall counted toward arming the heat pump. Time over
+              #    setpoint works it back down and a little below zero, so a
+              #    room that has just been over is slower to escalate. The
+              #    negative side is capped at staging_integrator_minimum, so
+              #    a long warm spell cannot build up a large debt that would
+              #    delay the heat pump. In boost it counts in
+              #    full when the radiant is behind, and at reduced weight
+              #    while the floor is at the level and the level is still
+              #    learning. While the room reads at setpoint it leaks slowly
+              #    toward zero.
               # -------------------------------------------------------------
-              - variables:
-                  level_wanted: "{{ floor_level + error_increment / zone.integral_minutes_per_degree }}"
-              - variables:
-                  level_new: "{{ [[level_wanted, floor_lower_limit] | max, floor_upper_limit] | min }}"
-              - variables:
-                  staging_increment: >-
-                    {{ ((level_wanted - level_new) * zone.integral_minutes_per_degree)
-                       if floor_level_learning else error_increment }}
+              - choose:
 
-              # Store the floor level
-              - if:
-                  - "{{ floor_level_learning }}"
-                then:
-                  - action: input_number.set_value
-                    target:
-                      entity_id: "{{ floor_level_entity }}"
-                    data:
-                      value: "{{ level_new | round(2) }}"
+                  # Room short by 1 F, and the floor has reached the level
+                  # (or is above it): the level is too low. If the floor is
+                  # already above the level, start from the floor reading.
+                  # While the floor is still climbing toward the level, the
+                  # level holds; otherwise it would run away upward.
+                  - conditions:
+                      - "{{ floor_level_may_learn }}"
+                      - "{{ error >= 1 }}"
+                      - "{{ floor_temp > floor_level - zone.floor_behind_margin }}"
+                    sequence:
+                      - variables:
+                          level_start: "{{ [floor_level, floor_temp] | max }}"
+                      - action: input_number.set_value
+                        target:
+                          entity_id: "{{ floor_level_entity }}"
+                        data:
+                          value: >-
+                            {{ [level_start + error_increment / zone.integral_minutes_per_degree, floor_cap] | min | round(2) }}
+
+                  # Room over by 1 F: the level is too high. It comes down
+                  # at the same slow rate wherever the floor is. (There is
+                  # no jump down to the floor reading: after the fireplace has
+                  # been on, the floor is well below the level while the room
+                  # passes back through "1 F over", and that must not erase
+                  # the level.)
+                  - conditions:
+                      - "{{ floor_level_may_learn }}"
+                      - "{{ error <= -1 }}"
+                    sequence:
+                      - action: input_number.set_value
+                        target:
+                          entity_id: "{{ floor_level_entity }}"
+                        data:
+                          value: >-
+                            {{ [floor_level + error_increment / zone.integral_minutes_per_degree, setpoint] | max | round(2) }}
+
+                  # Otherwise the level holds.
+
+              - variables:
+                  # Shortfall counts in full unless we are in boost with the
+                  # floor at the level (the radiant is keeping up with what
+                  # we have asked of it, and the level is still learning).
+                  staging_increment: >-
+                    {{ error_increment * zone.learning_shortfall_weight
+                       if (stage == 'boost' and error_increment > 0 and not radiant_behind)
+                       else error_increment }}
 
               # Update the staging integrator
               - choose:
@@ -1306,7 +1365,7 @@
                           entity_id: "{{ integral_entity }}"
                         data:
                           value: >-
-                            {{ [[integral + staging_increment, 1000] | min, -1000] | max | round(1) }}
+                            {{ [[integral + staging_increment, 1000] | min, zone.staging_integrator_minimum] | max | round(1) }}
 
                 # At setpoint: leak toward zero from either side
                 default:
@@ -1391,9 +1450,9 @@
                           stage: radiant_only
 
                   # BOOST -> ASSIST
-                  # The floor loop is at its upper limit and the room is
-                  # still short: the radiant cannot take up more. Arm the
-                  # heat pump.
+                  # The room has stayed short. This comes sooner when the
+                  # radiant is behind (floor well under the learned level,
+                  # or at its cap) than when the floor is at the level.
                   - conditions:
                       - "{{ stage == 'boost' }}"
                       - "{{ error >= 1 }}"
@@ -1426,15 +1485,17 @@
 
                   # BOOST -> RADIANT ONLY
                   # The tekmar is doing well on its own: the room has not
-                  # read short for a long time, and the floor minimum is at
-                  # its lower limit, where it is not holding the floor up.
-                  # (If the room is fine BECAUSE the minimum is holding the
-                  # floor up, boost is doing its job and continues.)
+                  # read short for a long time, and the floor minimum is
+                  # under the measured floor, so it is not what is holding
+                  # the floor up. (If the room is fine BECAUSE the minimum is
+                  # holding the floor up, boost is doing its job and
+                  # continues.) The learned level starts afresh the next time
+                  # boost is entered.
                   - conditions:
                       - "{{ stage == 'boost' }}"
                       - "{{ error < 1 }}"
                       - "{{ minutes_since_last_short >= zone.boost_release_minutes }}"
-                      - "{{ floor_minimum_now <= floor_lower_limit }}"
+                      - "{{ floor_minimum_now < floor_temp }}"
                     sequence:
                       - action: script.hsc_set_stage
                         data:
@@ -1472,18 +1533,34 @@
                       - "{{ stage == 'recovery' }}"
                     sequence: []
 
+                  # BOOST or ASSIST, room well over setpoint (the fireplace, cooking,
+                  # sun): stop holding the floor. The learned level is kept.
+                  - conditions:
+                      - "{{ error <= -zone.floor_stop_holding_error }}"
+                    sequence:
+                      - action: script.hsc_set_floor_minimum
+                        data:
+                          floor: "{{ zone.floor }}"
+                          floor_minimum: "{{ floor_lower_limit | round(0) | int }}"
+
                 # BOOST or ASSIST: the floor loop.
                 #   floor minimum = learned level (I)
                 #                 + a nudge while the room reads short or over (P)
-                # kept within the floor limits so the tekmar keeps modulating.
+                # limited to a window around the measured floor so the tekmar
+                # keeps modulating. When the level is far above the floor,
+                # that means the top of the window: push.
                 default:
                   - variables:
                       proportional_nudge: >-
                         {{ zone.floor_proportional_step if error >= 1
                            else (-zone.floor_proportional_step if error <= -1 else 0) }}
                   - variables:
+                      # While the room reads over, never ask for more than
+                      # 1 F under the measured floor, whatever the level says.
+                      upper_limit_now: "{{ (floor_temp - 1) if error <= -1 else floor_upper_limit }}"
+                  - variables:
                       floor_minimum_wanted: >-
-                        {{ [[floor_level + proportional_nudge, floor_lower_limit] | max, floor_upper_limit] | min }}
+                        {{ [[floor_level + proportional_nudge, floor_lower_limit] | max, upper_limit_now] | min }}
                   # The thermostat takes whole degrees
                   - action: script.hsc_set_floor_minimum
                     data:
