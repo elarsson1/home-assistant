@@ -4,30 +4,37 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import override
 
-from homeassistant.core import HomeAssistant, split_entity_id
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device import async_entity_id_to_device_id
 from homeassistant.helpers.entity import EntityDescription
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import slugify
 
-from .common import is_composite_device_id
 from .coordinator import BatteryNotesDomainConfig, BatteryNotesSubentryCoordinator
 
 
 @dataclass(frozen=True, kw_only=True)
-class BatteryNotesRequiredKeysMixin:
-    """Mixin for required keys."""
+class BatteryNotesEntityDescription(EntityDescription):
+    """Describe a Battery Notes entity.
+
+    Attributes
+    ----------
+    unique_id_suffix
+        Appended to the subentry unique ID for stable registry identity.
+        Changing it requires a registry migration.
+    object_id_base
+        English entity-name component used in HA's preferred entity ID format.
+    allow_source_device_fallback
+        Allow attachment through the source entity's device when True.
+
+    """
 
     unique_id_suffix: str
-    entity_type: str
-    require_device: bool = False
-
-
-@dataclass(frozen=True, kw_only=True)
-class BatteryNotesEntityDescription(EntityDescription, BatteryNotesRequiredKeysMixin):
-    """Generic Battery Notes entity description."""
+    object_id_base: str
+    allow_source_device_fallback: bool = True
 
 
 class BatteryNotesEntity(CoordinatorEntity[BatteryNotesSubentryCoordinator]):
@@ -50,12 +57,15 @@ class BatteryNotesEntity(CoordinatorEntity[BatteryNotesSubentryCoordinator]):
 
         self._attr_has_entity_name = True
 
-        # Set up entity naming and translation placeholders
-        self._attr_translation_placeholders = self._generate_translation_placeholders()
-        self.entity_id = self._generate_entity_id()
-
-        # Set up device association
         self._associate_device(hass)
+        self._attr_translation_placeholders = self._generate_translation_placeholders()
+
+    @property
+    @override
+    def suggested_object_id(self) -> str:
+        """Use English entity components while HA applies the entity ID format."""
+        name = self.entity_description.object_id_base
+        return slugify(f"{self._attr_translation_placeholders['device_name']}{name}")
 
     @property
     def domain_config(self) -> BatteryNotesDomainConfig:
@@ -75,23 +85,26 @@ class BatteryNotesEntity(CoordinatorEntity[BatteryNotesSubentryCoordinator]):
         """Set up device association."""
 
         device_registry = dr.async_get(hass)
-        # HACK: HA 2026.8 splits composite devices into multiple devices, so we need to check if the device_id is a composite device
-        if (
-            self.coordinator.device_id
-            and (device_entry := device_registry.async_get(self.coordinator.device_id))
-            and not is_composite_device_id(hass, self.coordinator.device_id)
+        if self.coordinator.device_id and (
+            device_entry := device_registry.async_get(
+                self.coordinator.device_id, include_composite_devices=False
+            )
         ):
             # Attach to the device_id
             self.device_entry = device_entry
         elif (
-            self.entity_description.require_device is False
+            self.entity_description.allow_source_device_fallback
             and self.coordinator.source_entity_id
         ):
             device_id = async_entity_id_to_device_id(
                 hass, self.coordinator.source_entity_id
             )
             # source_entity_id is attached to a device, use that and add
-            if device_id and (device_entry := device_registry.async_get(device_id)):
+            if device_id and (
+                device_entry := device_registry.async_get(
+                    device_id, include_composite_devices=False
+                )
+            ):
                 self.device_entry = device_entry
         else:
             # No device, leave hanging
@@ -99,28 +112,10 @@ class BatteryNotesEntity(CoordinatorEntity[BatteryNotesSubentryCoordinator]):
 
     def _generate_translation_placeholders(self) -> Mapping[str, str]:
         """Generate translation placeholders."""
-        if self.coordinator.source_entity_id and not self.coordinator.device_id:
+        if self.device_entry is None:
             return {"device_name": self.coordinator.device_name + " "}
-        elif self.coordinator.source_entity_id and self.coordinator.device_id:
-            return {"device_name": self.coordinator.source_entity_name + " "}
-        else:
-            return {"device_name": ""}
-
-    def _generate_entity_id(
-        self,
-    ) -> str:
-        """Generate a consistent entity ID."""
-        entity_type = self.entity_description.entity_type
-        entity_key = self.entity_description.key
-
-        if self.coordinator.source_entity_id and not self.coordinator.device_id:
-            return f"{entity_type}.{slugify(self.coordinator.device_name.lower())}_{entity_key}".replace(
-                "__", "_"
-            )
-        elif self.coordinator.source_entity_id and self.coordinator.device_id:
-            _, source_object_id = split_entity_id(self.coordinator.source_entity_id)
-            return f"{entity_type}.{source_object_id}_{entity_key}".replace("__", "_")
-        else:
-            return f"{entity_type}.{slugify(self.coordinator.device_name.lower())}_{entity_key}".replace(
-                "__", "_"
-            )
+        if self.coordinator.source_entity_id and (
+            source_name := self.coordinator.source_entity_name
+        ):
+            return {"device_name": source_name + " "}
+        return {"device_name": ""}
