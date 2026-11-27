@@ -1,12 +1,12 @@
 # Heat stage controller: design
 
-Status: active since 2026-11-26 and being tested in live operation for performance and tuning. This document describes revision 2 of the control logic, written on 2026-11-26 after the first day of live data (section 12). Thresholds and timings are starting values and are expected to change.
+Status: active since 2026-11-26 and being tested in live operation for performance and tuning. This document describes revision 3 of the control logic, written on 2026-11-27 after two days of live data (section 12). Thresholds and timings are starting values and are expected to change.
 
 ## Summary
 
 This is a supervisory staging controller: a small state machine that sits above the two thermostats and decides which heat source should be working, using accumulated error to move between stages.
 
-The tekmar and the heat pump each keep running their own control loops. A supervisor in Home Assistant watches room temperature against the tekmar's setpoint and tracks how far and how long the room has been off target, in degree-minutes. A persistent shortfall first pushes the radiant floor harder by raising its floor minimum. If that is not enough, it arms the heat pump, which then follows the tekmar reading: a small call for heat while the room reads short, satisfied otherwise. A large gap skips straight to the heat pump for a fast recovery. Sustained excess trims the floor minimum back down one degree at a time, until it is released.
+The tekmar and the heat pump each keep running their own control loops. A supervisor in Home Assistant watches room temperature against the tekmar's setpoint and tracks how far and how long the room has been off target, in degree-minutes. A persistent shortfall starts an outer PI loop on room temperature whose output is the tekmar's floor minimum, with the tekmar's own floor control as the inner loop. If the floor loop reaches its limit and the room is still short, the heat pump is armed, and it then follows the tekmar reading: a small call for heat while the room reads short, satisfied otherwise. A large gap skips straight to the heat pump for a fast recovery. When the tekmar is holding the room on its own again, the floor minimum is released.
 
 It combines three standard control ideas:
 
@@ -14,7 +14,7 @@ It combines three standard control ideas:
 - **Integral (degree-minute) staging.** Stage changes are driven by accumulated error, not instantaneous error, so a small persistent shortfall eventually escalates and a brief dip does not.
 - **Supervisory (cascade) control.** The supervisor does not switch equipment directly. It adjusts the setpoints of the local controllers (floor minimum, heat pump setpoint) and lets them do the fast work. This is why a failure leaves both devices at sane settings.
 
-The tekmar is a proportional-only controller, which is why it droops below setpoint under load. The boost stage supplies the missing integral action from outside, by trimming the floor minimum.
+The tekmar is a proportional-only controller, which is why it droops below setpoint under load. The boost stage supplies the missing integral action from outside: a cascade in which a PI loop on room temperature sets the floor target and the tekmar holds the floor near it.
 
 It is not a PID loop in the usual sense, and it is not model-predictive. It has no thermal model and makes no forecasts. It reacts only to measured room temperature, which was the goal after the regression approach.
 
@@ -87,8 +87,8 @@ Only `hvac_action` on the main radiant climate entity (`climate.<zone>_radiant`)
 | Stage | Heat pump | Floor minimum | Meaning |
 |---|---|---|---|
 | `radiant_only` | Off, or resting at setpoint - 2 F in freeze-risk weather | Always 0 (disabled) | The tekmar runs on its own air control. |
-| `boost` | Off, or resting as above | Managed (section 7) | The floor minimum is under management. This is a long-lived state and is expected to be the normal winter state for the Living Room. |
-| `assist` | Heat, armed, following the tekmar reading (section 8) | Managed (section 7) | Boost alone is not holding the room. |
+| `boost` | Off, or resting as above | Set by the floor loop (section 7) | The outer PI loop is active. This is a long-lived state and is expected to be the normal winter state for the Living Room. |
+| `assist` | Heat, armed, following the tekmar reading (section 8) | Set by the floor loop, with the learned level frozen | The floor loop is at its limit and the room is still short. |
 | `recovery` | Heat, at setpoint - 1 F | Left exactly as it is | Large gap. The heat pump closes most of it; the radiant, already calling, finishes. |
 
 Each stage means one thing. In particular, `radiant_only` never carries a floor minimum; whenever a floor minimum is in use, the stage is `boost` or `assist`.
@@ -97,65 +97,81 @@ Each stage means one thing. In particular, `radiant_only` never carries a floor 
 
 | From | To | Condition |
 |---|---|---|
-| `radiant_only` | `boost` | Integrator at or above +30 |
+| `radiant_only` | `boost` | Staging integrator at or above +30. The learned floor level starts at the current floor reading. |
 | `radiant_only` or `boost` | `recovery` | Room 2 F or more below setpoint, and the heat pump may start |
 | `recovery` | `boost` | Room within 1 F of setpoint, at least 15 minutes in recovery, and a floor minimum is set |
 | `recovery` | `radiant_only` | Same, but the floor minimum is 0 |
-| `boost` | `assist` | Integrator at or above +120, and the heat pump may start |
-| `assist` | `boost` | Room not short, and 20 minutes since it last read short. The integrator restarts at +90. |
-| `boost` | `radiant_only` | Room not short, and the floor minimum has been trimmed to within 3 F of the room setpoint |
+| `boost` | `assist` | Room reads short, staging integrator at or above +60, and the heat pump may start |
+| `assist` | `boost` | Room not short, and 20 minutes since it last read short. The staging integrator restarts at +30. |
+| `boost` | `radiant_only` | Room has not read short for 3 hours, and the floor minimum is at its lower limit (2 F under the floor reading) |
 
 Notes:
 
 - "The heat pump may start" means it is already in heat mode (resting), or has been off for at least 15 minutes.
 - "Short" means the room reads 1 F or more below setpoint.
 - Recovery returns to wherever the floor minimum says it belongs. After a setback (floor minimum 0) that is `radiant_only`. If recovery interrupted `boost`, the minimum that was already working is kept.
-- Boost ends only when its floor minimum has stopped mattering. A minimum within a few degrees of room temperature adds almost no output, so it is released to 0.
-- There are no timers on boost. How long the floor is pushed before the heat pump is armed is set by the integrator threshold.
+- Boost ends when the tekmar is doing well on its own: the room has not read short for a long time, and the floor minimum is sitting at its lower limit, where it is not holding the floor up. If the room is fine because the minimum is holding the floor up, boost is doing its job and continues.
+- In boost the staging integrator only counts shortfall the floor loop could not absorb (section 6), so the heat pump is armed only when the floor loop is at its upper limit and the room is still short.
 
-## 6. The integrator
+## 6. Integrating the error
 
-One signed value per zone, in degree-minutes. Positive is accumulated shortfall; negative is accumulated excess.
+Each run computes one increment: the room error multiplied by the minutes since the last run. Because the automation runs on every change of the tekmar reading, a reading that flickers between two values is weighted by how long each one lasted. The increment is zero while the room reads at setpoint.
 
-| Room reading | Effect each run |
-|---|---|
-| 1 F or more below setpoint | Add (error x minutes) |
-| At setpoint | Leak toward zero at 0.25 per minute |
-| 1 F or more above setpoint | Subtract (error x minutes) |
+It feeds two accumulators, which need different memory:
 
-What it triggers:
+| Accumulator | Units | Leaks at setpoint | Reset | Limited |
+|---|---|---|---|---|
+| Floor level | F, at 1 F per 90 degree-minutes | No | Set to the floor reading on entering boost | Kept within the floor limits (section 7) |
+| Staging integrator | Degree-minutes, signed | Yes, 0.25 per minute | On a stage change (to +30 on leaving assist) | +/-1000 |
 
-| In stage | Integrator reaches | Action |
+How the increment is routed:
+
+| Stage | Floor level | Staging integrator |
+|---|---|---|
+| `boost`, level learning | Takes as much of the increment as its limits allow | Gets only the part the level could not take |
+| `boost`, level frozen (45 minutes after a heat pump run) | Unchanged | Gets the whole increment |
+| `radiant_only`, `recovery`, `assist` | Unchanged | Gets the whole increment |
+
+So in boost the staging integrator means "shortfall the floor loop is not absorbing". What it triggers:
+
+| In stage | Staging integrator reaches | Action |
 |---|---|---|
 | `radiant_only` | +30 | Enter boost |
-| `boost` | +120 | Arm the heat pump (assist) |
-| `boost` | -30 | Trim the floor minimum down 1 F, then reset to 0 |
+| `boost` | +60 | Arm the heat pump (assist) |
 
-- **Why it leaks and does not reset:** the tekmar reports whole degrees, so a room that is really 0.5 F short flickers between "at setpoint" and "1 F short". Resetting at setpoint would mean it never accumulates.
-- **Carry after assist:** on leaving assist the integrator restarts at +90, not 0. If the room sags again soon, the heat pump is re-armed after about 30 more degree-minutes. If the room holds, the leak fades that memory in about 6 hours and the full +120 applies again.
-- **Heat pump overshoot does not trim the floor:** any overshoot after a heat pump run subtracts from the +90 carry, a long way from the -30 that trims the floor minimum.
-- Any other stage change resets the integrator to zero.
+- **Why the staging integrator leaks and does not reset:** the tekmar reports whole degrees, so a room that is really 0.5 F short flickers between "at setpoint" and "1 F short". Resetting at setpoint would mean it never accumulates.
+- **Carry after assist:** on leaving assist it restarts at +30, half way to the +60 that arms the heat pump, not 0. If the room sags again soon, the heat pump is re-armed after about 30 more degree-minutes. If the room holds, the leak fades that memory in about 2 hours. The carry must stay below `assist_start_degree_minutes`.
+- **Time to the first heat pump run:** with the room steadily 1 F short and the floor not rising, the level takes about 90 minutes to reach its upper limit and the staging integrator then needs another 60, so about 2.5 hours. If the floor is still rising, the level keeps absorbing and the heat pump is armed later.
 - Elapsed minutes are capped at 10 per run, so an outage cannot add a large amount.
 
-## 7. Floor minimum in boost and assist
+## 7. The floor loop (boost and assist)
 
-Evaluated each run, first match wins:
+The tekmar modulates its heat call around the floor minimum as well as around the air setpoint, and it does so on a finer temperature reading than it reports. Observed:
 
-| Condition | Action |
+| Floor minimum vs. floor reading | tekmar behavior |
 |---|---|
-| Room short | Raise to the measured floor temperature + 2 F, never above the floor cap and never lower than the current value |
-| Boost, integrator at or below -30 | Trim to 1 F below the lower of the current minimum and the measured floor; reset the integrator |
-| Otherwise | Hold |
+| 0 (disabled), room at setpoint | Pulses of 3-7 minutes in every 14 or so |
+| At or 1 F below the reading | Steady pulsing, about 10 minutes on and 4 off |
+| 2 F above the reading | Continuous call (100-131 minutes observed) |
 
-How this handles change:
+So the floor minimum is the setpoint of an inner proportional loop on floor temperature, and it saturates about 2 F above the reading. The controller runs an outer PI loop on room temperature and writes its output to the floor minimum:
 
-- **Load rises:** the room reads short and the minimum is pushed up. While it leads the measured floor the tekmar calls continuously.
-- **Load falls, or the setpoint is lowered:** excess accumulates and the minimum is trimmed one degree at a time. Each trim lands just under the measured floor, so the radiant stops calling while the room is over, and the floor is allowed to drift down slowly.
-- **Setpoint is raised:** recovery brings in the heat pump and leaves the minimum alone; boost then pushes the floor.
+    floor minimum = learned level                 (I)
+                  + 1 F if the room reads short   (P)
+                  - 1 F if the room reads over
 
-There is no fast step-down. The floor itself moves about 1 F in 80-100 minutes under a continuous call, and cools at a similar pace, so stepping the minimum down quickly only switched the radiant off.
+- **I, the learned level.** A stored value in F (a helper per zone). It is the floor temperature that holds the room at setpoint. It moves 1 F per 90 degree-minutes of error, in either direction.
+- **P, the nudge.** Applied the moment the room reads short or over, and removed the moment it returns to setpoint. This is what reacts at a setpoint crossing; the level does not have to unwind first.
+- **Limits.** The floor minimum, and the level, are kept between the floor reading - 2 F and the floor reading + 1 F, and under the floor cap. That keeps the tekmar's floor control modulating: further above and it calls continuously, further below and it contributes nothing. Shortfall the level cannot take because it is at its upper limit goes to the staging integrator instead (section 6).
+- **Frozen around heat pump runs.** The level is not updated in assist or for 45 minutes after the heat pump stops, so heat pump overshoot does not unwind it.
 
-In `recovery` the floor minimum is not touched. In `radiant_only` it is always 0.
+The thermostat takes whole degrees, so the output is rounded. Each degree of floor moves the room about 0.5 F.
+
+Because the output cannot be more than 1 F above the floor reading, the level never runs far ahead of the floor. While the room reads short the minimum sits at that limit and it is the floor itself that climbs. The stored level matters most at setpoint: it holds the target steady while the floor settles slightly below it, where a rule tied to the floor reading would follow the floor down.
+
+In `recovery` the floor minimum and the level are not touched. In `radiant_only` the floor minimum is always 0.
+
+No derivative term is used yet. It would need a sub-degree room reading; see section 12 for the sensor comparison.
 
 ## 8. Heat pump setpoint and sensor offset
 
@@ -218,7 +234,7 @@ The threshold is the outdoor temperature below which the radiant alone could not
 
 ## 10. Helpers
 
-Per zone, where `<zone>` is `living_room` or `den`. Twelve helpers in total, all created.
+Per zone, where `<zone>` is `living_room` or `den`. Fourteen helpers in total, all created.
 
 | Entity | Type | Configuration |
 |---|---|---|
@@ -226,7 +242,8 @@ Per zone, where `<zone>` is `living_room` or `den`. Twelve helpers in total, all
 | `input_select.hsc_<zone>_stage` | Dropdown | Options: `radiant_only`, `recovery`, `boost`, `assist` |
 | `input_datetime.hsc_<zone>_stage_since` | Date and time | When the current stage began |
 | `input_datetime.hsc_<zone>_last_short` | Date and time | Last run on which the room read 1 F or more below setpoint, in any stage |
-| `input_number.hsc_<zone>_integral` | Number | Min -1000, max 1000, step 0.1 |
+| `input_number.hsc_<zone>_integral` | Number | Staging integrator. Min -1000, max 1000, step 0.1 |
+| `input_number.hsc_<zone>_floor_level` | Number | Learned floor level in F. Min 0, max 100, step 0.01 |
 | `input_number.hsc_<zone>_hp_offset` | Number | Min -3, max 3, step 0.01 |
 
 None of these has an initial value set, so Home Assistant restores the last value on restart.
@@ -244,14 +261,17 @@ Set per zone at the top of the automation.
 | `min_minutes_recovery` | 15 | Minimum time in recovery |
 | `min_minutes_heat_pump_off` | 15 | Minimum heat pump off time before it may start |
 | `boost_start_degree_minutes` | 30 | Shortfall that starts boost |
-| `assist_start_degree_minutes` | 120 | Shortfall, in boost, that arms the heat pump |
-| `assist_carry_degree_minutes` | 90 | Integrator value on leaving assist |
-| `floor_trim_degree_minutes` | 30 | Excess, in boost, that trims the floor minimum 1 F |
+| `assist_start_degree_minutes` | 60 | Unabsorbed shortfall, in boost, that arms the heat pump |
+| `assist_carry_degree_minutes` | 30 | Staging integrator value on leaving assist. Keep below `assist_start_degree_minutes`. |
 | `integral_decay_at_setpoint` | 0.25 | Degree-minutes lost per minute at setpoint |
 | `assist_hold_minutes` | 20 | Assist ends this long after the room last read short |
 | `assist_call_delta` | 1 | Heat pump setpoint offset from its own reading in assist |
-| `floor_lead` | 2 | Floor minimum lead over the measured floor when the room is short |
-| `floor_release_margin` | 3 | Boost ends when the floor minimum is within this of the room setpoint |
+| `assist_blanking_minutes` | 45 | The floor level stays frozen this long after the heat pump stops |
+| `integral_minutes_per_degree` | 90 | The floor level moves 1 F per this many degree-minutes of error |
+| `floor_proportional_step` | 1 | Floor minimum nudge, in F, while the room reads short or over |
+| `floor_max_lead` | 1 | The floor minimum is never more than this above the measured floor |
+| `floor_max_lag` | 2 | ...or more than this below it |
+| `boost_release_minutes` | 180 | Boost may end after this long without a short reading |
 | `offset_learning_rate` | 0.05 | Weight of each new offset observation |
 | `offset_max_deviation` | 3 | Heat pump readings further than this from the room reading are not trusted |
 
@@ -307,17 +327,73 @@ Changes made in response:
 7. The integrator is plainly signed. It no longer clears the opposite side when the sign changes.
 8. A `last_short` helper per zone was added.
 
-Goal: hold the room within +/-1 F of setpoint, accepting that it may read 1 F low for up to about two hours before the heat pump is first armed.
+Goal: hold the room within +/-1 F of setpoint.
 
-Checked for revision 2: both YAML files parse, and the new expressions were evaluated against live entities in the Home Assistant template engine.
+#### Revision 2: first night (2026-11-26 20:00 to 2026-11-27 09:00)
+
+Living Room, setpoint 65 F, outdoor rising from 48 to 54 F. The heat pump never ran.
+
+| Time | Event |
+|---|---|
+| 20:00-21:55 | Radiant only. Room flickers between 64 and 65 F. |
+| 21:55 | Boost starts. Floor minimum set to 82 F (floor + 2). |
+| 21:59-00:10 | tekmar calls continuously for 131 minutes. |
+| 22:43 | Room reaches 65 F. The minimum is held at 82 F, so the call continues. |
+| 23:58-03:12 | Room at 67 F. |
+| 00:10-02:55 | Minimum trimmed 1 F every 15 minutes, from 79 to 68 F. No effect; it was below the floor throughout. |
+| 03:00 | Boost releases to radiant only. No heat call from 00:18 to at least 08:40. |
+
+What this showed:
+
+- **"Hold" kept pushing.** A minimum 2 F above the floor reading is a full-on command, and it was held after the room reached setpoint.
+- **A 2 F lead defeats the tekmar's own modulation.** Within about 1 F of the floor reading the tekmar pulses; at 2 F it calls continuously.
+- **The signed integrator delayed the trim.** About +44 degree-minutes accumulated while the room was short had to be worked off before the -30 trim threshold could be reached, about 20 minutes later than otherwise.
+- **The trigger-on-change did improve the integrator.** The 64/65 F flicker was weighted by time, which correctly held boost off for 80 minutes.
+- **The weather warmed**, which stretched the overshoot. The Den sat at 67-68 F all night in radiant only.
+
+#### The tekmar reading swings more than the room
+
+In the last two events the tekmar moved two to three times as far as either independent sensor in the Living Room:
+
+| Event | tekmar | AirGradient | Hue motion sensor |
+|---|---|---|---|
+| Boost, night of Nov 26 | +2.7 F | +0.9 F | +0.8 F |
+| Heat pump run, Nov 26 14:00 | +2.1 F | +0.7 F | +1.2 F |
+
+The cause is not known. The tekmar remains the reference, since its own loop acts on that reading, but part of a "2 F over" reading may be local to the thermostat.
+
+#### Sub-degree sensors for a future derivative term (72 hours, hourly)
+
+| | AirGradient | Hue, Living Room | Hue, Office (vs. Den tekmar) |
+|---|---|---|---|
+| Hourly change correlated with tekmar | 0.77 | 0.78 | 0.47 |
+| tekmar change per 1 F sensor change | 1.7 F | 1.0 F | 0.5 F |
+| Update rate | Every minute | Every 5-10 minutes | Every 5-10 minutes |
+| Step size | 0.02 F | 0.18 F | 0.18 F |
+
+The AirGradient is the better rate source for the Living Room: the Hue's 0.18 F steps would put about +/-0.5 F per hour of noise on a 30-60 minute rate. The Office sensor sees swings the Den tekmar does not and is not usable for the Den.
+
+### Revision 3 (2026-11-27)
+
+Changes made in response:
+
+1. The floor minimum is set by an outer PI loop on room temperature (section 7), replacing the push/hold/trim rules.
+2. The floor minimum is limited to between the floor reading - 2 F and + 1 F, so the tekmar's own floor control keeps modulating.
+3. A learned floor level per zone holds the integral term. It is frozen in assist and for 45 minutes after the heat pump stops.
+4. The staging integrator, in boost, counts only shortfall the floor loop could not absorb. The heat pump is armed at +60 of that.
+5. Boost ends when the room has not read short for 3 hours and the floor minimum is at its lower limit, replacing the "within 3 F of the room setpoint" test, which the new limits made unreachable.
+6. A `floor_level` helper per zone was added.
+
+Checked for revision 3: the YAML parses, and the new expressions were evaluated against live entities in the Home Assistant template engine.
 
 Not yet established:
 
-- Revision 2 has not run end to end.
-- Whether a 1 F call in assist is gentle enough. On the first day a 1 F gap raised the room 3 F in 16 minutes.
-- Whether the room stays inside +/-1 F when the radiant is truly maxed out and the heat pump is carrying load. With whole-degree readings it will move between 1 F low and setpoint, possibly touching +1 F.
+- Revision 3 has not run end to end.
+- The width of the tekmar's floor modulation band. It has been seen saturated at +2 F and modulating at 0 to -1 F, and nothing in between. The +1 F upper limit assumes it still modulates there.
+- Whether "level, no nudge" at setpoint is neutral. On the regression night a minimum at the floor reading ran about 70% duty and the room sat 1 F high.
+- How often the floor minimum is rewritten when the room reading flickers, and whether the tekmar integration tolerates it.
+- Whether a 1 F call in assist is gentle enough, and how the room behaves when the radiant is maxed out and the heat pump is carrying load. Assist has not run since revision 2.
 - Behavior in weather cold enough for the floor to approach its cap.
-- How the idle-but-armed 20 minutes after each heat pump run feels (fan and refrigerant bleed).
 
 Open observation from the backtest: on the Nov 22 return the room was 2-3 F low but recorded call duty was 80%, where the tekmar manual implies 100%. This may be the 0.1-hour resolution of the heat-hours counter.
 
@@ -325,13 +401,13 @@ Open observation from the backtest: on the Nov 22 return the room was 2-3 F low 
 
 Done:
 
-1. The twelve helpers in section 10 were created.
+1. The fourteen helpers in section 10 were created.
 2. The scripts and the automation were added and loaded (revision 1, 2026-11-26).
 3. The regression floor-minimum automation and the outdoor-temperature heat pump automation were removed.
-4. A "Heat stage controller" section was added to the Heating Plant dashboard view, including a "Last read short" tile per zone.
+4. A "Heat stage controller" section was added to the Heating Plant dashboard view, including "Last read short" and "Floor level (learned)" tiles per zone.
 5. Both zones were enabled at 11:30 on 2026-11-26.
 
-To deploy revision 2:
+To deploy revision 3:
 
 1. Pull the repo on the Home Assistant host.
 2. Reload scripts and automations.
@@ -339,10 +415,11 @@ To deploy revision 2:
 
 Things to watch and tune first:
 
+- `floor_max_lead`: the key assumption. If the tekmar calls continuously at +1 F, lower it to 0; if the floor responds too slowly, it cannot usefully go above 1.
+- `integral_minutes_per_degree`: lower it if the level is slow to find the right floor temperature; raise it if the room cycles slowly around setpoint.
 - `assist_start_degree_minutes`: lower it if the room sits 1 F low for too long before the heat pump is armed; raise it to give the floor more time.
+- `boost_release_minutes`: shorten it if boost lingers in mild weather.
 - `assist_hold_minutes`: shorten it if the idle-but-armed period is a nuisance; lengthen it if the heat pump is being switched off and back on.
-- `assist_call_delta`: there is no gentler setting than 1, so if assist still overshoots the next lever is the heat pump's fan speed or a shorter call.
-- `floor_trim_degree_minutes`: raise it if the floor minimum is trimmed away too readily after sunny or busy periods.
 - Heat pump heat presets for these two zones are overwritten within 5 minutes while a zone is enabled. Radiant presets work as before.
 
 ## 14. Code
@@ -474,10 +551,10 @@ hsc_set_floor_minimum:
 #   radiant_only  Radiant runs on the tekmar's own air control. Floor minimum
 #                 is always 0 here. Heat pump is off (or resting in
 #                 freeze-risk weather).
-#   boost         The floor minimum is under management. It is pushed up
-#                 while the room reads short, held while the room is at
-#                 setpoint, and trimmed down slowly after sustained excess.
-#                 Heat pump is off. This is a long-lived state.
+#   boost         The floor minimum is under management by an outer PI loop
+#                 on room temperature (the tekmar's own floor control is
+#                 the inner loop). Heat pump is off. This is a long-lived
+#                 state.
 #   assist        Boost alone is not holding the room. The heat pump is armed
 #                 and follows the tekmar reading: a small call for heat while
 #                 the room reads short, satisfied otherwise. Ends once the
@@ -485,8 +562,11 @@ hsc_set_floor_minimum:
 #   recovery      Room is well below setpoint (setback recovery). Heat pump
 #                 runs to 1 F short of setpoint; the radiant finishes the rest.
 #
-# One signed integrator per zone (degree-minutes) drives the stage changes:
-#   positive = accumulated shortfall, negative = accumulated excess.
+# Two accumulators per zone are fed by the same error x minutes:
+#   floor level         the learned floor temperature that holds setpoint
+#                       (the "I" term of the floor loop)
+#   staging integrator  degree-minutes of shortfall the floor loop is not
+#                       absorbing; drives the stage changes
 #
 # Uses three small scripts from scripts.yaml:
 #   script.hsc_set_stage, script.hsc_set_heat_pump, script.hsc_set_floor_minimum
@@ -539,14 +619,17 @@ hsc_set_floor_minimum:
         min_minutes_recovery: 15          # minimum time in recovery
         min_minutes_heat_pump_off: 15     # minimum off time before the heat pump may start
         boost_start_degree_minutes: 30    # shortfall that starts boost
-        assist_start_degree_minutes: 120  # shortfall, in boost, that arms the heat pump
-        assist_carry_degree_minutes: 90   # integrator value on leaving assist (see step 7)
-        floor_trim_degree_minutes: 30     # excess, in boost, that trims the floor minimum 1 F
+        assist_start_degree_minutes: 60   # unabsorbed shortfall, in boost, that arms the heat pump
+        assist_carry_degree_minutes: 30   # integrator value on leaving assist (see step 7); keep below assist_start
         integral_decay_at_setpoint: 0.25  # degree-minutes lost per minute at setpoint
         assist_hold_minutes: 20           # assist ends this long after the room last read short
         assist_call_delta: 1              # heat pump setpoint offset from its own reading in assist
-        floor_lead: 2                     # floor minimum leads the measured floor by this when short
-        floor_release_margin: 3           # boost ends when the floor minimum is within this of setpoint
+        assist_blanking_minutes: 45       # floor level stays frozen this long after the heat pump stops
+        integral_minutes_per_degree: 90   # floor level moves 1 F per this many degree-minutes of error
+        floor_proportional_step: 1        # floor minimum nudge (F) while the room reads short or over
+        floor_max_lead: 1                 # floor minimum is never more than this above the measured floor
+        floor_max_lag: 2                  # ...or more than this below it
+        boost_release_minutes: 180        # boost may end after this long without a short reading
         offset_learning_rate: 0.05
         offset_max_deviation: 3           # ignore heat pump readings further than this from the room reading
 
@@ -564,14 +647,17 @@ hsc_set_floor_minimum:
         min_minutes_recovery: 15
         min_minutes_heat_pump_off: 15
         boost_start_degree_minutes: 30
-        assist_start_degree_minutes: 120
-        assist_carry_degree_minutes: 90
-        floor_trim_degree_minutes: 30
+        assist_start_degree_minutes: 60
+        assist_carry_degree_minutes: 30
         integral_decay_at_setpoint: 0.25
         assist_hold_minutes: 20
         assist_call_delta: 1
-        floor_lead: 2
-        floor_release_margin: 3
+        assist_blanking_minutes: 45
+        integral_minutes_per_degree: 90
+        floor_proportional_step: 1
+        floor_max_lead: 1
+        floor_max_lag: 2
+        boost_release_minutes: 180
         offset_learning_rate: 0.05
         offset_max_deviation: 3
 
@@ -590,6 +676,7 @@ hsc_set_floor_minimum:
               stage_since_entity: "input_datetime.hsc_{{ repeat.item.id }}_stage_since"
               last_short_entity: "input_datetime.hsc_{{ repeat.item.id }}_last_short"
               integral_entity: "input_number.hsc_{{ repeat.item.id }}_integral"
+              floor_level_entity: "input_number.hsc_{{ repeat.item.id }}_floor_level"
               offset_entity: "input_number.hsc_{{ repeat.item.id }}_hp_offset"
 
           - variables:
@@ -691,6 +778,35 @@ hsc_set_floor_minimum:
                     {{ is_number(heat_pump_reading)
                        and (heat_pump_reading - room_temp) | abs <= zone.offset_max_deviation }}
 
+              # Values for the floor loop (steps 6 and 8a)
+              - variables:
+                  # Degree-minutes of error since the last run. Zero while
+                  # the room reads at setpoint.
+                  error_increment: >-
+                    {{ (error * minutes_since_last_run) if (error >= 1 or error <= -1) else 0 }}
+
+                  # The learned floor level. If it has never been set, start
+                  # from the measured floor temperature.
+                  floor_level: >-
+                    {{ states(floor_level_entity) | float(0)
+                       if states(floor_level_entity) | float(0) > 0 else floor_temp }}
+
+                  # The floor minimum is kept close to the measured floor so
+                  # the tekmar's own floor control keeps modulating. Further
+                  # above than this and it calls continuously; further below
+                  # and it contributes nothing.
+                  floor_upper_limit: "{{ [floor_temp + zone.floor_max_lead, floor_cap] | min }}"
+                  floor_lower_limit: "{{ floor_temp - zone.floor_max_lag }}"
+
+                  # The floor level is only learned in boost. It is frozen
+                  # while the heat pump is armed and for a while after it
+                  # stops, so heat pump overshoot does not unwind it.
+                  floor_level_learning: >-
+                    {{ stage == 'boost'
+                       and not (heat_pump_mode == 'off'
+                                and (now() - states[zone.heat_pump].last_changed).total_seconds() / 60
+                                    < zone.assist_blanking_minutes) }}
+
               # -------------------------------------------------------------
               # 4. Learn the heat pump's sensor offset
               #    (heat pump reading minus room reading, slow running
@@ -722,25 +838,51 @@ hsc_set_floor_minimum:
                       timestamp: "{{ now().timestamp() }}"
 
               # -------------------------------------------------------------
-              # 6. Update the integrator (degree-minutes, signed)
-              #    Room below setpoint adds, room above setpoint subtracts.
-              #    While the room reads at setpoint it leaks slowly toward
-              #    zero, so a whole-degree reading that flickers between
-              #    "at setpoint" and "1 F short" still accumulates, and an
-              #    old shortfall fades over a few hours.
+              # 6. Integrate the error: one increment, two accumulators
+              #
+              #    Floor level (F): the slow "I" term of the floor loop. It
+              #    moves 1 F per integral_minutes_per_degree of error, is
+              #    kept within the floor limits, and never leaks.
+              #
+              #    Staging integrator (degree-minutes, signed): shortfall
+              #    the floor loop is NOT absorbing. While the level is
+              #    learning, that is only the part of the increment the
+              #    level could not take because it is at a limit. Otherwise
+              #    it is the whole increment. While the room reads at
+              #    setpoint it leaks slowly toward zero.
               # -------------------------------------------------------------
+              - variables:
+                  level_wanted: "{{ floor_level + error_increment / zone.integral_minutes_per_degree }}"
+              - variables:
+                  level_new: "{{ [[level_wanted, floor_lower_limit] | max, floor_upper_limit] | min }}"
+              - variables:
+                  staging_increment: >-
+                    {{ ((level_wanted - level_new) * zone.integral_minutes_per_degree)
+                       if floor_level_learning else error_increment }}
+
+              # Store the floor level
+              - if:
+                  - "{{ floor_level_learning }}"
+                then:
+                  - action: input_number.set_value
+                    target:
+                      entity_id: "{{ floor_level_entity }}"
+                    data:
+                      value: "{{ level_new | round(2) }}"
+
+              # Update the staging integrator
               - choose:
 
                   # Room is 1 F or more away from setpoint, either side
                   - conditions:
-                      - "{{ error >= 1 or error <= -1 }}"
+                      - "{{ error_increment != 0 }}"
                     sequence:
                       - action: input_number.set_value
                         target:
                           entity_id: "{{ integral_entity }}"
                         data:
                           value: >-
-                            {{ [[integral + error * minutes_since_last_run, 1000] | min, -1000] | max | round(1) }}
+                            {{ [[integral + staging_increment, 1000] | min, -1000] | max | round(1) }}
 
                 # At setpoint: leak toward zero from either side
                 default:
@@ -782,11 +924,17 @@ hsc_set_floor_minimum:
 
                   # RADIANT ONLY -> BOOST
                   # Room has been persistently short on the tekmar's own
-                  # control. Start managing the floor minimum.
+                  # control. Start managing the floor minimum, with the
+                  # learned level starting at the current floor reading.
                   - conditions:
                       - "{{ stage == 'radiant_only' }}"
                       - "{{ integral >= zone.boost_start_degree_minutes }}"
                     sequence:
+                      - action: input_number.set_value
+                        target:
+                          entity_id: "{{ floor_level_entity }}"
+                        data:
+                          value: "{{ floor_temp }}"
                       - action: script.hsc_set_stage
                         data:
                           zone_id: "{{ zone.id }}"
@@ -819,10 +967,12 @@ hsc_set_floor_minimum:
                           stage: radiant_only
 
                   # BOOST -> ASSIST
-                  # The floor has been pushed for a long time and the room is
-                  # still short. Arm the heat pump.
+                  # The floor loop is at its upper limit and the room is
+                  # still short: the radiant cannot take up more. Arm the
+                  # heat pump.
                   - conditions:
                       - "{{ stage == 'boost' }}"
+                      - "{{ error >= 1 }}"
                       - "{{ integral >= zone.assist_start_degree_minutes }}"
                       - "{{ heat_pump_can_start }}"
                     sequence:
@@ -838,8 +988,7 @@ hsc_set_floor_minimum:
                   # continues.
                   # The integrator restarts at the carry value, not 0: if the
                   # room sags again soon, the heat pump comes back quickly;
-                  # if the room holds, that memory leaks away. It also keeps
-                  # the heat pump's own overshoot from trimming the floor.
+                  # if the room holds, that memory leaks away.
                   - conditions:
                       - "{{ stage == 'assist' }}"
                       - "{{ error < 1 }}"
@@ -852,13 +1001,16 @@ hsc_set_floor_minimum:
                           integral: "{{ zone.assist_carry_degree_minutes }}"
 
                   # BOOST -> RADIANT ONLY
-                  # The floor minimum has been trimmed down to within a few
-                  # degrees of the room setpoint, where it does nothing
-                  # useful, and the room is not short. Release it.
+                  # The tekmar is doing well on its own: the room has not
+                  # read short for a long time, and the floor minimum is at
+                  # its lower limit, where it is not holding the floor up.
+                  # (If the room is fine BECAUSE the minimum is holding the
+                  # floor up, boost is doing its job and continues.)
                   - conditions:
                       - "{{ stage == 'boost' }}"
                       - "{{ error < 1 }}"
-                      - "{{ floor_minimum_now <= setpoint + zone.floor_release_margin }}"
+                      - "{{ minutes_since_last_short >= zone.boost_release_minutes }}"
+                      - "{{ floor_minimum_now <= floor_lower_limit }}"
                     sequence:
                       - action: script.hsc_set_stage
                         data:
@@ -867,13 +1019,16 @@ hsc_set_floor_minimum:
 
               # -------------------------------------------------------------
               # 8. Apply outputs for the stage we are in now.
-              #    Stage, offset and integrator are re-read because the steps
-              #    above may have just changed them.
+              #    Stage, offset, integrator and floor level are re-read
+              #    because the steps above may have just changed them.
               # -------------------------------------------------------------
               - variables:
                   stage: "{{ states(stage_entity) }}"
                   heat_pump_offset: "{{ states(offset_entity) | float(0) }}"
                   integral: "{{ states(integral_entity) | float(0) }}"
+                  floor_level: >-
+                    {{ states(floor_level_entity) | float(0)
+                       if states(floor_level_entity) | float(0) > 0 else floor_temp }}
 
               # ---- 8a. Floor minimum ----
               - choose:
@@ -893,43 +1048,23 @@ hsc_set_floor_minimum:
                       - "{{ stage == 'recovery' }}"
                     sequence: []
 
-                  # BOOST or ASSIST, room short: push the floor. Raise the
-                  # floor minimum to just ahead of the measured floor
-                  # temperature, never above the cap and never lower than it
-                  # already is.
-                  - conditions:
-                      - "{{ error >= 1 }}"
-                    sequence:
-                      - variables:
-                          raised_minimum: "{{ [floor_minimum_now, floor_temp + zone.floor_lead] | max }}"
-                      - action: script.hsc_set_floor_minimum
-                        data:
-                          floor: "{{ zone.floor }}"
-                          floor_minimum: "{{ [raised_minimum, floor_cap] | min | int }}"
-
-                  # BOOST, sustained excess: trim the floor minimum to 1 F
-                  # below the lower of its current value and the measured
-                  # floor, then start counting again. The floor cools slowly,
-                  # so this lets it drift down one degree at a time.
-                  - conditions:
-                      - "{{ stage == 'boost' }}"
-                      - "{{ integral <= -zone.floor_trim_degree_minutes }}"
-                    sequence:
-                      - variables:
-                          trimmed_minimum: "{{ [floor_minimum_now, floor_temp] | min - 1 }}"
-                      - action: script.hsc_set_floor_minimum
-                        data:
-                          floor: "{{ zone.floor }}"
-                          floor_minimum: "{{ [trimmed_minimum, 0] | max | int }}"
-                      - action: input_number.set_value
-                        target:
-                          entity_id: "{{ integral_entity }}"
-                        data:
-                          value: 0
-
-                  # Otherwise (room at setpoint, or over but not for long
-                  # enough): no rule matches and the floor minimum is held
-                  # where it is.
+                # BOOST or ASSIST: the floor loop.
+                #   floor minimum = learned level (I)
+                #                 + a nudge while the room reads short or over (P)
+                # kept within the floor limits so the tekmar keeps modulating.
+                default:
+                  - variables:
+                      proportional_nudge: >-
+                        {{ zone.floor_proportional_step if error >= 1
+                           else (-zone.floor_proportional_step if error <= -1 else 0) }}
+                  - variables:
+                      floor_minimum_wanted: >-
+                        {{ [[floor_level + proportional_nudge, floor_lower_limit] | max, floor_upper_limit] | min }}
+                  # The thermostat takes whole degrees
+                  - action: script.hsc_set_floor_minimum
+                    data:
+                      floor: "{{ zone.floor }}"
+                      floor_minimum: "{{ floor_minimum_wanted | round(0) | int }}"
 
               # ---- 8b. Heat pump ----
               - choose:
