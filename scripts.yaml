@@ -241,7 +241,8 @@ hvac_prepare_return_from_away:
 # writes to a device or helper when the value actually needs to change.
 # =============================================================================
 
-# Record a stage change: set the stage, stamp the time, clear the integrator.
+# Record a stage change: set the stage, stamp the time, and set the integrator
+# (to 0 unless an "integral" value is passed).
 hsc_set_stage:
   alias: "HSC: set stage"
   mode: queued
@@ -252,6 +253,9 @@ hsc_set_stage:
     stage:
       description: radiant_only, recovery, boost or assist
       required: true
+    integral:
+      description: Integrator value to start the new stage with (default 0)
+      required: false
   sequence:
     - action: input_select.select_option
       target:
@@ -267,7 +271,7 @@ hsc_set_stage:
       target:
         entity_id: "input_number.hsc_{{ zone_id }}_integral"
       data:
-        value: 0
+        value: "{{ integral | default(0) }}"
 
 # Put the heat pump in the wanted mode and, when heating, at the wanted setpoint.
 hsc_set_heat_pump:

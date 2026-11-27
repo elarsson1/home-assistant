@@ -961,7 +961,8 @@
     - service: script.reload_alexa_media
 
 # =============================================================================
-# Heat stage controller - AUTOMATION (goes in automations.yaml)
+# Heat stage controller - AUTOMATION
+# Design: docs/heat_stage_controller_design.md
 #
 # Coordinates each zone's radiant floor (tekmar) and heat pump (Mitsubishi).
 #
@@ -972,16 +973,23 @@
 #
 # Stages (stored in input_select.hsc_<zone>_stage):
 #   radiant_only  Radiant runs on the tekmar's own air control. Floor minimum
-#                 is 0. Heat pump is off (or resting in freeze-risk weather).
+#                 is always 0 here. Heat pump is off (or resting in
+#                 freeze-risk weather).
+#   boost         The floor minimum is under management. It is pushed up
+#                 while the room reads short, held while the room is at
+#                 setpoint, and trimmed down slowly after sustained excess.
+#                 Heat pump is off. This is a long-lived state.
+#   assist        Boost alone is not holding the room. The heat pump is armed
+#                 and follows the tekmar reading: a small call for heat while
+#                 the room reads short, satisfied otherwise. Ends once the
+#                 room has not read short for a while.
 #   recovery      Room is well below setpoint (setback recovery). Heat pump
 #                 runs to 1 F short of setpoint; the radiant finishes the rest.
-#   boost         Room is persistently a little short. Heat pump stays off;
-#                 the floor minimum creeps up to push the radiant harder than
-#                 the tekmar's proportional control would on its own.
-#   assist        Boost was not enough. Heat pump holds setpoint while the
-#                 floor minimum keeps the radiant running.
 #
-# Uses three small scripts from heat_stage_controller_scripts.yaml:
+# One signed integrator per zone (degree-minutes) drives the stage changes:
+#   positive = accumulated shortfall, negative = accumulated excess.
+#
+# Uses three small scripts from scripts.yaml:
 #   script.hsc_set_stage, script.hsc_set_heat_pump, script.hsc_set_floor_minimum
 # =============================================================================
 
@@ -999,6 +1007,12 @@
         - climate.living_room_radiant
         - climate.den_radiant
       attribute: temperature
+    # React right away when the room reading changes, so the heat pump is
+    # cut as soon as the room reaches setpoint (not up to 5 minutes later)
+    - trigger: state
+      entity_id:
+        - sensor.living_room_radiant_temperature
+        - sensor.den_radiant_temperature
     - trigger: homeassistant
       event: start
 
@@ -1022,18 +1036,20 @@
         freeze_protect_outdoor_temp: 30   # below this, an idle heat pump rests in heat mode
         rest_droop: 2                     # ...this many F below setpoint
         recovery_start_error: 2           # enter recovery when room is this far below setpoint
-        recovery_stop_error: 1            # heat pump stops this far short of setpoint
-        shortfall_degree_minutes: 30      # accumulated shortfall that escalates a stage
-        excess_degree_minutes: 20         # accumulated excess that de-escalates a stage
+        recovery_stop_error: 1            # recovery stops this far short of setpoint
+        min_minutes_recovery: 15          # minimum time in recovery
+        min_minutes_heat_pump_off: 15     # minimum off time before the heat pump may start
+        boost_start_degree_minutes: 30    # shortfall that starts boost
+        assist_start_degree_minutes: 120  # shortfall, in boost, that arms the heat pump
+        assist_carry_degree_minutes: 90   # integrator value on leaving assist (see step 7)
+        floor_trim_degree_minutes: 30     # excess, in boost, that trims the floor minimum 1 F
         integral_decay_at_setpoint: 0.25  # degree-minutes lost per minute at setpoint
-        boost_max_minutes: 90             # time boost gets before the heat pump may assist
-        min_minutes_heat_pump_on: 15
-        min_minutes_heat_pump_off: 15
+        assist_hold_minutes: 20           # assist ends this long after the room last read short
+        assist_call_delta: 1              # heat pump setpoint offset from its own reading in assist
+        floor_lead: 2                     # floor minimum leads the measured floor by this when short
+        floor_release_margin: 3           # boost ends when the floor minimum is within this of setpoint
         offset_learning_rate: 0.05
         offset_max_deviation: 3           # ignore heat pump readings further than this from the room reading
-        floor_lead_below_setpoint: 2      # floor minimum leads measured floor temp by this
-        floor_lead_at_setpoint: 1         # ...and by this in assist when the room is at setpoint
-        floor_step_down: 2                # per run, when room is above setpoint
 
       - id: den
         heat_pump: climate.den
@@ -1046,17 +1062,19 @@
         rest_droop: 2
         recovery_start_error: 2
         recovery_stop_error: 1
-        shortfall_degree_minutes: 30
-        excess_degree_minutes: 20
-        integral_decay_at_setpoint: 0.25
-        boost_max_minutes: 90
-        min_minutes_heat_pump_on: 15
+        min_minutes_recovery: 15
         min_minutes_heat_pump_off: 15
+        boost_start_degree_minutes: 30
+        assist_start_degree_minutes: 120
+        assist_carry_degree_minutes: 90
+        floor_trim_degree_minutes: 30
+        integral_decay_at_setpoint: 0.25
+        assist_hold_minutes: 20
+        assist_call_delta: 1
+        floor_lead: 2
+        floor_release_margin: 3
         offset_learning_rate: 0.05
-        offset_max_deviation: 3           # ignore heat pump readings further than this from the room reading
-        floor_lead_below_setpoint: 2
-        floor_lead_at_setpoint: 1
-        floor_step_down: 2
+        offset_max_deviation: 3
 
   actions:
     - repeat:
@@ -1071,6 +1089,7 @@
               enabled_entity: "input_boolean.hsc_{{ repeat.item.id }}_enabled"
               stage_entity: "input_select.hsc_{{ repeat.item.id }}_stage"
               stage_since_entity: "input_datetime.hsc_{{ repeat.item.id }}_stage_since"
+              last_short_entity: "input_datetime.hsc_{{ repeat.item.id }}_last_short"
               integral_entity: "input_number.hsc_{{ repeat.item.id }}_integral"
               offset_entity: "input_number.hsc_{{ repeat.item.id }}_hp_offset"
 
@@ -1151,29 +1170,35 @@
                     {{ ((now() - (since | as_datetime | as_local)).total_seconds() / 60)
                        if since not in unavailable_states else 9999 }}
 
+                  # Minutes since the room last read 1 F or more below setpoint
+                  minutes_since_last_short: >-
+                    {% set last_short = states(last_short_entity) %}
+                    {{ ((now() - (last_short | as_datetime | as_local)).total_seconds() / 60)
+                       if last_short not in unavailable_states else 9999 }}
+
                   # The heat pump may be started if it is already in heat mode
                   # (resting), or has been off long enough.
-                  heat_pump_minutes_in_mode: >-
-                    {{ (now() - states[zone.heat_pump].last_changed).total_seconds() / 60 }}
                   heat_pump_can_start: >-
                     {{ heat_pump_mode == 'heat'
                        or (now() - states[zone.heat_pump].last_changed).total_seconds() / 60
                           >= zone.min_minutes_heat_pump_off }}
 
+                  # The heat pump reads from a wireless MHK2 thermostat. If
+                  # that link drops, the unit falls back to its internal
+                  # sensor, which can be far off. A reading that differs from
+                  # the room reading by more than offset_max_deviation is
+                  # treated as that fallback and not trusted.
+                  heat_pump_reading_trusted: >-
+                    {{ is_number(heat_pump_reading)
+                       and (heat_pump_reading - room_temp) | abs <= zone.offset_max_deviation }}
+
               # -------------------------------------------------------------
               # 4. Learn the heat pump's sensor offset
-              #    (heat pump reading minus room reading, slow running average)
-              #
-              #    The heat pump reads from a wireless MHK2 thermostat, so the
-              #    reading is valid in any mode. If the wireless link drops,
-              #    the unit falls back to its internal sensor, which can be
-              #    far off. Readings that differ from the room reading by more
-              #    than offset_max_deviation are treated as that fallback and
-              #    ignored.
+              #    (heat pump reading minus room reading, slow running
+              #    average). Used for the recovery and freeze-rest setpoints.
               # -------------------------------------------------------------
               - if:
-                  - "{{ is_number(heat_pump_reading) }}"
-                  - "{{ (heat_pump_reading - room_temp) | abs <= zone.offset_max_deviation }}"
+                  - "{{ heat_pump_reading_trusted }}"
                 then:
                   - variables:
                       blended_offset: >-
@@ -1186,38 +1211,39 @@
                       value: "{{ [[blended_offset, -3] | max, 3] | min | round(2) }}"
 
               # -------------------------------------------------------------
-              # 5. Update the integrator (degree-minutes)
-              #    Positive = accumulated shortfall (room below setpoint)
-              #    Negative = accumulated excess    (room above setpoint)
-              #    It leaks slowly toward zero while the room reads at
-              #    setpoint, so a whole-degree reading that flickers between
-              #    "at setpoint" and "1 F short" still accumulates.
+              # 5. Remember when the room last read short
+              # -------------------------------------------------------------
+              - if:
+                  - "{{ error >= 1 }}"
+                then:
+                  - action: input_datetime.set_datetime
+                    target:
+                      entity_id: "{{ last_short_entity }}"
+                    data:
+                      timestamp: "{{ now().timestamp() }}"
+
+              # -------------------------------------------------------------
+              # 6. Update the integrator (degree-minutes, signed)
+              #    Room below setpoint adds, room above setpoint subtracts.
+              #    While the room reads at setpoint it leaks slowly toward
+              #    zero, so a whole-degree reading that flickers between
+              #    "at setpoint" and "1 F short" still accumulates, and an
+              #    old shortfall fades over a few hours.
               # -------------------------------------------------------------
               - choose:
 
-                  # Below setpoint: accumulate shortfall (positive).
+                  # Room is 1 F or more away from setpoint, either side
                   - conditions:
-                      - "{{ error >= 1 }}"
+                      - "{{ error >= 1 or error <= -1 }}"
                     sequence:
                       - action: input_number.set_value
                         target:
                           entity_id: "{{ integral_entity }}"
                         data:
                           value: >-
-                            {{ [([integral, 0] | max) + error * minutes_since_last_run, 1000] | min | round(1) }}
+                            {{ [[integral + error * minutes_since_last_run, 1000] | min, -1000] | max | round(1) }}
 
-                  # Above setpoint: accumulate excess (negative).
-                  - conditions:
-                      - "{{ error <= -1 }}"
-                    sequence:
-                      - action: input_number.set_value
-                        target:
-                          entity_id: "{{ integral_entity }}"
-                        data:
-                          value: >-
-                            {{ [([integral, 0] | min) + error * minutes_since_last_run, -1000] | max | round(1) }}
-
-                # At setpoint: leak toward zero from either side.
+                # At setpoint: leak toward zero from either side
                 default:
                   - variables:
                       leak: "{{ zone.integral_decay_at_setpoint * minutes_since_last_run }}"
@@ -1235,12 +1261,11 @@
               # Re-read the integrator after the update
               - variables:
                   integral: "{{ states(integral_entity) | float(0) }}"
-                  shortfall_persists: "{{ states(integral_entity) | float(0) >= zone.shortfall_degree_minutes }}"
-                  excess_persists: "{{ states(integral_entity) | float(0) <= -zone.excess_degree_minutes }}"
 
               # -------------------------------------------------------------
-              # 6. Stage transitions (first matching rule wins).
-              #    script.hsc_set_stage also resets the integrator to 0.
+              # 7. Stage transitions (first matching rule wins).
+              #    script.hsc_set_stage sets the integrator to 0 unless an
+              #    "integral" value is passed.
               # -------------------------------------------------------------
               - choose:
 
@@ -1257,10 +1282,25 @@
                           stage: recovery
 
                   # RADIANT ONLY -> BOOST
-                  # Room has been persistently short on the tekmar's own control.
+                  # Room has been persistently short on the tekmar's own
+                  # control. Start managing the floor minimum.
                   - conditions:
                       - "{{ stage == 'radiant_only' }}"
-                      - "{{ shortfall_persists }}"
+                      - "{{ integral >= zone.boost_start_degree_minutes }}"
+                    sequence:
+                      - action: script.hsc_set_stage
+                        data:
+                          zone_id: "{{ zone.id }}"
+                          stage: boost
+
+                  # RECOVERY -> BOOST
+                  # Recovery is done and a floor minimum was already being
+                  # managed when it started (recovery does not touch it).
+                  - conditions:
+                      - "{{ stage == 'recovery' }}"
+                      - "{{ error <= zone.recovery_stop_error }}"
+                      - "{{ minutes_in_stage >= zone.min_minutes_recovery }}"
+                      - "{{ floor_minimum_now > 0 }}"
                     sequence:
                       - action: script.hsc_set_stage
                         data:
@@ -1268,11 +1308,11 @@
                           stage: boost
 
                   # RECOVERY -> RADIANT ONLY
-                  # Heat pump has brought the room to 1 F short of setpoint.
+                  # Recovery is done and no floor minimum was in use.
                   - conditions:
                       - "{{ stage == 'recovery' }}"
                       - "{{ error <= zone.recovery_stop_error }}"
-                      - "{{ minutes_in_stage >= zone.min_minutes_heat_pump_on }}"
+                      - "{{ minutes_in_stage >= zone.min_minutes_recovery }}"
                     sequence:
                       - action: script.hsc_set_stage
                         data:
@@ -1280,13 +1320,11 @@
                           stage: radiant_only
 
                   # BOOST -> ASSIST
-                  # Still short, and the radiant has nothing more to give:
-                  # either the floor is at its cap, or boost has had its time
-                  # (the floor is limited by supply water temperature).
+                  # The floor has been pushed for a long time and the room is
+                  # still short. Arm the heat pump.
                   - conditions:
                       - "{{ stage == 'boost' }}"
-                      - "{{ shortfall_persists }}"
-                      - "{{ floor_temp >= floor_cap - 1 or minutes_in_stage >= zone.boost_max_minutes }}"
+                      - "{{ integral >= zone.assist_start_degree_minutes }}"
                       - "{{ heat_pump_can_start }}"
                     sequence:
                       - action: script.hsc_set_stage
@@ -1294,91 +1332,107 @@
                           zone_id: "{{ zone.id }}"
                           stage: assist
 
+                  # ASSIST -> BOOST
+                  # The room has not read short for a while, so the heat pump
+                  # is not needed. If the radiant is maxed out the room reads
+                  # short again within the hold time and assist simply
+                  # continues.
+                  # The integrator restarts at the carry value, not 0: if the
+                  # room sags again soon, the heat pump comes back quickly;
+                  # if the room holds, that memory leaks away. It also keeps
+                  # the heat pump's own overshoot from trimming the floor.
+                  - conditions:
+                      - "{{ stage == 'assist' }}"
+                      - "{{ error < 1 }}"
+                      - "{{ minutes_since_last_short >= zone.assist_hold_minutes }}"
+                    sequence:
+                      - action: script.hsc_set_stage
+                        data:
+                          zone_id: "{{ zone.id }}"
+                          stage: boost
+                          integral: "{{ zone.assist_carry_degree_minutes }}"
+
                   # BOOST -> RADIANT ONLY
-                  # Room has been above setpoint: the push is no longer needed.
+                  # The floor minimum has been trimmed down to within a few
+                  # degrees of the room setpoint, where it does nothing
+                  # useful, and the room is not short. Release it.
                   - conditions:
                       - "{{ stage == 'boost' }}"
-                      - "{{ excess_persists }}"
+                      - "{{ error < 1 }}"
+                      - "{{ floor_minimum_now <= setpoint + zone.floor_release_margin }}"
                     sequence:
                       - action: script.hsc_set_stage
                         data:
                           zone_id: "{{ zone.id }}"
                           stage: radiant_only
 
-                  # ASSIST -> BOOST
-                  # Room has been above setpoint. The heat pump throttles
-                  # itself to zero before the room can rise above setpoint,
-                  # so this means the radiant alone is now enough. Drop the
-                  # heat pump but keep managing the floor minimum.
-                  - conditions:
-                      - "{{ stage == 'assist' }}"
-                      - "{{ excess_persists }}"
-                      - "{{ minutes_in_stage >= zone.min_minutes_heat_pump_on }}"
-                    sequence:
-                      - action: script.hsc_set_stage
-                        data:
-                          zone_id: "{{ zone.id }}"
-                          stage: boost
-
               # -------------------------------------------------------------
-              # 7. Apply outputs for the stage we are in now.
-              #    Stage and offset are re-read because the steps above may
-              #    have just changed them.
+              # 8. Apply outputs for the stage we are in now.
+              #    Stage, offset and integrator are re-read because the steps
+              #    above may have just changed them.
               # -------------------------------------------------------------
               - variables:
                   stage: "{{ states(stage_entity) }}"
                   heat_pump_offset: "{{ states(offset_entity) | float(0) }}"
+                  integral: "{{ states(integral_entity) | float(0) }}"
 
-              # ---- 7a. Floor minimum ----
+              # ---- 8a. Floor minimum ----
               - choose:
 
-                  # Not boosting or assisting: floor minimum is disabled and
-                  # the tekmar runs on its own air control.
+                  # RADIANT ONLY: floor minimum is always disabled and the
+                  # tekmar runs on its own air control.
                   - conditions:
-                      - "{{ stage not in ['boost', 'assist'] }}"
+                      - "{{ stage == 'radiant_only' }}"
                     sequence:
                       - action: script.hsc_set_floor_minimum
                         data:
                           floor: "{{ zone.floor }}"
                           floor_minimum: 0
 
-                  # Room above setpoint: back the floor off. A floor minimum
-                  # at or below the room setpoint does nothing, so go straight
-                  # to 0 from there.
+                  # RECOVERY: leave the floor minimum exactly as it is.
                   - conditions:
-                      - "{{ error <= -1 }}"
+                      - "{{ stage == 'recovery' }}"
+                    sequence: []
+
+                  # BOOST or ASSIST, room short: push the floor. Raise the
+                  # floor minimum to just ahead of the measured floor
+                  # temperature, never above the cap and never lower than it
+                  # already is.
+                  - conditions:
+                      - "{{ error >= 1 }}"
                     sequence:
                       - variables:
-                          lowered_minimum: "{{ floor_minimum_now - zone.floor_step_down }}"
+                          raised_minimum: "{{ [floor_minimum_now, floor_temp + zone.floor_lead] | max }}"
                       - action: script.hsc_set_floor_minimum
                         data:
                           floor: "{{ zone.floor }}"
-                          floor_minimum: "{{ lowered_minimum | int if lowered_minimum > setpoint else 0 }}"
+                          floor_minimum: "{{ [raised_minimum, floor_cap] | min | int }}"
 
-                  # Boost with the room at setpoint: the push is working, hold.
+                  # BOOST, sustained excess: trim the floor minimum to 1 F
+                  # below the lower of its current value and the measured
+                  # floor, then start counting again. The floor cools slowly,
+                  # so this lets it drift down one degree at a time.
                   - conditions:
                       - "{{ stage == 'boost' }}"
-                      - "{{ error < 1 }}"
-                    sequence: []
+                      - "{{ integral <= -zone.floor_trim_degree_minutes }}"
+                    sequence:
+                      - variables:
+                          trimmed_minimum: "{{ [floor_minimum_now, floor_temp] | min - 1 }}"
+                      - action: script.hsc_set_floor_minimum
+                        data:
+                          floor: "{{ zone.floor }}"
+                          floor_minimum: "{{ [trimmed_minimum, 0] | max | int }}"
+                      - action: input_number.set_value
+                        target:
+                          entity_id: "{{ integral_entity }}"
+                        data:
+                          value: 0
 
-                # Otherwise raise the floor minimum to just ahead of the
-                # measured floor temperature, never above the cap and never
-                # lower than it already is. (In assist this also runs with the
-                # room at setpoint, to shift load from the heat pump to the
-                # radiant.)
-                default:
-                  - variables:
-                      floor_lead: >-
-                        {{ zone.floor_lead_below_setpoint if error >= 1
-                           else zone.floor_lead_at_setpoint }}
-                  - variables:
-                      raised_minimum: "{{ [floor_minimum_now, floor_temp + floor_lead] | max }}"
-                  - action: script.hsc_set_floor_minimum
-                    data:
-                      floor: "{{ zone.floor }}"
-                      floor_minimum: "{{ [raised_minimum, floor_cap] | min | int }}"
+                  # Otherwise (room at setpoint, or over but not for long
+                  # enough): no rule matches and the floor minimum is held
+                  # where it is.
 
-              # ---- 7b. Heat pump ----
+              # ---- 8b. Heat pump ----
               - choose:
 
                   # RECOVERY: run to just short of setpoint
@@ -1391,7 +1445,26 @@
                           mode: heat
                           setpoint: "{{ (setpoint - zone.recovery_stop_error + heat_pump_offset) | round(0) | int }}"
 
-                  # ASSIST: hold setpoint
+                  # ASSIST, room short: a small call for heat. The setpoint is
+                  # set just above the heat pump's own reading, so the tekmar
+                  # reading decides when it heats and the gap stays small
+                  # enough for it to modulate. If its reading cannot be
+                  # trusted, fall back to setpoint plus the learned offset.
+                  - conditions:
+                      - "{{ stage == 'assist' }}"
+                      - "{{ error >= 1 }}"
+                    sequence:
+                      - action: script.hsc_set_heat_pump
+                        data:
+                          heat_pump: "{{ zone.heat_pump }}"
+                          mode: heat
+                          setpoint: >-
+                            {{ ((heat_pump_reading + zone.assist_call_delta) if heat_pump_reading_trusted
+                                else (setpoint + heat_pump_offset)) | round(0) | int }}
+
+                  # ASSIST, room at or above setpoint: satisfied. The setpoint
+                  # is set just below the heat pump's own reading so it stops
+                  # heating but stays armed in heat mode.
                   - conditions:
                       - "{{ stage == 'assist' }}"
                     sequence:
@@ -1399,7 +1472,9 @@
                         data:
                           heat_pump: "{{ zone.heat_pump }}"
                           mode: heat
-                          setpoint: "{{ (setpoint + heat_pump_offset) | round(0) | int }}"
+                          setpoint: >-
+                            {{ ((heat_pump_reading - zone.assist_call_delta) if heat_pump_reading_trusted
+                                else (setpoint + heat_pump_offset - 2)) | round(0) | int }}
 
                 # RADIANT ONLY or BOOST: heat pump is not needed
                 default:
