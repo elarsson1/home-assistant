@@ -238,7 +238,11 @@ automation:
 
   - id: hsc_heat_stage_controller
     alias: Heat stage controller
-    mode: single
+    # Queued, so every change of a reading or setpoint gets its own run. Step 3
+    # relies on this: it credits the minutes since the last run to the value
+    # from before the change that triggered the run.
+    mode: queued
+    max: 5
     max_exceeded: silent
 
     triggers:
@@ -289,17 +293,17 @@ automation:
           staging_integrator_minimum: -30   # most excess the staging integrator will remember
           assist_hold_minutes: 20           # assist ends this long after the room last read short
           assist_call_delta: 1              # heat pump setpoint offset from its own reading in assist
-          assist_blanking_minutes: 45       # floor level stays frozen this long after the heat pump stops
+          level_settling_minutes: 45        # floor level does not learn for this long after boost starts
           integral_minutes_per_degree: 90   # floor level moves 1 F per this many degree-minutes of error
           floor_behind_margin: 1            # floor this far under the level = radiant is behind
-          learning_shortfall_weight: 0.5    # weight of shortfall toward assist while the floor is at the level
+          learning_shortfall_weight: 0.5    # weight of shortfall toward assist while the level is learning upward
           floor_stop_holding_error: 2       # room this far over setpoint: stop holding the floor
           floor_proportional_step: 1        # floor minimum nudge (F) while the room reads short or over
           floor_max_lead: 1                 # floor minimum is never more than this above the measured floor
           floor_max_lag: 2                  # ...or more than this below it
           boost_release_minutes: 180        # boost may end after this long without a short reading
-          offset_learning_rate: 0.05
-          offset_max_deviation: 3           # ignore heat pump readings further than this from the room reading
+          offset_learning_rate: 0.05        # weight of a new reading in the offset average, per 5 minutes
+          offset_max_deviation: 3           # ignore heat pump readings further than this from where we expect them
 
         - id: den
           heat_pump: climate.den
@@ -321,7 +325,7 @@ automation:
           staging_integrator_minimum: -30
           assist_hold_minutes: 20
           assist_call_delta: 1
-          assist_blanking_minutes: 45
+          level_settling_minutes: 45
           integral_minutes_per_degree: 90
           floor_behind_margin: 1
           learning_shortfall_weight: 0.5
@@ -391,11 +395,21 @@ automation:
                     - "{{ not is_state(enabled_entity, 'on') or not devices_available }}"
                   sequence: []
 
-                # Radiant thermostat is off (summer): release the floor minimum,
-                # reset the stage, and leave the heat pump alone.
+                # Radiant thermostat is off (summer): release the floor minimum
+                # and reset the stage. The heat pump is left alone, unless the
+                # controller itself had it running (assist or recovery); then
+                # it is turned off so it is not left heating with nothing
+                # supervising it.
                 - conditions:
                     - "{{ radiant_mode != 'heat' }}"
                   sequence:
+                    - if:
+                        - "{{ stage in ['assist', 'recovery'] }}"
+                      then:
+                        - action: script.hsc_set_heat_pump
+                          data:
+                            heat_pump: "{{ zone.heat_pump }}"
+                            mode: "off"
                     - action: script.hsc_set_floor_minimum
                       data:
                         floor: "{{ zone.floor }}"
@@ -443,19 +457,52 @@ automation:
 
                     # The heat pump reads from a wireless MHK2 thermostat. If
                     # that link drops, the unit falls back to its internal
-                    # sensor, which can be far off. A reading that differs from
-                    # the room reading by more than offset_max_deviation is
-                    # treated as that fallback and not trusted.
+                    # sensor, which can be far off. We expect the reading at
+                    # the room reading plus the learned offset; a reading more
+                    # than offset_max_deviation away from that is treated as
+                    # the fallback and not trusted.
+                    # (If the true offset ever moved by more than that from the
+                    # learned one, readings would stay untrusted and the offset
+                    # could not relearn. That would point to a sensor problem;
+                    # set the offset helper by hand to recover.)
                     heat_pump_reading_trusted: >-
                       {{ is_number(heat_pump_reading)
-                         and (heat_pump_reading - room_temp) | abs <= zone.offset_max_deviation }}
+                         and (heat_pump_reading - (room_temp + heat_pump_offset)) | abs
+                             <= zone.offset_max_deviation }}
+
+                    # Which entity's change triggered this run ('' on a
+                    # 5-minute tick or at start-up)
+                    triggering_entity: "{{ trigger.entity_id | default('') }}"
+
+                # The readings that applied over the minutes since the last run.
+                # When a change of this zone's room reading or setpoint
+                # triggered the run, those minutes were spent at the value from
+                # BEFORE the change, so that is the value to integrate. On a
+                # 5-minute tick, or when the other zone triggered the run,
+                # nothing changed here and the current values apply.
+                - variables:
+                    interval_room_temp: >-
+                      {{ trigger.from_state.state
+                         if (triggering_entity == zone.room_temp
+                             and is_number(trigger.from_state.state))
+                         else room_temp }}
+                    interval_setpoint: >-
+                      {{ trigger.from_state.attributes.temperature
+                         if (triggering_entity == zone.radiant
+                             and is_number(trigger.from_state.attributes.temperature))
+                         else setpoint }}
+
+                - variables:
+                    # Positive = the room was below setpoint over the interval
+                    interval_error: "{{ interval_setpoint - interval_room_temp }}"
 
                 # Values for the floor loop (steps 6 and 8a)
                 - variables:
                     # Degree-minutes of error since the last run. Zero while
-                    # the room reads at setpoint.
+                    # the room read at setpoint.
                     error_increment: >-
-                      {{ (error * minutes_since_last_run) if (error >= 1 or error <= -1) else 0 }}
+                      {{ (interval_error * minutes_since_last_run)
+                         if (interval_error >= 1 or interval_error <= -1) else 0 }}
 
                     # The learned floor level. If it has never been set, start
                     # from the measured floor temperature.
@@ -473,23 +520,37 @@ automation:
                 - variables:
                     # The radiant is "behind" when the floor is well under the
                     # learned level (it is still climbing toward what we know
-                    # it needs), or when the floor is at its cap.
+                    # it needs), or when the floor is at its cap. Used for the
+                    # shortfall weight in step 6.
                     radiant_behind: >-
                       {{ floor_temp <= floor_level - zone.floor_behind_margin
                          or floor_temp >= floor_cap - 1 }}
 
                     # The level learns only on valid evidence:
-                    #   - in boost, and not while or soon after the heat pump
-                    #     ran (its heat is not the radiant's doing)
-                    #   - the room is off by 1 F, not more. Bigger gaps are
+                    #   - in boost, and not for the first level_settling_minutes
+                    #     of a boost period. Coming from assist or recovery the
+                    #     room still holds the heat pump's heat, which is not
+                    #     the radiant's doing; coming from radiant only, the
+                    #     room has not yet responded to the floor (about 45
+                    #     minutes of dead time).
+                    #   - the room was off by 1 F, not more. Bigger gaps are
                     #     disturbances (the fireplace, a setback, an open
                     #     door) and say nothing about the level.
                     floor_level_may_learn: >-
                       {{ stage == 'boost'
-                         and error | abs >= 1 and error | abs < 2
-                         and not (heat_pump_mode == 'off'
-                                  and (now() - states[zone.heat_pump].last_changed).total_seconds() / 60
-                                      < zone.assist_blanking_minutes) }}
+                         and minutes_in_stage >= zone.level_settling_minutes
+                         and interval_error | abs >= 1 and interval_error | abs < 2 }}
+
+                - variables:
+                    # The level is learning UPWARD: the room was short by 1 F
+                    # and the floor has reached the level (or is above it), so
+                    # the level is too low. While the floor is still climbing
+                    # toward the level, the level holds; otherwise it would run
+                    # away upward.
+                    floor_level_learning_upward: >-
+                      {{ floor_level_may_learn
+                         and interval_error >= 1
+                         and floor_temp > floor_level - zone.floor_behind_margin }}
 
                 # -------------------------------------------------------------
                 # 4. Learn the heat pump's sensor offset
@@ -500,9 +561,16 @@ automation:
                     - "{{ heat_pump_reading_trusted }}"
                   then:
                     - variables:
+                        # offset_learning_rate is the weight of a new reading
+                        # per 5 minutes. Scale it by the time actually elapsed,
+                        # so extra runs (a flickering reading) do not make the
+                        # average adapt faster.
+                        offset_weight: >-
+                          {{ [zone.offset_learning_rate * minutes_since_last_run / 5, 1] | min }}
+                    - variables:
                         blended_offset: >-
                           {{ heat_pump_offset
-                             + zone.offset_learning_rate * ((heat_pump_reading - room_temp) - heat_pump_offset) }}
+                             + offset_weight * ((heat_pump_reading - room_temp) - heat_pump_offset) }}
                     - action: input_number.set_value
                       target:
                         entity_id: "{{ offset_entity }}"
@@ -523,6 +591,8 @@ automation:
 
                 # -------------------------------------------------------------
                 # 6. Integrate the error: one increment, two accumulators
+                #    (the increment is the error that applied over the minutes
+                #    since the last run; see interval_error in step 3)
                 #
                 #    Floor level (F): the floor temperature that holds the room
                 #    at setpoint. It moves 1 F per integral_minutes_per_degree
@@ -537,10 +607,12 @@ automation:
                 #    room that has just been over is slower to escalate. The
                 #    negative side is capped at staging_integrator_minimum, so
                 #    a long warm spell cannot build up a large debt that would
-                #    delay the heat pump. In boost it counts in
-                #    full when the radiant is behind, and at reduced weight
-                #    while the floor is at the level and the level is still
-                #    learning. While the room reads at setpoint it leaks slowly
+                #    delay the heat pump. Shortfall counts at reduced weight
+                #    only while the floor level is actually learning upward
+                #    (the floor loop is still working on the problem), and in
+                #    full whenever it is not: the radiant is behind, the level
+                #    is paused after a stage change, or the floor is at its
+                #    cap. While the room reads at setpoint it leaks slowly
                 #    toward zero.
                 # -------------------------------------------------------------
                 - choose:
@@ -548,12 +620,8 @@ automation:
                     # Room short by 1 F, and the floor has reached the level
                     # (or is above it): the level is too low. If the floor is
                     # already above the level, start from the floor reading.
-                    # While the floor is still climbing toward the level, the
-                    # level holds; otherwise it would run away upward.
                     - conditions:
-                        - "{{ floor_level_may_learn }}"
-                        - "{{ error >= 1 }}"
-                        - "{{ floor_temp > floor_level - zone.floor_behind_margin }}"
+                        - "{{ floor_level_learning_upward }}"
                       sequence:
                         - variables:
                             level_start: "{{ [floor_level, floor_temp] | max }}"
@@ -572,7 +640,7 @@ automation:
                     # the level.)
                     - conditions:
                         - "{{ floor_level_may_learn }}"
-                        - "{{ error <= -1 }}"
+                        - "{{ interval_error <= -1 }}"
                       sequence:
                         - action: input_number.set_value
                           target:
@@ -584,18 +652,21 @@ automation:
                     # Otherwise the level holds.
 
                 - variables:
-                    # Shortfall counts in full unless we are in boost with the
-                    # floor at the level (the radiant is keeping up with what
-                    # we have asked of it, and the level is still learning).
+                    # Shortfall counts at reduced weight only while the level
+                    # is learning upward. Whenever the level cannot learn, the
+                    # floor loop has nothing more to offer and the shortfall
+                    # counts in full toward the heat pump.
+                    # (At the floor cap the level has no room left to rise,
+                    # so that also counts in full.)
                     staging_increment: >-
                       {{ error_increment * zone.learning_shortfall_weight
-                         if (stage == 'boost' and error_increment > 0 and not radiant_behind)
+                         if (floor_level_learning_upward and not radiant_behind)
                          else error_increment }}
 
                 # Update the staging integrator
                 - choose:
 
-                    # Room is 1 F or more away from setpoint, either side
+                    # Room was 1 F or more away from setpoint, either side
                     - conditions:
                         - "{{ error_increment != 0 }}"
                       sequence:
