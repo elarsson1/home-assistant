@@ -132,7 +132,7 @@ It feeds two accumulators, which need different memory:
 | Accumulator | Units | Leaks at setpoint | Reset | Range |
 |---|---|---|---|---|
 | Learned floor level | F, at 1 F per 90 degree-minutes | No | Set to the floor reading on entering boost from radiant only | Room setpoint to floor cap |
-| Staging integrator | Degree-minutes, signed | Yes, 0.25 per minute | On a stage change (to +30 on leaving assist) | -30 to 1000 |
+| Staging integrator | Degree-minutes, signed | Yes, 0.25 per minute | On a stage change (to +30 on leaving assist) | -30 to +60 |
 
 ### The learned floor level
 
@@ -154,7 +154,7 @@ The asymmetry is deliberate. After the fireplace has been on, the floor is well 
 
 ### The staging integrator
 
-Shortfall counted toward arming the heat pump. Time over setpoint works it back down and a little below zero, so a room that has just been over is slower to escalate. The negative side is capped at -30 (`staging_integrator_minimum`): enough to add about 30 minutes of patience after a spell over setpoint, but not so much that a long warm spell or an evening with the fireplace on builds up a debt that delays the heat pump.
+Shortfall counted toward arming the heat pump. Time over setpoint works it back down and a little below zero, so a room that has just been over is slower to escalate. The negative side is capped at -30 (`staging_integrator_minimum`): enough to add about 30 minutes of patience after a spell over setpoint, but not so much that a long warm spell or an evening with the fireplace on builds up a debt that delays the heat pump. The positive side is capped at +60 (`assist_start_degree_minutes`), the highest threshold anything reads. In `assist` and `recovery` nothing reads the integrator, and it is set again on leaving, so a larger value would mean nothing.
 
 | Situation | Weight of shortfall |
 |---|---|
@@ -297,7 +297,7 @@ Per zone, where `<zone>` is `living_room` or `den`. Fourteen helpers in total, d
 | `input_select.hsc_<zone>_stage` | Dropdown | Options: `radiant_only`, `recovery`, `boost`, `assist` |
 | `input_datetime.hsc_<zone>_stage_since` | Date and time | When the current stage began |
 | `input_datetime.hsc_<zone>_last_short` | Date and time | Last run on which the room read 1 F or more below setpoint, in any stage |
-| `input_number.hsc_<zone>_integral` | Number | Staging integrator. Min -1000, max 1000, step 0.1 |
+| `input_number.hsc_<zone>_integral` | Number | Staging integrator. Min -100, max 100, step 0.1. The controller keeps it between `staging_integrator_minimum` and `assist_start_degree_minutes`, which must stay inside these bounds. |
 | `input_number.hsc_<zone>_floor_level` | Number | Learned floor level in F. Min 0, max 100, step 0.01 |
 | `input_number.hsc_<zone>_hp_offset` | Number | Min -3, max 3, step 0.01 |
 
@@ -316,7 +316,7 @@ Set per zone at the top of the automation.
 | `min_minutes_recovery` | 15 | Minimum time in recovery |
 | `min_minutes_heat_pump_off` | 15 | Minimum heat pump off time before it may start |
 | `boost_start_degree_minutes` | 30 | Shortfall that starts boost |
-| `assist_start_degree_minutes` | 60 | Weighted shortfall, in boost, that arms the heat pump |
+| `assist_start_degree_minutes` | 60 | Weighted shortfall, in boost, that arms the heat pump. Also the most the staging integrator will hold. |
 | `assist_carry_degree_minutes` | 30 | Staging integrator value on leaving assist. Keep below `assist_start_degree_minutes`. |
 | `integral_decay_at_setpoint` | 0.25 | Degree-minutes lost per minute at setpoint |
 | `staging_integrator_minimum` | -30 | Most excess the staging integrator will remember |
@@ -472,7 +472,7 @@ An external review of the package found three bugs and two design problems. Four
 4. **Floor minimum 1 F under the reading (not changed).** The review argued that the minimum still does work 1 F under the floor reading, so the cap while the room is over and the boost release test were both too lenient. It relied on a table in section 7 that was wrong: the steady pulsing was seen 1 F above and at the reading, not at and 1 F below it. The one sample at 1 F below shows almost no calls. The table is corrected and the rules are kept, pending the measurement below. The alternative, dropping the minimum 2 F under the floor on any over-reading, would defeat the tekmar's proportional control.
 5. **Half weight applied while the level could not learn.** Fixed: shortfall counts at half weight only while the level is learning upward (section 6).
 
-Smaller fixes: the offset average is scaled by elapsed time; the heat pump is turned off if the radiant thermostat is turned off during assist or recovery.
+Smaller fixes: the staging integrator's positive side is capped at `assist_start_degree_minutes` in place of an arbitrary 1000; the offset average is scaled by elapsed time; the heat pump is turned off if the radiant thermostat is turned off during assist or recovery.
 
 One consequence to watch: with the room steadily 1 F short, the heat pump is now armed about 1.25 hours after boost starts from `radiant_only`, where revision 4 took 1.7 to 2 hours. Raise `assist_start_degree_minutes` if that gives boost too little time.
 
@@ -502,7 +502,7 @@ Done:
 To deploy revision 4.1:
 
 1. Pull the repo on the Home Assistant host.
-2. Reload automations. (Only the automation changed. A change to the scripts needs a script reload, and a change to the helpers needs the input helper reloads or a restart.)
+2. Reload automations and input numbers (the automation and the integrator helpers' bounds changed). A change to the scripts needs a script reload.
 3. No helper values need to be reset. The stage, integrator and floor level carry over.
 
 Things to watch and tune first:

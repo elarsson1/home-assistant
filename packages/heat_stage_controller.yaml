@@ -53,8 +53,11 @@ input_datetime:
 input_number:
   hsc_living_room_integral:
     name: "HSC Living Room Integral"
-    min: -1000
-    max: 1000
+    # Wider than the range the controller uses (staging_integrator_minimum to
+    # assist_start_degree_minutes), to leave room for tuning. Keep those two
+    # tunables inside these bounds, or the write will be rejected.
+    min: -100
+    max: 100
     step: 0.1
     mode: box
     unit_of_measurement: "°F·min"
@@ -74,8 +77,11 @@ input_number:
     unit_of_measurement: "°F"
   hsc_den_integral:
     name: "HSC Den Integral"
-    min: -1000
-    max: 1000
+    # Wider than the range the controller uses (staging_integrator_minimum to
+    # assist_start_degree_minutes), to leave room for tuning. Keep those two
+    # tunables inside these bounds, or the write will be rejected.
+    min: -100
+    max: 100
     step: 0.1
     mode: box
     unit_of_measurement: "°F·min"
@@ -287,7 +293,7 @@ automation:
           min_minutes_recovery: 15          # minimum time in recovery
           min_minutes_heat_pump_off: 15     # minimum off time before the heat pump may start
           boost_start_degree_minutes: 30    # shortfall that starts boost
-          assist_start_degree_minutes: 60   # weighted shortfall, in boost, that arms the heat pump
+          assist_start_degree_minutes: 60   # weighted shortfall, in boost, that arms the heat pump; also the most the staging integrator will hold
           assist_carry_degree_minutes: 30   # integrator value on leaving assist (see step 7); keep below assist_start
           integral_decay_at_setpoint: 0.25  # degree-minutes lost per minute at setpoint
           staging_integrator_minimum: -30   # most excess the staging integrator will remember
@@ -607,7 +613,9 @@ automation:
                 #    room that has just been over is slower to escalate. The
                 #    negative side is capped at staging_integrator_minimum, so
                 #    a long warm spell cannot build up a large debt that would
-                #    delay the heat pump. Shortfall counts at reduced weight
+                #    delay the heat pump. The positive side is capped at
+                #    assist_start_degree_minutes: that is the highest threshold
+                #    anything reads, so a larger value would mean nothing. Shortfall counts at reduced weight
                 #    only while the floor level is actually learning upward
                 #    (the floor loop is still working on the problem), and in
                 #    full whenever it is not: the radiant is behind, the level
@@ -675,7 +683,7 @@ automation:
                             entity_id: "{{ integral_entity }}"
                           data:
                             value: >-
-                              {{ [[integral + staging_increment, 1000] | min, zone.staging_integrator_minimum] | max | round(1) }}
+                              {{ [[integral + staging_increment, zone.assist_start_degree_minutes] | min, zone.staging_integrator_minimum] | max | round(1) }}
 
                   # At setpoint: leak toward zero from either side
                   default:
