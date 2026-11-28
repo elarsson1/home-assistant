@@ -274,8 +274,6 @@ automation:
         entity_id:
           - sensor.living_room_radiant_temperature
           - sensor.den_radiant_temperature
-      - trigger: homeassistant
-        event: start
 
     variables:
       unavailable_states: ["unknown", "unavailable", "none", "None", ""]
