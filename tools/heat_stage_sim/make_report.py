@@ -185,7 +185,7 @@ def plot_scenario(plt, path, scenario, rows):
     floor_ax.step(hours, [r["floor_reading"] for r in rows], where="post", color=INK, lw=1.5, label="floor reading")
     floor_ax.step(hours, masked("floor_minimum", managed), where="post", color=STAGE_COLORS["boost"], lw=2,
                   label="floor minimum")
-    floor_ax.plot(hours, masked("learned_floor_level", lambda r: r["stage"] != "radiant_only"),
+    floor_ax.plot(hours, masked("learned_floor_level", lambda r: r["stage"] != "radiant_only" and r["learned_floor_level"] > 0),
                   color=STAGE_COLORS["assist"], lw=1.8, ls="--", label="learned level")
     floor_ax.set_ylabel("Floor °F")
     floor_ax.legend(fontsize=8, ncol=3, frameon=False, loc="lower right", bbox_to_anchor=(1, 0.98))
@@ -227,6 +227,39 @@ def plot_scenario(plt, path, scenario, rows):
     plt.close(fig)
 
 
+def plot_revision_comparison(plt, path, comparison):
+    scenarios = [c["scenario"] for c in comparison if c["revision"] == "5"]
+    labels = [f"{s.number}. {s.key.replace('_', ' ')}" for s in scenarios]
+    panels = [("two_short", "Time 2 °F or more short", lambda v: f"{v:.0%}", 100),
+              ("heat_pump_starts", "Heat pump off → heat changes", lambda v: f"{v}", 1),
+              ("heat_pump_full_load_hours", "Heat pump full-load hours", lambda v: f"{v:.1f}", 1)]
+    fig, axes = plt.subplots(1, 3, figsize=(11, 4.6), sharey=True)
+    ys = range(len(scenarios))
+    for ax, (key, title, fmt, scale) in zip(axes, panels):
+        for offset, revision, color in ((-0.2, "4.1", "#c9c8c2"), (0.2, "5", STAGE_COLORS["boost"])):
+            values = [next(c[key] for c in comparison if c["scenario"] is s and c["revision"] == revision)
+                      for s in scenarios]
+            bars = ax.barh([y + offset for y in ys], [v * scale for v in values], 0.38, color=color,
+                           label=f"revision {revision}")
+            for bar, value in zip(bars, values):
+                ax.text(bar.get_width(), bar.get_y() + bar.get_height() / 2, " " + fmt(value),
+                        va="center", fontsize=7.5, color=QUIET)
+        ax.set_title(title, loc="left", fontsize=10)
+        ax.invert_yaxis()
+        style(ax)
+        ax.grid(axis="x", color=GRID, lw=0.8)
+        ax.grid(axis="y", visible=False)
+    axes[0].set_yticks(list(ys))
+    axes[0].set_yticklabels(labels, fontsize=8.5)
+    handles, legend_labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, legend_labels, fontsize=8, frameon=False, loc="upper right", ncol=2)
+    fig.suptitle("Revision 5 removes the recovery loop: far less time 2 °F short, more heat pump hours",
+                 x=0.01, ha="left", fontweight="bold")
+    fig.tight_layout(rect=(0, 0, 1, 0.97))
+    fig.savefig(path, dpi=150)
+    plt.close(fig)
+
+
 def style(ax):
     ax.grid(axis="y", color=GRID, lw=0.8)
     for side in ("top", "right"):
@@ -246,7 +279,7 @@ def main():
         import matplotlib.pyplot as plt
         os.makedirs(FIGURE_DIR, exist_ok=True)
 
-    print("## Scenarios (revision 4.1)\n")
+    print("## Scenarios (revision 5)\n")
     for scenario in SCENARIOS:
         rows, changes = simulate(scenario.schedule, scenario.minutes)
         write_csv(os.path.join(CSV_DIR, f"{scenario.key}.csv"),
@@ -281,25 +314,23 @@ def main():
     write_csv(os.path.join(CSV_DIR, "steady_45_full.csv"), steady_runs["full"])
     write_csv(os.path.join(CSV_DIR, "steady_45_nudge_only.csv"), steady_runs["nudge_only"])
 
-    print("\n## What-if variants\n")
-    print("| Scenario | Version | Reads setpoint | 2 °F short | Heat pump off → heat | Heat pump full-load hours |")
-    print("| --- | --- | --- | --- | --- | --- |")
-    versions = [("revision 4.1", ()), ("A", ("recovery_returns_armed",)), ("B", ("boost_gap_goes_to_assist",)),
-                ("A + pause release", ("recovery_returns_armed", "pause_release_while_far_over"))]
+    print("\n## Revision 4.1 against revision 5\n")
+    print("| Scenario | Revision | Reads setpoint | 2 °F short | Heat pump off → heat | Heat pump full-load hours | Stage changes |")
+    print("| --- | --- | --- | --- | --- | --- | --- |")
+    comparison = []
     for scenario in SCENARIOS:
-        if scenario.key not in ("cold_front", "setback", "fireplace"):
-            continue
-        for label, variants in versions:
-            if label == "A + pause release" and scenario.key != "fireplace":
-                continue
-            stats = summarize(*simulate(scenario.schedule, scenario.minutes, variants=variants))
-            print(f"| {scenario.number}, {scenario.key} | {label} | {stats['reads_setpoint']:.0%} | "
-                  f"{stats['two_short']:.0%} | {stats['heat_pump_starts']} | {stats['heat_pump_full_load_hours']:.1f} |")
+        for revision in ("4.1", "5"):
+            stats = summarize(*simulate(scenario.schedule, scenario.minutes, revision=revision))
+            comparison.append(dict(scenario=scenario, revision=revision, **stats))
+            print(f"| {scenario.number}, {scenario.key} | {revision} | {stats['reads_setpoint']:.0%} | "
+                  f"{stats['two_short']:.0%} | {stats['heat_pump_starts']} | "
+                  f"{stats['heat_pump_full_load_hours']:.1f} | {stats['stage_changes']} |")
 
     if plt:
         plot_floor_loop_duty(plt, os.path.join(FIGURE_DIR, "floor_loop_duty.png"))
         plot_steady_45(plt, os.path.join(FIGURE_DIR, "steady_45_floor_minimum.png"), steady_runs)
         plot_steady_sweep(plt, os.path.join(FIGURE_DIR, "steady_state_by_outdoor.png"), sweep)
+        plot_revision_comparison(plt, os.path.join(FIGURE_DIR, "revision_comparison.png"), comparison)
         print(f"\nFigures written to {os.path.relpath(FIGURE_DIR, REPO)}")
     print(f"CSVs written to {os.path.relpath(CSV_DIR, REPO)}")
 

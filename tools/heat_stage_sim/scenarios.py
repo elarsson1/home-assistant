@@ -102,22 +102,65 @@ def deep_cold(minute):
     return dict(outdoor=outdoor, setpoint=68, gains=gains)
 
 
+def away_return_mild(minute):
+    """10:00 start. Away setback at 60 F (two days, so the floor is cold),
+    setpoint back to 68 F at 15:00. Outdoors 50-54 F. Two people home from
+    15:00, cooking 18:30-19:30."""
+    outdoor = ramp(minute, [(0, 50), (5 * HOUR, 54), (10 * HOUR, 51), (24 * HOUR, 48)])
+    setpoint = 60 if minute < 5 * HOUR else 68
+    gains = 0
+    if between(minute, 5, 13):
+        gains += 2 * PERSON
+    if between(minute, 8.5, 9.5):
+        gains += COOKING
+    return dict(outdoor=outdoor, setpoint=setpoint, gains=gains)
+
+
+def cold_snap_setback(minute):
+    """18:00 start, after two days near 17 F (24 h average under 20 F, so an
+    idle heat pump rests). Setpoint 62 F from 22:00 to 06:00, then 68 F.
+    Outdoors 17 F falling to 10 F by 05:00, 19 F by 18:00."""
+    outdoor = ramp(minute, [(0, 17), (11 * HOUR, 10), (14 * HOUR, 11), (24 * HOUR, 19)])
+    setpoint = 62 if between(minute, 4, 12) else 68
+    gains = 2 * PERSON if between(minute, 0, 4) or between(minute, 12, 14) else 0
+    return dict(outdoor=outdoor, setpoint=setpoint, gains=gains)
+
+
+def raise_after_assist(minute):
+    """12:00 start. Outdoors 40 F. Setpoint raised 68 -> 70 F at 14:48, eight
+    minutes after an assist run ended (heat pump off less than 15 minutes)."""
+    outdoor = 40
+    setpoint = 70 if minute >= RAISE_MINUTE else 68
+    return dict(outdoor=outdoor, setpoint=setpoint, gains=0)
+
+
+RAISE_MINUTE = 2 * HOUR + 48  # 8 minutes after the 14:40 assist run ends
+
 SCENARIOS = [
-    Scenario("cold_front", 1, "Once the room fell 2 °F short, recovery and boost took turns all night",
+    Scenario("cold_front", 1, "One recovery, then assist carried the cold front: the recovery loop is gone",
              "Scenario 1 · 24 h from 16:00 · setpoint 68 °F · outdoors 47 °F falling to 27 °F",
              16, 24 * HOUR, cold_front, [(150, "cooking"), (360, "front arrives"), (900, "27 °F")]),
-    Scenario("fireplace", 2, "Boost released at 21:25, mid-fireplace, discarding the level it had held",
+    Scenario("fireplace", 2, "Boost still released mid-fireplace; afterwards recovery handed straight to assist",
              "Scenario 2 · 14 h from 14:00 · setpoint 68 °F · fireplace 19:00 to 20:45",
              14, 14 * HOUR, fireplace_evening, [(300, "fireplace"), (405, "fireplace off")]),
-    Scenario("setback", 3, "Setback recovered in 51 minutes, then cycled with radiant only until 10:35",
+    Scenario("setback", 3, "After the setback, recovery handed to assist, which pushed the floor while the heat pump helped",
              "Scenario 3 · 24 h from 21:00 · setpoint 62 °F overnight, 68 °F day, 70 °F from 18:00",
              21, 24 * HOUR, setback_and_raise, [(90, "setback 62"), (570, "back to 68"), (1260, "raised to 70")]),
-    Scenario("mild_party", 4, "Boost released at 09:55; sun and party were left to the floor's heat",
+    Scenario("mild_party", 4, "Boost released at 10:30; sun and party were left to the floor's heat",
              "Scenario 4 · 18 h from 06:00 · setpoint 68 °F · outdoors 38 °F to 56 °F",
              6, 18 * HOUR, mild_day_and_party, [(300, "sun"), (720, "party"), (960, "party ends")]),
-    Scenario("deep_cold", 5, "With the floor capped, assist stayed armed from 21:40 on",
+    Scenario("deep_cold", 5, "With the floor capped, assist stayed armed from 20:50 on",
              "Scenario 5 · 24 h from noon · setpoint 68 °F · outdoors 38 °F falling to 14 °F",
-             12, 24 * HOUR, deep_cold, [(580, "assist holds"), (1020, "14 °F")]),
+             12, 24 * HOUR, deep_cold, [(530, "assist holds"), (1020, "14 °F")]),
+    Scenario("away_return", 6, "Back from away: recovery, then assist and boost took turns while the floor caught up",
+             "Scenario 6 · 14 h from 10:00 · away setback 60 °F until 15:00, then 68 °F · outdoors 48 to 54 °F",
+             10, 14 * HOUR, away_return_mild, [(300, "back to 68")]),
+    Scenario("cold_snap_setback", 7, "At 10 °F the floor could not hold even the setback; the heat pump carried the night and the morning return",
+             "Scenario 7 · 24 h from 18:00 · setpoint 62 °F 22:00 to 06:00 · outdoors 17 °F to 10 °F",
+             18, 24 * HOUR, cold_snap_setback, [(240, "setback 62"), (720, "back to 68")]),
+    Scenario("raise_after_assist", 8, "The raise waited out the heat pump's 15-minute off time, then recovery handed to assist",
+             "Scenario 8 · 8 h from 12:00 · outdoors 40 °F · setpoint 68 then 70 °F",
+             12, 8 * HOUR, raise_after_assist, [(RAISE_MINUTE, "raised to 70")]),
 ]
 
 

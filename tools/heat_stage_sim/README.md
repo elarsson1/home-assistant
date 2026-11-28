@@ -6,9 +6,9 @@ Runs the heat stage controller from [`packages/heat_stage_controller.yaml`](../.
 
 | File | What it holds |
 | --- | --- |
-| `simulator.py` | `HeatStageController` (steps 3 to 8 of the automation, revision 4.1, ported line by line), `RoomModel` (floor, room, tekmar 561, boiler supply, heat pump) and `simulate()` |
-| `scenarios.py` | The five scenarios in the doc (weather, setpoint schedule, internal gains) and `steady()` for constant conditions |
-| `make_report.py` | Runs everything, writes the doc's charts to `docs/images/heat_stage_controller/` and per-minute CSVs to `output/`, and prints the tables quoted in the doc |
+| `simulator.py` | `HeatStageController` (steps 3 to 8 of the automation, revision 5, ported line by line; `revision="4.1"` runs the previous logic), `RoomModel` (floor, room, tekmar 561, boiler supply, heat pump) and `simulate()` |
+| `scenarios.py` | The eight scenarios in the doc (weather, setpoint schedule, internal gains) and `steady()` for constant conditions |
+| `make_report.py` | Runs everything, writes the doc's charts to `docs/images/heat_stage_controller/` and per-minute CSVs to `output/`, and prints the tables quoted in the doc, including revision 4.1 against revision 5 |
 
 ## Running it
 
@@ -21,7 +21,7 @@ A full run takes about five seconds. `output/` is ignored by git.
 
 ## Trying a change
 
-Tunables and what-if variants are arguments to `simulate()`:
+Tunables and the revision are arguments to `simulate()`:
 
 ```python
 import sys; sys.path.insert(0, "tools/heat_stage_sim")
@@ -32,7 +32,7 @@ cold_front = SCENARIOS[0]
 rows, stage_changes = simulate(
     cold_front.schedule, cold_front.minutes,
     tunables={"assist_start_degree_minutes": 45},   # any key in DEFAULT_TUNABLES
-    variants=("recovery_returns_armed",),            # see KNOWN_VARIANTS
+    revision="5",                                    # or "4.1"
 )
 for minute, old, new in stage_changes:
     print(cold_front.clock(minute), old, "->", new)
@@ -40,7 +40,7 @@ for minute, old, new in stage_changes:
 
 `mode="nudge_only"` drops the stored floor level (the floor minimum is built on the floor reading), and `mode="off"` disables the controller so the tekmar runs alone.
 
-When the package logic changes, change `HeatStageController.run()` to match; it follows the automation's step numbers so the two can be read side by side.
+When the package logic changes, change `HeatStageController.run()` to match; it follows the automation's step numbers so the two can be read side by side. To keep an older revision runnable for comparison, guard the changed rules with `self.revision` and add its tunables to `REVISION_TUNABLES`.
 
 ## What the model is and is not
 

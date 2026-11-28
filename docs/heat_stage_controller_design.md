@@ -1,6 +1,6 @@
 # Heat stage controller: design
 
-Status: active since 2026-11-26 and being tested in live operation for performance and tuning. This document describes revision 4.1 of the control logic: revision 4, written on 2026-11-27 after two days of live data, with the fixes from an external review the same day (section 12). Thresholds and timings are starting values and are expected to change.
+Status: active since 2026-11-26 and being tested in live operation for performance and tuning. This document describes revision 5 of the control logic (2026-11-27): revision 4.1 with recovery always handing off to assist, the floor minimum held at the top of its window during assist, and the freeze rest moved to 3 F below setpoint below a 20 F outdoor average, all from simulation (section 12). Thresholds and timings are starting values and are expected to change.
 
 Simulated scenarios that walk through each stage and transition, and the simulator behind them, are in [heat_stage_controller_scenarios.md](heat_stage_controller_scenarios.md).
 
@@ -8,7 +8,7 @@ Simulated scenarios that walk through each stage and transition, and the simulat
 
 This is a supervisory staging controller: a small state machine that sits above the two thermostats and decides which heat source should be working, using accumulated error to move between stages.
 
-The tekmar and the heat pump each keep running their own control loops. A supervisor in Home Assistant watches room temperature against the tekmar's setpoint and tracks how far and how long the room has been off target, in degree-minutes. A persistent shortfall starts an outer PI loop on room temperature whose output is the tekmar's floor minimum, with the tekmar's own floor control as the inner loop. If the room stays short while the floor loop is working, the shortfall keeps accumulating and the heat pump is armed (sooner when the floor loop has nothing more to offer). It then follows the tekmar reading: a small call for heat while the room reads short, satisfied otherwise. A large gap skips straight to the heat pump for a fast recovery. When the tekmar is holding the room on its own again, the floor minimum is released.
+The tekmar and the heat pump each keep running their own control loops. A supervisor in Home Assistant watches room temperature against the tekmar's setpoint and tracks how far and how long the room has been off target, in degree-minutes. A persistent shortfall starts an outer PI loop on room temperature whose output is the tekmar's floor minimum, with the tekmar's own floor control as the inner loop. If the room stays short while the floor loop is working, the shortfall keeps accumulating and the heat pump is armed (sooner when the floor loop has nothing more to offer). It then follows the tekmar reading: a small call for heat while the room reads short, satisfied otherwise. A large gap skips straight to the heat pump for a fast recovery, which then hands off to the same assist behavior. Coming down is one step at a time: assist, then boost, then, when the tekmar is holding the room on its own again, the floor minimum is released.
 
 It combines three standard control ideas:
 
@@ -62,7 +62,7 @@ Source: tekmar WiFi Thermostat 561 Installation, Operation and Maintenance manua
 1. **The tekmar air setpoint is the single source of truth.** The controller reads it and never writes it. Changes at the wall and from presets are honored on the next run.
 2. **Two outputs per zone.** The tekmar floor minimum, and the heat pump's mode and setpoint.
 3. **Feedback, not a heat-loss model.** Decisions come from measured room temperature against setpoint. The only weather input is the freeze-protection threshold.
-4. **Radiant first.** A persistent shortfall first pushes the radiant harder (boost). The floor level learned there is kept and adjusted slowly, so the radiant goes on carrying the base load. The heat pump comes in only if that is not enough (assist), or for a large gap (recovery).
+4. **Radiant first.** A persistent shortfall first pushes the radiant harder (boost). The floor level learned there is kept and adjusted slowly, so the radiant goes on carrying the base load. The heat pump comes in only if that is not enough (assist), or for a large gap (recovery, which always hands off to assist). While the heat pump assists, the radiant is pushed as hard as the window allows.
 5. **Sane settings at all times.** The heat pump is only ever set within a degree or two of the room setpoint or of its own reading. No extreme setpoints are used as switches.
 6. **State lives in helpers.** Every run recomputes from helpers and live readings, so a restart resumes where it left off.
 
@@ -88,10 +88,10 @@ Only `hvac_action` on the main radiant climate entity (`climate.<zone>_radiant`)
 
 | Stage | Heat pump | Floor minimum | Meaning |
 |---|---|---|---|
-| `radiant_only` | Off, or resting at setpoint - 2 F in freeze-risk weather | Always 0 (disabled) | The tekmar runs on its own air control. |
+| `radiant_only` | Off, or resting at setpoint - 3 F in freeze-risk weather | Always 0 (disabled) | The tekmar runs on its own air control. |
 | `boost` | Off, or resting as above | Set by the floor loop (section 7) | The outer PI loop is active. This is a long-lived state and is expected to be the normal winter state for the Living Room. |
-| `assist` | Heat, armed, following the tekmar reading (section 8) | Set by the floor loop, with the learned level frozen | The room has stayed short despite the floor loop. |
-| `recovery` | Heat, at setpoint - 1 F | Left exactly as it is | Large gap. The heat pump closes most of it; the radiant, already calling, finishes. |
+| `assist` | Heat, armed, following the tekmar reading (section 8) | Top of the window (floor reading + 1 F) unless the room reads over; the learned level is frozen | The radiant is not holding the room. |
+| `recovery` | Heat, at setpoint - 1 F | Left exactly as it is | Large gap. The heat pump closes most of it at full output, then hands off to assist. |
 
 Each stage means one thing. In particular, `radiant_only` never carries a floor minimum; whenever a floor minimum is in use, the stage is `boost` or `assist`.
 
@@ -100,18 +100,18 @@ Each stage means one thing. In particular, `radiant_only` never carries a floor 
 | From | To | Condition |
 |---|---|---|
 | `radiant_only` | `boost` | Staging integrator at or above +30. The learned floor level starts at the current floor reading. |
-| `radiant_only` or `boost` | `recovery` | Room 2 F or more below setpoint, and the heat pump may start |
-| `recovery` | `boost` | Room within 1 F of setpoint, at least 15 minutes in recovery, and a floor minimum is set |
-| `recovery` | `radiant_only` | Same, but the floor minimum is 0 |
+| `radiant_only`, `boost` or `assist` | `recovery` | Room 2 F or more below setpoint, and the heat pump may start |
+| `recovery` | `assist` | Room within 1 F of setpoint, and at least 15 minutes in recovery. If no floor minimum was in use (recovery came from `radiant_only`), the learned level starts at the floor reading. |
 | `boost` | `assist` | Room reads short, staging integrator at or above +60, and the heat pump may start |
-| `assist` | `boost` | Room not short, and 20 minutes since it last read short. The staging integrator restarts at +30. |
+| `assist` | `boost` | Room not short, and 20 minutes since it last read short. The staging integrator restarts at +30, and the learned level is raised to the floor reading if it is below it. |
 | `boost` | `radiant_only` | Room has not read short for 3 hours, and the floor minimum is under the floor reading |
 
 Notes:
 
 - "The heat pump may start" means it is already in heat mode (resting), or has been off for at least 15 minutes.
 - "Short" means the room reads 1 F or more below setpoint.
-- Recovery returns to wherever the floor minimum says it belongs. After a setback (floor minimum 0) that is `radiant_only`. If recovery interrupted `boost`, the minimum that was already working is kept.
+- The stages form an escalation ladder: `radiant_only` → `boost` → `assist`, one step at a time on accumulated shortfall, with a shortcut to `recovery` from any other stage, `assist` included, on a 2 F gap. Coming down is also one step at a time: `recovery` → `assist` → `boost` → `radiant_only`.
+- Recovery always hands off to assist, whether it started from a setpoint step or from a drift. Up to revision 4.1 it returned to `boost` or `radiant_only` with the staging integrator at 0; when the floor was behind, the room lost its degree again within 15 to 30 minutes, before assist could arm, and went back into recovery (section 12). The cost of the hand-off is that the heat pump also finishes the last degree after a setpoint raise, where the radiant might have.
 - Boost ends when the tekmar is doing well on its own: the room has not read short for a long time, and the floor minimum is under the floor reading, so it is not what is holding the floor up. If the room is fine because the minimum is holding the floor up, boost is doing its job and continues. The learned level starts afresh the next time boost is entered.
 - In boost, shortfall counts toward arming the heat pump at half weight while the floor level is learning upward, and in full whenever it is not (section 6).
 
@@ -142,7 +142,7 @@ The level is the floor temperature that holds the room at setpoint. It is a real
 
 It learns only on valid evidence:
 
-- the stage is `boost`, and has been for at least 45 minutes (`level_settling_minutes`). Coming from assist or recovery, the room still holds the heat pump's heat; coming from `radiant_only`, the room has not yet responded to the floor. The pause is timed from the stage change, so it also applies when the heat pump stays in heat mode in freeze-risk weather;
+- the stage is `boost`, and has been for at least 45 minutes (`level_settling_minutes`). Coming from assist, the room still holds the heat pump's heat; coming from `radiant_only`, the room has not yet responded to the floor. The pause is timed from the stage change, so it also applies when the heat pump stays in heat mode in freeze-risk weather;
 - the room was exactly 1 F off. Larger gaps are treated as disturbances (the fireplace, cooking, sun, a setback, an open door) and teach nothing.
 
 | Room | Floor vs. level | Level |
@@ -226,6 +226,8 @@ How this plays out (simulated):
 
 The thermostat takes whole degrees, so the output is rounded. Each degree of floor moves the room about 0.5 F.
 
+In `assist` the radiant is, by definition, behind, so the floor minimum is held at the top of the window (floor reading + 1 F, under the cap) whatever the level says, unless the room reads over; then the rules above apply. The level stays frozen during assist and is raised to the floor reading, if it is below it, when assist hands back to boost. Without this, a long assist left the level where it started while the floor rose, the minimum sank to the bottom of the window whenever the room read setpoint, and the heat pump carried load the radiant could have taken.
+
 In `recovery` the floor minimum and the level are not touched. In `radiant_only` the floor minimum is always 0.
 
 No derivative term is used yet. It would need a sub-degree room reading; see section 12 for the sensor comparison.
@@ -241,7 +243,7 @@ The heat pump's own thermostat (a wireless MHK2) does not see what the tekmar se
 | Short | Its own reading + 1 F (a small call for heat) |
 | At or above setpoint | Its own reading - 1 F (satisfied, but still in heat mode) |
 
-Assist ends 20 minutes after the room last read short. Then the heat pump is turned off and the stage returns to boost.
+Assist is entered from boost, when the staging integrator reaches +60, or from recovery, which always hands off to it once the room is within 1 F. A 2 F gap during assist, such as a setpoint step, goes to recovery for its full-output target. Assist ends 20 minutes after the room last read short. Then the heat pump is turned off and the stage returns to boost.
 
 One rule covers both situations:
 
@@ -259,7 +261,7 @@ The controller keeps a slow running average of (heat pump reading - room reading
 | Situation | Heat pump setpoint |
 |---|---|
 | `recovery` | Setpoint - 1 F + offset |
-| Resting (freeze-risk weather) | Setpoint - 2 F + offset |
+| Resting (freeze-risk weather) | Setpoint - 3 F + offset |
 
 - The MHK2 does not depend on airflow through the unit, so the offset is learned in every mode, including off.
 - If the wireless link drops, the unit falls back to its internal sensor, which can be far off (for example warm coils from other zones calling while this unit is off). Any reading more than 3 F (`offset_max_deviation`) from where it is expected, which is the tekmar reading plus the learned offset, is treated as that fallback: it is ignored for learning and not used to place the assist setpoint. If the true offset ever moved by more than 3 F from the learned one, readings would stay untrusted and the offset could not relearn; that would indicate a sensor problem, and the offset helper can be set by hand.
@@ -269,10 +271,10 @@ The controller keeps a slow running average of (heat pump reading - room reading
 
 When the heat pump is not needed (`radiant_only` or `boost`):
 
-- 24-hour outdoor average below `freeze_protect_outdoor_temp`, or outdoor reading missing: rest in heat mode at setpoint - 2 F.
+- 24-hour outdoor average below `freeze_protect_outdoor_temp`, or outdoor reading missing: rest in heat mode at setpoint - 3 F (`rest_droop`), below the 2 F recovery threshold.
 - Otherwise: off.
 
-The threshold is the outdoor temperature below which the radiant alone could not hold about 60 F in an unoccupied house. For the Living Room the earlier regression puts that near 26 F; the controller uses 30 F for margin. The Den is set to -20 F, which effectively disables it. There is 2 F of hysteresis.
+The threshold is set well above the outdoor temperature at which the radiant alone could no longer hold about 50 F in an unoccupied house, which is enough to keep the pipes from freezing. The Living Room uses 20 F (30 F up to revision 4.1, sized for 60 F); in the simulator the radiant alone, on the tekmar's own control, holds about 50 F down to roughly 10 F outdoors. The Den is set to -20 F, which effectively disables it. There is 2 F of hysteresis.
 
 ## 9. Failure behavior
 
@@ -287,7 +289,7 @@ The threshold is the outdoor temperature below which the radiant alone could not
 | Home Assistant down, in `radiant_only` or `recovery` | Both devices sit at ordinary settings. |
 | Home Assistant down, in `boost` | The floor minimum stays where it was. This can overheat the room if the weather warms. It is the accepted risk of using the floor minimum, and is the same exposure the earlier regression control had. |
 | Home Assistant down, in `assist` | As for boost, and the heat pump is left in heat mode within 1 F of its own reading. |
-| Home Assistant down in freeze-risk weather | The heat pump is already resting at setpoint - 2 F and acts as a backstop. |
+| Home Assistant down in freeze-risk weather | The heat pump is already resting at setpoint - 3 F and acts as a backstop. |
 
 ## 10. Helpers
 
@@ -311,8 +313,8 @@ Set per zone at the top of the automation.
 
 | Name | Default | Meaning |
 |---|---|---|
-| `freeze_protect_outdoor_temp` | 30 (Living Room), -20 (Den) | Below this 24-hour outdoor average, an idle heat pump rests in heat mode |
-| `rest_droop` | 2 | Resting heat pump target, in F below setpoint |
+| `freeze_protect_outdoor_temp` | 20 (Living Room), -20 (Den) | Below this 24-hour outdoor average, an idle heat pump rests in heat mode |
+| `rest_droop` | 3 | Resting heat pump target, in F below setpoint |
 | `recovery_start_error` | 2 | Enter recovery at this many F below setpoint |
 | `recovery_stop_error` | 1 | Recovery stops this many F short of setpoint |
 | `min_minutes_recovery` | 15 | Minimum time in recovery |
@@ -480,13 +482,37 @@ One consequence to watch: with the room steadily 1 F short, the heat pump is now
 
 Checked for revision 4.1: the YAML parses, and the trigger expressions were evaluated in the Home Assistant template engine for a reading change, a setpoint change and a time tick.
 
+### Revision 5 (2026-11-27): the escalation ladder
+
+Revision 4.1 was simulated (the simulator and the scenarios are in [heat_stage_controller_scenarios.md](heat_stage_controller_scenarios.md)) before it had run end to end. The simulation showed that when the load outruns the floor, as in a cold front or the morning after a setback, recovery handed back to `boost` or `radiant_only` with the staging integrator at 0. The room then lost its degree again in 15 to 30 minutes, before assist could arm, and went back into recovery. In a simulated cold front this happened 19 times in 16 hours, with 19 heat pump starts and the room 2 F short for 21% of the day. Alternatives considered: returning from recovery with the integrator already at +60; sending a 2 F gap in boost to assist instead of recovery; starting recovery only on setpoint steps; choosing the hand-off by whether the floor had reached the learned level (rejected: the level is most likely to be stale exactly when recovery fires); and pausing the boost release clock while the room is 2 F or more over (no longer needed once the hand-off was fixed).
+
+Changes:
+
+1. Recovery always hands off to assist. Recovery → `boost` and recovery → `radiant_only` are removed. When recovery came from `radiant_only`, the learned level starts at the floor reading.
+2. In assist the floor minimum is held at the top of its window unless the room reads over (section 7).
+3. On assist → boost the learned level is raised to the floor reading if it is below it.
+4. `rest_droop` is 3 (was 2), and the Living Room's `freeze_protect_outdoor_temp` is 20 F (was 30 F): anything above 50 F indoors protects the pipes. In simulation neither made a difference to stage changes: the recovery in a cold-snap setback came from the radiant being unable to hold the setback, not from the resting heat pump.
+5. The 2 F shortcut to recovery also applies from assist, so a setpoint step made while assist is running gets recovery's full-output target instead of assist's 1 F call. The simulator cannot show a gain here: its heat pump already reaches full output on a 1 F call. A real inverter on a 1 F differential is expected to be gentler.
+
+Simulated results, revision 4.1 against revision 5:
+
+| Scenario | Time 2 F short | Heat pump off → heat | Heat pump full-load hours |
+|---|---|---|---|
+| Cold front overnight | 21% → 3% | 19 → 5 | 2.5 → 4.0 |
+| Setback and evening raise | 13% → 5% | 12 → 9 | 2.2 → 3.2 |
+| Fireplace evening | 9% → 2% | 7 → 4 | 0.6 → 0.7 |
+| Setback in a cold snap | 7% → 5% | 0 → 0 (resting) | 11.4 → 11.5 |
+
+The room is held instead of sitting 1 to 2 F short, which costs heat pump hours. Coming back from a setback on a mild day, boost and assist take turns for several hours while the floor catches up, and radiant only follows boost's 3-hour release.
+
 Not yet established:
 
-- Revision 4.1 has not run end to end.
+- Revision 5 has not run end to end.
 - How much work the floor minimum does at and below the floor reading. To measure: with a zone disabled in the controller, set the floor minimum by hand to 1 F under the floor reading for about an hour, then 2 F under, with the room at setpoint and again with it 1 F over, and record the heat call duty from `hvac_action`. If the tekmar still calls substantially at 1 F under, the cap while the room is over and the boost release test both need to move down a degree.
 - How often the floor minimum is rewritten when the room reading flickers, and whether the tekmar integration tolerates it.
 - How a level learned at one setpoint behaves after the setpoint is changed.
-- Whether a 1 F call in assist is gentle enough, and how the room behaves when the radiant is maxed out and the heat pump is carrying load. Assist has not run since revision 2.
+- Whether a 1 F call in assist is gentle enough, and how the room behaves when the radiant is maxed out and the heat pump is carrying load. Assist has not run since revision 2, and in revision 5 it runs much longer (hours after a setback).
+- Whether holding the floor minimum at floor + 1 F through a long assist overshoots once the heat pump stops.
 - Behavior in weather cold enough for the floor to approach its cap.
 
 Open observation from the backtest: on the Nov 22 return the room was 2-3 F low but recorded call duty was 80%, where the tekmar manual implies 100%. This may be the 0.1-hour resolution of the heat-hours counter.
@@ -501,11 +527,11 @@ Done:
 4. A "Heat stage controller" section was added to the Heating Plant dashboard view, including "Last read short" and "Floor level (learned)" tiles per zone.
 5. Both zones were enabled at 11:30 on 2026-11-26.
 
-To deploy revision 4.1:
+To deploy revision 5:
 
 1. Pull the repo on the Home Assistant host.
-2. Reload automations and input numbers (the automation and the integrator helpers' bounds changed). A change to the scripts needs a script reload.
-3. No helper values need to be reset. The stage, integrator and floor level carry over.
+2. Reload automations. The helpers and scripts are unchanged.
+3. No helper values need to be reset. The stage, integrator and floor level carry over. A zone that is in `recovery` at the time will hand off to assist when it finishes.
 
 Things to watch and tune first:
 
@@ -520,3 +546,5 @@ Things to watch and tune first:
 ## 14. Code
 
 The code lives in one package, [`packages/heat_stage_controller.yaml`](../packages/heat_stage_controller.yaml): the helpers (section 10), the three `hsc_*` scripts and the controller automation, with its tunables at the top. It is loaded by `homeassistant: packages: !include_dir_named packages` in `configuration.yaml`.
+
+A Python port of the controller, with a room model for trying changes before deploying them, is in [`tools/heat_stage_sim/`](../tools/heat_stage_sim/).

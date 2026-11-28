@@ -3,9 +3,8 @@
 Two parts:
 
 * HeatStageController: a line-by-line port of steps 3 to 8 of the controller
-  automation, revision 4.1, with the Living Room tunables. Optional what-if
-  variants can be switched on through the `variants` argument; with none set
-  it behaves exactly as the YAML.
+  automation, revision 5, with the Living Room tunables. revision="4.1"
+  runs the previous logic, for comparison.
 
 * RoomModel: a simplified two-node model of the Living Room (floor and room
   air) plus the tekmar 561, the boiler supply and the heat pump. It is tuned
@@ -18,10 +17,10 @@ minute. Temperatures are in degrees F, time in minutes.
 import math
 import random
 
-# Living Room tunables, as at the top of the controller automation.
+# Living Room tunables, as at the top of the controller automation (revision 5).
 DEFAULT_TUNABLES = dict(
-    freeze_protect_outdoor_temp=30,
-    rest_droop=2,
+    freeze_protect_outdoor_temp=20,
+    rest_droop=3,
     recovery_start_error=2,
     recovery_stop_error=1,
     min_minutes_recovery=15,
@@ -46,19 +45,10 @@ DEFAULT_TUNABLES = dict(
     offset_max_deviation=3,
 )
 
-# What-if variants (all off by default). See "What the simulations suggest"
-# in docs/heat_stage_controller_scenarios.md.
-KNOWN_VARIANTS = {
-    # Recovery -> boost restarts the staging integrator at
-    # assist_start_degree_minutes instead of 0, so a short reading right after
-    # recovery arms assist on the next run.
-    "recovery_returns_armed",
-    # In boost, a gap of recovery_start_error goes to assist instead of
-    # recovery, so the heat pump runs to setpoint and stays armed.
-    "boost_gap_goes_to_assist",
-    # The boost release clock is held while the room reads
-    # floor_stop_holding_error or more over setpoint (a fireplace, cooking).
-    "pause_release_while_far_over",
+# Tunables that differed in earlier revisions
+REVISION_TUNABLES = {
+    "5": {},
+    "4.1": {"rest_droop": 2, "freeze_protect_outdoor_temp": 30},
 }
 
 FLOOR_SENSOR_CAP = 85  # tekmar floor sensor cap, max_temp of the _floor entity
@@ -72,19 +62,18 @@ def round_like_jinja(value):
 class HeatStageController:
     """State and logic of one zone of the heat stage controller."""
 
-    def __init__(self, mode="full", tunables=None, variants=()):
-        # mode "full": revision 4.1 as written
+    def __init__(self, mode="full", tunables=None, revision="5"):
+        # mode "full": the controller as written
         # mode "nudge_only": no stored level; the floor minimum is built on
         #     the floor reading (floor reading + nudge, same window)
         # mode "off": controller disabled (tekmar alone, heat pump off)
         if mode not in ("full", "nudge_only", "off"):
             raise ValueError(f"unknown mode {mode!r}")
-        unknown_variants = set(variants) - KNOWN_VARIANTS
-        if unknown_variants:
-            raise ValueError(f"unknown variants {sorted(unknown_variants)}")
+        if revision not in REVISION_TUNABLES:
+            raise ValueError(f"unknown revision {revision!r}")
         self.mode = mode
-        self.tunables = dict(DEFAULT_TUNABLES, **(tunables or {}))
-        self.variants = set(variants)
+        self.revision = revision
+        self.tunables = dict(DEFAULT_TUNABLES, **REVISION_TUNABLES[revision], **(tunables or {}))
 
         # Helpers (input_* entities in the package)
         self.stage = "radiant_only"
@@ -93,8 +82,6 @@ class HeatStageController:
         self.staging_integrator = 0.0
         self.learned_floor_level = 0.0  # 0 means never set
         self.heat_pump_offset = -1.5
-        # Not a helper: when the room last read far over (variant only)
-        self.last_far_over_minute = None
 
         self.last_run_minute = None
         self.stage_changes = []  # (minute, from_stage, to_stage)
@@ -181,8 +168,6 @@ class HeatStageController:
         # ---- 5. Last short ----
         if error >= 1:
             self.last_short_minute = minute
-        if error <= -tun["floor_stop_holding_error"]:
-            self.last_far_over_minute = minute
 
         # ---- 6. Learned floor level ----
         if self.mode == "full":
@@ -212,36 +197,46 @@ class HeatStageController:
         integrator = self.staging_integrator
 
         # ---- 7. Stage transitions (first match wins) ----
-        release_paused = ("pause_release_while_far_over" in self.variants
-                          and self.last_far_over_minute is not None
-                          and minute - self.last_far_over_minute < tun["boost_release_minutes"])
-        if ("boost_gap_goes_to_assist" in self.variants and stage == "boost"
-                and error >= tun["recovery_start_error"] and heat_pump_can_start):
-            self.set_stage(minute, "assist")
-        elif (stage in ("radiant_only", "boost") and error >= tun["recovery_start_error"]
-              and heat_pump_can_start):
+        recovery_done = (stage == "recovery" and error <= tun["recovery_stop_error"]
+                         and minutes_in_stage >= tun["min_minutes_recovery"])
+        shortcut_stages = (("radiant_only", "boost", "assist") if self.revision == "5"
+                           else ("radiant_only", "boost"))
+        if (stage in shortcut_stages and error >= tun["recovery_start_error"]
+                and heat_pump_can_start):
+            # The shortcut to the top of the ladder. Revision 5 takes it from
+            # assist too, so a setpoint step made while assist is running gets
+            # recovery's full output instead of assist's small call.
             self.set_stage(minute, "recovery")
         elif stage == "radiant_only" and integrator >= tun["boost_start_degree_minutes"]:
             if self.mode == "full":
                 self.learned_floor_level = float(floor_temp)
             self.set_stage(minute, "boost")
-        elif (stage == "recovery" and error <= tun["recovery_stop_error"]
-              and minutes_in_stage >= tun["min_minutes_recovery"] and floor_minimum_now > 0):
-            carry = (tun["assist_start_degree_minutes"]
-                     if "recovery_returns_armed" in self.variants else 0)
-            self.set_stage(minute, "boost", carry)
-        elif (stage == "recovery" and error <= tun["recovery_stop_error"]
-              and minutes_in_stage >= tun["min_minutes_recovery"]):
+        elif recovery_done and self.revision == "5":
+            # Revision 5: recovery always hands off to assist. With no floor
+            # minimum in use (recovery came from radiant only) the stored
+            # level is stale, so start it from the floor reading.
+            if floor_minimum_now <= 0 and self.mode == "full":
+                self.learned_floor_level = float(floor_temp)
+            self.set_stage(minute, "assist")
+        elif recovery_done and floor_minimum_now > 0:
+            # Revision 4.1
+            self.set_stage(minute, "boost")
+        elif recovery_done:
+            # Revision 4.1
             self.set_stage(minute, "radiant_only")
         elif (stage == "boost" and error >= 1
               and integrator >= tun["assist_start_degree_minutes"] and heat_pump_can_start):
             self.set_stage(minute, "assist")
         elif (stage == "assist" and error < 1
               and minutes_since_last_short >= tun["assist_hold_minutes"]):
+            if self.revision == "5" and self.mode == "full":
+                # The floor rose while the heat pump ran: start boost with the
+                # level at least at the floor reading.
+                self.learned_floor_level = float(max(self.learned_floor_level, floor_temp))
             self.set_stage(minute, "boost", tun["assist_carry_degree_minutes"])
         elif (stage == "boost" and error < 1
               and minutes_since_last_short >= tun["boost_release_minutes"]
-              and floor_minimum_now < floor_temp and not release_paused):
+              and floor_minimum_now < floor_temp):
             self.set_stage(minute, "radiant_only")
 
         # ---- 8. Outputs for the stage we are in now ----
@@ -253,7 +248,11 @@ class HeatStageController:
             floor_level = self.learned_floor_level if self.learned_floor_level > 0 else floor_temp
 
         # 8a. Floor minimum
-        if stage == "radiant_only":
+        if stage == "assist" and self.revision == "5" and error > -1:
+            # Revision 5: the radiant is behind while the heat pump assists,
+            # so push it: top of the window unless the room reads over.
+            devices.floor_minimum = round_like_jinja(floor_upper_limit)
+        elif stage == "radiant_only":
             devices.floor_minimum = 0
         elif stage == "recovery":
             pass  # left exactly as it is
@@ -439,7 +438,7 @@ class RoomModel:
 
 
 def simulate(schedule, minutes, mode="full", warmup_minutes=36 * 60, initial=(68, 80),
-             seed=1, tunables=None, variants=()):
+             seed=1, tunables=None, revision="5"):
     """Run the controller against the room model.
 
     schedule(minute) returns dict(outdoor=..., setpoint=..., gains=...) and is
@@ -447,7 +446,7 @@ def simulate(schedule, minutes, mode="full", warmup_minutes=36 * 60, initial=(68
     Returns (rows, stage_changes) for minute >= 0, one row per minute.
     """
     room = RoomModel(*initial, seed=seed)
-    controller = HeatStageController(mode, tunables, variants)
+    controller = HeatStageController(mode, tunables, revision)
     outdoor_history = []
     rows = []
     room.setpoint = schedule(-warmup_minutes)["setpoint"]

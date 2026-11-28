@@ -224,12 +224,20 @@ automation:
   #                 on room temperature (the tekmar's own floor control is
   #                 the inner loop). Heat pump is off. This is a long-lived
   #                 state.
-  #   assist        Boost alone is not holding the room. The heat pump is armed
+  #   assist        The radiant is not holding the room. The heat pump is armed
   #                 and follows the tekmar reading: a small call for heat while
-  #                 the room reads short, satisfied otherwise. Ends once the
-  #                 room has not read short for a while.
-  #   recovery      Room is well below setpoint (setback recovery). Heat pump
-  #                 runs to 1 F short of setpoint; the radiant finishes the rest.
+  #                 the room reads short, satisfied otherwise. The floor
+  #                 minimum sits at the top of its window, so the radiant is
+  #                 pushed while the heat pump helps. Ends once the room has
+  #                 not read short for a while.
+  #   recovery      Room is 2 F or more short (a setpoint step, or a drift the
+  #                 radiant cannot hold). Heat pump runs to 1 F short of
+  #                 setpoint, then always hands off to assist.
+  #
+  # Escalation ladder (revision 5): radiant_only -> boost -> assist, one step
+  # at a time on accumulated shortfall, with a shortcut to recovery from
+  # any other stage on a 2 F gap. Coming down is one step at a time too:
+  # recovery -> assist -> boost -> radiant_only.
   #
   # Two accumulators per zone are fed by the same error x minutes:
   #   floor level         the learned floor temperature that holds the room at
@@ -286,8 +294,8 @@ automation:
           room_temp: sensor.living_room_radiant_temperature    # tekmar air reading
           outdoor_temp: sensor.outside_gw3000b_outdoor_temp_24h_average
           # --- tunables ---
-          freeze_protect_outdoor_temp: 30   # below this, an idle heat pump rests in heat mode
-          rest_droop: 2                     # ...this many F below setpoint
+          freeze_protect_outdoor_temp: 20   # below this 24 h outdoor average, an idle heat pump rests in heat mode
+          rest_droop: 3                     # ...this many F below setpoint
           recovery_start_error: 2           # enter recovery when room is this far below setpoint
           recovery_stop_error: 1            # recovery stops this far short of setpoint
           min_minutes_recovery: 15          # minimum time in recovery
@@ -319,7 +327,7 @@ automation:
           outdoor_temp: sensor.outside_gw3000b_outdoor_temp_24h_average
           # --- tunables ---
           freeze_protect_outdoor_temp: -20
-          rest_droop: 2
+          rest_droop: 3
           recovery_start_error: 2
           recovery_stop_error: 1
           min_minutes_recovery: 15
@@ -534,8 +542,8 @@ automation:
 
                     # The level learns only on valid evidence:
                     #   - in boost, and not for the first level_settling_minutes
-                    #     of a boost period. Coming from assist or recovery the
-                    #     room still holds the heat pump's heat, which is not
+                    #     of a boost period. Coming from assist the room
+                    #     still holds the heat pump's heat, which is not
                     #     the radiant's doing; coming from radiant only, the
                     #     room has not yet responded to the floor (about 45
                     #     minutes of dead time).
@@ -711,10 +719,16 @@ automation:
                 # -------------------------------------------------------------
                 - choose:
 
-                    # RADIANT ONLY or BOOST -> RECOVERY
-                    # Room is well below setpoint, e.g. back from setback.
+                    # RADIANT ONLY, BOOST or ASSIST -> RECOVERY
+                    # The shortcut to the top of the ladder: the room is 2 F
+                    # or more short, from a setpoint step (back from setback)
+                    # or a drift the radiant cannot hold. From assist this
+                    # gives a setpoint step made while assist is running
+                    # recovery's full-output target instead of assist's
+                    # small call. (In assist the heat pump is already in heat
+                    # mode, so it may always start.)
                     - conditions:
-                        - "{{ stage in ['radiant_only', 'boost'] }}"
+                        - "{{ stage in ['radiant_only', 'boost', 'assist'] }}"
                         - "{{ error >= zone.recovery_start_error }}"
                         - "{{ heat_pump_can_start }}"
                       sequence:
@@ -741,31 +755,34 @@ automation:
                             zone_id: "{{ zone.id }}"
                             stage: boost
 
-                    # RECOVERY -> BOOST
-                    # Recovery is done and a floor minimum was already being
-                    # managed when it started (recovery does not touch it).
-                    - conditions:
-                        - "{{ stage == 'recovery' }}"
-                        - "{{ error <= zone.recovery_stop_error }}"
-                        - "{{ minutes_in_stage >= zone.min_minutes_recovery }}"
-                        - "{{ floor_minimum_now > 0 }}"
-                      sequence:
-                        - action: script.hsc_set_stage
-                          data:
-                            zone_id: "{{ zone.id }}"
-                            stage: boost
-
-                    # RECOVERY -> RADIANT ONLY
-                    # Recovery is done and no floor minimum was in use.
+                    # RECOVERY -> ASSIST
+                    # Recovery is done: the heat pump has closed the gap to
+                    # within 1 F. It always hands off to assist, which
+                    # finishes the last degree on the tekmar reading and keeps
+                    # the heat pump armed until the room holds. (Up to
+                    # revision 4.1 recovery returned to boost or radiant only
+                    # with the integrator at 0, and a room that was losing
+                    # ground fell straight back into recovery.)
                     - conditions:
                         - "{{ stage == 'recovery' }}"
                         - "{{ error <= zone.recovery_stop_error }}"
                         - "{{ minutes_in_stage >= zone.min_minutes_recovery }}"
                       sequence:
+                        # Recovery came from radiant only (no floor minimum
+                        # in use), so the stored level is stale. Start it from
+                        # the floor reading, as entering boost does.
+                        - if:
+                            - "{{ floor_minimum_now <= 0 }}"
+                          then:
+                            - action: input_number.set_value
+                              target:
+                                entity_id: "{{ floor_level_entity }}"
+                              data:
+                                value: "{{ floor_temp }}"
                         - action: script.hsc_set_stage
                           data:
                             zone_id: "{{ zone.id }}"
-                            stage: radiant_only
+                            stage: assist
 
                     # BOOST -> ASSIST
                     # The room has stayed short. This comes sooner when the
@@ -795,6 +812,16 @@ automation:
                         - "{{ error < 1 }}"
                         - "{{ minutes_since_last_short >= zone.assist_hold_minutes }}"
                       sequence:
+                        # The floor rose while the heat pump ran (assist holds
+                        # the floor minimum at the top of its window). Start
+                        # boost with the level at least at the floor reading,
+                        # so the floor loop keeps supporting the floor during
+                        # boost's settling time.
+                        - action: input_number.set_value
+                          target:
+                            entity_id: "{{ floor_level_entity }}"
+                          data:
+                            value: "{{ [floor_level, floor_temp] | max }}"
                         - action: script.hsc_set_stage
                           data:
                             zone_id: "{{ zone.id }}"
@@ -851,6 +878,20 @@ automation:
                         - "{{ stage == 'recovery' }}"
                       sequence: []
 
+                    # ASSIST, room short or at setpoint: the radiant is behind
+                    # while the heat pump helps, so push it. Hold the floor
+                    # minimum at the top of its window (floor reading + 1, and
+                    # under the cap). The level stays frozen; it is raised to
+                    # the floor reading when assist hands back to boost.
+                    - conditions:
+                        - "{{ stage == 'assist' }}"
+                        - "{{ error > -1 }}"
+                      sequence:
+                        - action: script.hsc_set_floor_minimum
+                          data:
+                            floor: "{{ zone.floor }}"
+                            floor_minimum: "{{ floor_upper_limit | round(0) | int }}"
+
                     # BOOST or ASSIST, room well over setpoint (the fireplace, cooking,
                     # sun): stop holding the floor. The learned level is kept.
                     - conditions:
@@ -861,7 +902,7 @@ automation:
                             floor: "{{ zone.floor }}"
                             floor_minimum: "{{ floor_lower_limit | round(0) | int }}"
 
-                  # BOOST or ASSIST: the floor loop.
+                  # BOOST (or ASSIST while the room reads 1 F over): the floor loop.
                   #   floor minimum = learned level (I)
                   #                 + a nudge while the room reads short or over (P)
                   # limited to a window around the measured floor so the tekmar
@@ -888,7 +929,8 @@ automation:
                 # ---- 8b. Heat pump ----
                 - choose:
 
-                    # RECOVERY: run to just short of setpoint
+                    # RECOVERY: run to just short of setpoint, then assist
+                    # takes over (step 7)
                     - conditions:
                         - "{{ stage == 'recovery' }}"
                       sequence:
