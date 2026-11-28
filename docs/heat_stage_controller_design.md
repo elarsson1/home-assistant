@@ -2,6 +2,8 @@
 
 Status: active since 2026-11-26 and being tested in live operation for performance and tuning. This document describes revision 4.1 of the control logic: revision 4, written on 2026-11-27 after two days of live data, with the fixes from an external review the same day (section 12). Thresholds and timings are starting values and are expected to change.
 
+Simulated scenarios that walk through each stage and transition, and the simulator behind them, are in [heat_stage_controller_scenarios.md](heat_stage_controller_scenarios.md).
+
 ## Summary
 
 This is a supervisory staging controller: a small state machine that sits above the two thermostats and decides which heat source should be working, using accumulated error to move between stages.
